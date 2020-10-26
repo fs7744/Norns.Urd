@@ -5,21 +5,21 @@ using System;
 using System.Linq;
 using Xunit;
 
-namespace Baymax.Test.AOP.Norns.Test
+namespace Norns.Test
 {
     public interface IIocTestInterface
     {
     }
 }
 
-namespace Baymax.Test.AOP.Norns
+namespace Norns
 {
     public partial class IocTestClassPartial
     {
     }
 }
 
-namespace Baymax.Test.AOP.Norns
+namespace Norns
 {
     public interface IIocTestInterface
     {

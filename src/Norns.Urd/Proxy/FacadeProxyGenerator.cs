@@ -25,6 +25,7 @@ namespace Norns.Urd.Proxy
             DefineType(context);
             DefineFields(context);
             DefineConstructors(context);
+            DefineMethods(context);
             //var dp = implTypeBuilder.DefineProperty(p.Name, p.Attributes, p.PropertyType, Type.EmptyTypes);
             //if (p.CanRead)
             //{
@@ -37,6 +38,17 @@ namespace Norns.Urd.Proxy
             //    dp.SetSetMethod(method);
             //}
             return context.TypeBuilder.CreateTypeInfo().AsType();
+        }
+
+        public virtual void DefineMethods(ProxyGeneratorContext context)
+        {
+            foreach (var method in context.ServiceType.GetTypeInfo().DeclaredMethods)
+            {
+                MethodBuilder methodBuilder = context.TypeBuilder.DefineMethod(method.Name, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, method.GetParameters().Select(i => i.ParameterType).ToArray());
+                var ilGen = methodBuilder.GetILGenerator();
+                ilGen.Emit(OpCodes.Ret);
+                //context.TypeBuilder.DefineMethodOverride(methodBuilder, method);
+            } 
         }
 
         public virtual void DefineType(ProxyGeneratorContext context)

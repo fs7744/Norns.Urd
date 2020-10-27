@@ -1,6 +1,8 @@
-﻿namespace Norns.Urd
+﻿using System.Collections.Generic;
+
+namespace Norns.Urd
 {
-    public class InterceptorCollection
+    public class InterceptorCollection : List<IInterceptor>
     {
     }
 }

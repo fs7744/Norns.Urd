@@ -9,12 +9,12 @@ namespace Norns.Urd
 {
     public static class AopExtensions
     {
-        public static IServiceCollection ConfigureAop(this IServiceCollection services, Action<IAspectConfiguration> configure = null, IProxyServiceDescriptorConverter converter = null)
+        public static IServiceCollection ConfigureAop(this IServiceCollection services, IAspectConfiguration config = null)
         {
-            converter ??= InitProxyServiceDescriptorConverter();
+            config ??= Init(new AspectConfiguration());
             foreach (var item in services.ToArray())
             {
-                var proxy = converter.Convert(item);
+                var proxy = config.Converter.Convert(item);
                 if (proxy != null)
                 {
                     var index = services.IndexOf(item);
@@ -22,23 +22,27 @@ namespace Norns.Urd
                     services.Insert(index, proxy);
                 }
             }
-            services.TryAddSingleton<IInterceptorFactory, InterceptorFactory>();
+            services.TryAddSingleton(config.InterceptorFactory);
             return services;
         }
 
-        public static IProxyServiceDescriptorConverter InitProxyServiceDescriptorConverter()
+        public static IAspectConfiguration Init(IAspectConfiguration config)
         {
-            return new ServiceCollection()
+            var provider = new ServiceCollection()
                 .AddSingleton<IProxyGenerator, FacadeProxyGenerator>()
                 .AddSingleton<IProxyGenerator, InheritProxyGenerator>()
                 .AddSingleton<IProxyCreator, ProxyCreator>()
+                .AddSingleton<IInterceptorFactory, InterceptorFactory>()
+                .AddSingleton(config)
                 .AddSingleton<IServiceDescriptorConvertHandler, IngoreServiceDescriptorConvertHandler>()
                 .AddSingleton<IServiceDescriptorConvertHandler, ImplementationFactoryServiceDescriptorConvertHandler>()
                 .AddSingleton<IServiceDescriptorConvertHandler, SameTypeServiceDescriptorConvertHandler>()
                 .AddSingleton<IServiceDescriptorConvertHandler, ImplementationTypeServiceDescriptorConvertHandler>()
                 .AddSingleton<IProxyServiceDescriptorConverter, ProxyServiceDescriptorConverter>()
-                .BuildServiceProvider()
-                .GetRequiredService<IProxyServiceDescriptorConverter>();
+                .BuildServiceProvider();
+            config.Converter ??= provider.GetRequiredService<IProxyServiceDescriptorConverter>();
+            config.InterceptorFactory ??= provider.GetRequiredService<IInterceptorFactory>();
+            return config;
         }
     }
 }

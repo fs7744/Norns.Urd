@@ -4,16 +4,13 @@ using System.Reflection;
 
 namespace Norns.Urd
 {
-    public abstract class AspectContext
+    public class AspectContext
     {
-        public abstract object ReturnValue { get; set; }
-        public abstract IDictionary<string, object> AdditionalData { get; }
-        public abstract IServiceProvider ServiceProvider { get; }
-        public abstract MethodInfo ServiceMethod { get; }
-        public abstract object Implementation { get; }
-        public abstract MethodInfo ImplementationMethod { get; }
-        public abstract object[] Parameters { get; }
-        public abstract MethodInfo ProxyMethod { get; }
-        public abstract object Proxy { get; }
+        public object ReturnValue { get; set; }
+        public IDictionary<string, object> AdditionalData { get; set; } = new Dictionary<string, object>();
+        public IServiceProvider ServiceProvider { get; set; }
+        public MethodInfo ServiceMethod { get; set; }
+        public object Service { get; set; }
+        public object[] Parameters { get; set; }
     }
 }

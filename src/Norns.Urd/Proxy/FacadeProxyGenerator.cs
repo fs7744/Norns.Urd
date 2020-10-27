@@ -12,8 +12,14 @@ namespace Norns.Urd.Proxy
         protected const string GeneratedNameSpace = "Norns.Urd.DynamicGenerated";
         protected const string InterceptorFactory = "interceptorFactory";
         private static readonly ConstructorInfo ObjectCtor = typeof(object).GetTypeInfo().DeclaredConstructors.Single();
+        private readonly IInterceptorFactory interceptorFactory;
         private const MethodAttributes OverrideMethodAttributes = MethodAttributes.HideBySig | MethodAttributes.Virtual;
         public virtual ProxyTypes ProxyType { get; } = ProxyTypes.Facade;
+
+        public FacadeProxyGenerator(IInterceptorFactory interceptorFactory)
+        {
+            this.interceptorFactory = interceptorFactory;
+        }
 
         public string GetProxyTypeName(Type serviceType)
         {
@@ -48,6 +54,7 @@ namespace Norns.Urd.Proxy
                 var ilGen = methodBuilder.GetILGenerator();
                 ilGen.Emit(OpCodes.Ret);
                 //context.TypeBuilder.DefineMethodOverride(methodBuilder, method);
+                interceptorFactory.CreateInterceptor(method);
             } 
         }
 

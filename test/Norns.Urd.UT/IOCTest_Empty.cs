@@ -51,7 +51,7 @@ namespace Norns
 
     public class IocTest_Empty
     {
-        private static IProxyServiceDescriptorConverter Converter = AopExtensions.InitProxyServiceDescriptorConverter();
+        private static readonly IAspectConfiguration configuration = AopExtensions.Init(new AspectConfiguration());
 
         public interface INestedIocTestInterface
         {
@@ -70,7 +70,7 @@ namespace Norns
                 {
                     var services = new ServiceCollection()
                         .AddSingleton<IIocTestInterfaceInternal>()
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     
                     var descriptor = services.First();
                     Assert.True(typeof(IIocTestInterfaceInternal) == descriptor.ServiceType);
@@ -90,7 +90,7 @@ namespace Norns
                 {
                     var services = new ServiceCollection()
                         .AddSingleton<IIocTestInterface>()
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     
                     var descriptor = services.First();
                     Assert.True(typeof(IIocTestInterface) == descriptor.ServiceType);
@@ -105,7 +105,7 @@ namespace Norns
                     var services = new ServiceCollection()
                         .AddSingleton<Test.IIocTestInterface>()
                         .AddSingleton<IIocTestInterface>()
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     Assert.Equal(3, services.Count);
                     var descriptor = services.First();
                     Assert.True(typeof(Test.IIocTestInterface) == descriptor.ServiceType);
@@ -122,7 +122,7 @@ namespace Norns
                 {
                     var services = new ServiceCollection()
                         .AddScoped<IIocTestInterface>()
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     
                     var descriptor = services.First();
                     Assert.True(typeof(IIocTestInterface) == descriptor.ServiceType);
@@ -137,7 +137,7 @@ namespace Norns
                     var services = new ServiceCollection()
                         .AddScoped<Test.IIocTestInterface>()
                         .AddScoped<IIocTestInterface>()
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     Assert.Equal(3, services.Count);
                     var descriptor = services.First();
                     Assert.True(typeof(Test.IIocTestInterface) == descriptor.ServiceType);
@@ -154,7 +154,7 @@ namespace Norns
                 {
                     var services = new ServiceCollection()
                         .AddTransient<IIocTestInterface>()
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     
                     var descriptor = services.First();
                     Assert.True(typeof(IIocTestInterface) == descriptor.ServiceType);
@@ -169,7 +169,7 @@ namespace Norns
                     var services = new ServiceCollection()
                         .AddTransient<Test.IIocTestInterface>()
                         .AddTransient<IIocTestInterface>()
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     Assert.Equal(3, services.Count);
                     var descriptor = services.First();
                     Assert.True(typeof(Test.IIocTestInterface) == descriptor.ServiceType);
@@ -189,7 +189,7 @@ namespace Norns
                 {
                     var services = new ServiceCollection()
                         .AddSingleton<IIocTestInterface, IocTestClassInternal>()
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     
                     var descriptor = services.First();
                     Assert.True(typeof(IIocTestInterface) == descriptor.ServiceType);
@@ -209,7 +209,7 @@ namespace Norns
                 {
                     var services = new ServiceCollection()
                         .AddSingleton<NestedIocTestClass>()
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     
                     var descriptor = services.First();
                     Assert.True(typeof(NestedIocTestClass) == descriptor.ServiceType);
@@ -229,7 +229,7 @@ namespace Norns
                 {
                     var services = new ServiceCollection()
                         .AddSingleton<INestedIocTestInterface>()
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     
                     var descriptor = services.First();
                     Assert.True(typeof(INestedIocTestInterface) == descriptor.ServiceType);
@@ -249,7 +249,7 @@ namespace Norns
                 {
                     var services = new ServiceCollection()
                         .AddSingleton<IocTestClassAbstract>()
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     
                     var descriptor = services.First();
                     Assert.True(typeof(IocTestClassAbstract) == descriptor.ServiceType);
@@ -269,7 +269,7 @@ namespace Norns
                 {
                     var services = new ServiceCollection()
                         .AddSingleton<IocTestClassPartial>()
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     
                     var descriptor = services.First();
                     Assert.True(typeof(IocTestClassPartial) == descriptor.ServiceType);
@@ -289,7 +289,7 @@ namespace Norns
                 {
                     var services = new ServiceCollection()
                         .AddSingleton<IocTestClass>()
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     
                     var descriptor = services.First();
                     Assert.True(typeof(IocTestClass) == descriptor.ServiceType);
@@ -303,7 +303,7 @@ namespace Norns
                 {
                     var services = new ServiceCollection()
                         .AddSingleton<IIocTestInterface, IocTestClass>()
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     
                     var descriptor = services.First();
                     Assert.True(typeof(IIocTestInterface) == descriptor.ServiceType);
@@ -317,7 +317,7 @@ namespace Norns
                 {
                     var services = new ServiceCollection()
                         .AddSingleton<IIocTestInterface>(i => new IocTestClass())
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     
                     var descriptor = services.First();
                     Assert.True(typeof(IIocTestInterface) == descriptor.ServiceType);
@@ -331,7 +331,7 @@ namespace Norns
                 {
                     var services = new ServiceCollection()
                         .AddSingleton<IIocTestInterface>(new IocTestClass())
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     
                     var descriptor = services.First();
                     Assert.True(typeof(IIocTestInterface) == descriptor.ServiceType);
@@ -351,7 +351,7 @@ namespace Norns
                 {
                     var services = new ServiceCollection()
                         .AddSingleton<SealedClass>()
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     
                     var descriptor = services.First();
                     Assert.True(typeof(SealedClass) == descriptor.ServiceType);
@@ -365,7 +365,7 @@ namespace Norns
                 {
                     var services = new ServiceCollection()
                         .AddSingleton<IIocTestInterface, SealedClass>()
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     
                     var descriptor = services.First();
                     Assert.True(typeof(IIocTestInterface) == descriptor.ServiceType);
@@ -379,7 +379,7 @@ namespace Norns
                 {
                     var services = new ServiceCollection()
                         .AddSingleton<IIocTestInterface>(i => new SealedClass())
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     
                     var descriptor = services.First();
                     Assert.True(typeof(IIocTestInterface) == descriptor.ServiceType);
@@ -393,7 +393,7 @@ namespace Norns
                 {
                     var services = new ServiceCollection()
                         .AddSingleton<IIocTestInterface>(new SealedClass())
-                        .ConfigureAop(converter: Converter);
+                        .ConfigureAop(configuration);
                     
                     var descriptor = services.First();
                     Assert.True(typeof(IIocTestInterface) == descriptor.ServiceType);

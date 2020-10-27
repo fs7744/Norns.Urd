@@ -11,7 +11,7 @@ namespace Norns.Urd
 
         public virtual void Invoke(AspectContext context, AspectDelegate next)
         {
-            InvokeAsync(context, (c) =>
+            InvokeAsync(context, c =>
             {
                 next(c);
                 return Task.CompletedTask;

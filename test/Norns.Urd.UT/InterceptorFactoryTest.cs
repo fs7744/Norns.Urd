@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Norns.Urd.Proxy;
+using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -11,6 +11,10 @@ namespace Norns.Urd.UT
         public virtual void NoArgsVoid()
         {
         }
+
+        public virtual int NoArgsReturnInt() => 3;
+
+        public virtual int HasOneArgsReturnInt(int num) => num + 3;
     }
 
     public class TestInterceptor : IInterceptor
@@ -18,11 +22,28 @@ namespace Norns.Urd.UT
         public void Invoke(AspectContext context, AspectDelegate next)
         {
             next(context);
+            if (context.ReturnValue != null)
+            {
+                context.ReturnValue = (int)context.ReturnValue + 10;
+            }
         }
 
         public Task InvokeAsync(AspectContext context, AspectDelegateAsync next)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    public class InheritInterceptorFactoryMethodTestClass : InterceptorFactoryMethodTestClass
+    {
+        public int BaseNoArgsReturnInt()
+        {
+            return base.NoArgsReturnInt();
+        }
+
+        public override int NoArgsReturnInt()
+        {
+            return base.NoArgsReturnInt() + 3;
         }
     }
 
@@ -38,12 +59,54 @@ namespace Norns.Urd.UT
             interceptorFactory = new InterceptorFactory(config);
         }
 
+        public AspectDelegate CallMethod(MethodInfo method)
+        {
+            AspectDelegate action = c => c.ReturnValue = method.Invoke(c.Service, c.Parameters);
+            return action;
+        }
+
         [Fact]
-        public void WhenPublicMethod()
+        public void SyncWhenPublicMethod()
         {
             var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.NoArgsVoid));
-            interceptorFactory.CreateInterceptor(m);
-            interceptorFactory.CallInterceptor(new AspectContext() { ServiceMethod = m, Service = new InterceptorFactoryMethodTestClass() });
+            interceptorFactory.CreateInterceptor(m, CallMethod(m));
+            interceptorFactory.CallInterceptor(new AspectContext() { ProxyType = ProxyTypes.Facade, ServiceMethod = m, Service = new InterceptorFactoryMethodTestClass() });
+        }
+
+        [Fact]
+        public void SyncWhenPublicMethodReturnInt()
+        {
+            var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.NoArgsReturnInt));
+            interceptorFactory.CreateInterceptor(m, CallMethod(m));
+            var context = new AspectContext() { ProxyType = ProxyTypes.Facade, ServiceMethod = m, Service = new InterceptorFactoryMethodTestClass() };
+            interceptorFactory.CallInterceptor(context);
+            Assert.Equal(23, (int)context.ReturnValue);
+        }
+
+        [Fact]
+        public void InheritSyncWhenPublicMethodReturnInt()
+        {
+            var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.NoArgsReturnInt));
+            interceptorFactory.CreateInterceptor(m, c => c.ReturnValue = ((InheritInterceptorFactoryMethodTestClass)c.Service).BaseNoArgsReturnInt(), ProxyTypes.Inherit);
+            var context = new AspectContext() { ProxyType = ProxyTypes.Inherit, ServiceMethod = m, Service = new InheritInterceptorFactoryMethodTestClass() };
+            interceptorFactory.CallInterceptor(context);
+            Assert.Equal(23, (int)context.ReturnValue);
+        }
+
+        [Fact]
+        public void SyncWhenPublicMethodHasOneArgsReturnInt()
+        {
+            var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.HasOneArgsReturnInt));
+            interceptorFactory.CreateInterceptor(m, CallMethod(m));
+            var context = new AspectContext() 
+            { 
+                ProxyType = ProxyTypes.Facade, 
+                ServiceMethod = m, 
+                Service = new InterceptorFactoryMethodTestClass(),
+                Parameters = new object[] { 4 }
+            };
+            interceptorFactory.CallInterceptor(context);
+            Assert.Equal(27, (int)context.ReturnValue);
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Norns.Urd.UT
 
     public class TestInterceptorFactory : IInterceptorFactory
     {
-        public void CreateInterceptor(MethodInfo method)
+        public void CreateInterceptor(MethodInfo method, AspectDelegate action, ProxyTypes proxyType = ProxyTypes.Facade)
         {
             throw new System.NotImplementedException();
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Norns.Urd.Proxy;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -12,5 +13,6 @@ namespace Norns.Urd
         public MethodInfo ServiceMethod { get; set; }
         public object Service { get; set; }
         public object[] Parameters { get; set; }
+        public ProxyTypes ProxyType { get; set; }
     }
 }

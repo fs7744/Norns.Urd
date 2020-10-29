@@ -54,7 +54,7 @@ namespace Norns.Urd.Proxy
                 var ilGen = methodBuilder.GetILGenerator();
                 ilGen.Emit(OpCodes.Ret);
                 //context.TypeBuilder.DefineMethodOverride(methodBuilder, method);
-                interceptorFactory.CreateInterceptor(method);
+                interceptorFactory.CreateInterceptor(method, c => c.ReturnValue = method.Invoke(c.Service, c.Parameters), ProxyTypes.Facade);
             } 
         }
 

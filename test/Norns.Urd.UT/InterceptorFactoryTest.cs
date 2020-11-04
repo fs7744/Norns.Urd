@@ -70,7 +70,9 @@ namespace Norns.Urd.UT
         {
             var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.NoArgsVoid));
             interceptorFactory.CreateInterceptor(m, CallMethod(m));
-            interceptorFactory.CallInterceptor(new AspectContext() { ProxyType = ProxyTypes.Facade, ServiceMethod = m, Service = new InterceptorFactoryMethodTestClass() });
+            var context = new AspectContext() { ProxyType = ProxyTypes.Facade, ServiceMethod = m, Service = new InterceptorFactoryMethodTestClass() };
+            interceptorFactory.CallInterceptor(context);
+            Assert.Null(context.ReturnValue);
         }
 
         [Fact]

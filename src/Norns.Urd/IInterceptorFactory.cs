@@ -23,12 +23,11 @@ namespace Norns.Urd
 
         public void CreateInterceptor(MethodInfo method, AspectDelegate action, ProxyTypes proxyType = ProxyTypes.Facade)
         {
-            AspectDelegate caller = c => c.ReturnValue = method.Invoke(c.Service, c.Parameters);
-            caller = configuration.Interceptors.Select(i =>
+            var caller = configuration.Interceptors.Select(i =>
             {
                 MAspectDelegate a = i.Invoke;
                 return a;
-            }).Aggregate(caller, (i, j) => c => j(c, i));
+            }).Aggregate(action, (i, j) => c => j(c, i));
             var syncInterceptors = proxyType == ProxyTypes.Inherit ? syncInheritInterceptors : syncFacadeInterceptors;
             syncInterceptors.TryAdd(method, caller);
         }

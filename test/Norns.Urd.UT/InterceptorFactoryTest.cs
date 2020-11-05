@@ -1,5 +1,4 @@
 ﻿using Norns.Urd.Proxy;
-using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
@@ -95,10 +94,10 @@ namespace Norns.Urd.UT
         {
             var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.HasOneArgsReturnInt));
             interceptorFactory.CreateInterceptor(m, CallMethod(m));
-            var context = new AspectContext() 
-            { 
-                ProxyType = ProxyTypes.Facade, 
-                ServiceMethod = m, 
+            var context = new AspectContext()
+            {
+                ProxyType = ProxyTypes.Facade,
+                ServiceMethod = m,
                 Service = new InterceptorFactoryMethodTestClass(),
                 Parameters = new object[] { 4 }
             };

@@ -10,6 +10,7 @@ namespace Norns.Urd
         void CreateInterceptor(MethodInfo method, AspectDelegate action, ProxyTypes proxyType = ProxyTypes.Facade);
     }
 
+    // 静态类 + 生成静态类caller 去除大字典取caller 性能消耗
     public class InterceptorFactory : IInterceptorFactory
     {
         private readonly Dictionary<MethodInfo, AspectDelegate> syncFacadeInterceptors = new Dictionary<MethodInfo, AspectDelegate>();

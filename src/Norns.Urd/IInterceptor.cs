@@ -4,7 +4,16 @@ namespace Norns.Urd
 {
     public interface IInterceptor
     {
-        void Invoke(AspectContext context, AspectDelegate next);
+        public virtual void Invoke(AspectContext context, AspectDelegate next)
+        {
+            InvokeAsync(context, c =>
+            {
+                next(c);
+                return Task.CompletedTask;
+            }).ConfigureAwait(false)
+                .GetAwaiter()
+                .GetResult();
+        }
 
         Task InvokeAsync(AspectContext context, AspectDelegateAsync next);
     }

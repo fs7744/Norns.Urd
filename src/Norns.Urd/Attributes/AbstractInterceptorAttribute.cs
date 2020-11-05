@@ -9,17 +9,6 @@ namespace Norns.Urd
     {
         public int Order { get; set; }
 
-        public virtual void Invoke(AspectContext context, AspectDelegate next)
-        {
-            InvokeAsync(context, c =>
-            {
-                next(c);
-                return Task.CompletedTask;
-            }).ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
-        }
-
         public abstract Task InvokeAsync(AspectContext context, AspectDelegateAsync next);
     }
 }

@@ -19,18 +19,13 @@ namespace Norns.Urd.UT
 
     public class TestInterceptor : IInterceptor
     {
-        public void Invoke(AspectContext context, AspectDelegate next)
+        public async Task InvokeAsync(AspectContext context, AspectDelegateAsync next)
         {
-            next(context);
+            await next(context);
             if (context.ReturnValue != null)
             {
                 context.ReturnValue = (int)context.ReturnValue + 10;
             }
-        }
-
-        public Task InvokeAsync(AspectContext context, AspectDelegateAsync next)
-        {
-            throw new NotImplementedException();
         }
     }
 

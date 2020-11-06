@@ -16,14 +16,22 @@ namespace Norns.Urd.UT
 
     public class FieldsTest
     {
-        private readonly IProxyCreator creator = ProxyCreatorUTHelper.InitPorxyCreator();
+        private readonly IProxyCreator creator;
+        private readonly IInterceptorFactory interceptor;
+
+        public FieldsTest()
+        {
+            var (c, f) = ProxyCreatorUTHelper.InitPorxyCreator();
+            creator = c;
+            interceptor = f;
+        }
 
         [Fact]
         public void InheritWhenNoConstructorsInterface()
         {
             var proxyType = creator.CreateProxyType(typeof(FieldsTestClass));
             Assert.Equal("FieldsTestClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType, new object[] { new TestInterceptorFactory() }) as FieldsTestClass;
+            var v = Activator.CreateInstance(proxyType, new object[] { interceptor }) as FieldsTestClass;
             Assert.NotNull(v);
             Assert.Equal(0, v.PublicInt);
             Assert.Equal(0, v.ProtectedInternalInt);

@@ -2,7 +2,7 @@
 {
     public enum ProxyTypes
     {
-        Inherit,
-        Facade,
+        Inherit = 0,
+        Facade = 1,
     }
 }

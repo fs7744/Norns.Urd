@@ -8,11 +8,11 @@ namespace Norns.Urd.Proxy
 {
     public class FacadeProxyGenerator : IProxyGenerator
     {
-        private const string Instance = "instance";
+        protected const string Instance = "instance";
         protected const string GeneratedNameSpace = "Norns.Urd.DynamicGenerated";
         protected const string InterceptorFactory = "interceptorFactory";
-        private static readonly ConstructorInfo ObjectCtor = typeof(object).GetTypeInfo().DeclaredConstructors.Single();
-        private readonly IInterceptorFactory interceptorFactory;
+        protected static readonly ConstructorInfo ObjectCtor = typeof(object).GetTypeInfo().DeclaredConstructors.Single();
+        protected readonly IInterceptorFactory interceptorFactory;
         private const MethodAttributes OverrideMethodAttributes = MethodAttributes.HideBySig | MethodAttributes.Virtual;
         public virtual ProxyTypes ProxyType { get; } = ProxyTypes.Facade;
 

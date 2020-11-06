@@ -64,7 +64,7 @@ namespace Norns.Urd.UT
         {
             var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.NoArgsVoid));
             interceptorFactory.CreateInterceptor(m, CallMethod(m));
-            var context = new AspectContext() { ProxyType = ProxyTypes.Facade, ServiceMethod = m, Service = new InterceptorFactoryMethodTestClass() };
+            var context = new AspectContext(m, new InterceptorFactoryMethodTestClass(), ProxyTypes.Facade);
             interceptorFactory.CallInterceptor(context);
             Assert.Null(context.ReturnValue);
         }
@@ -74,7 +74,7 @@ namespace Norns.Urd.UT
         {
             var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.NoArgsReturnInt));
             interceptorFactory.CreateInterceptor(m, CallMethod(m));
-            var context = new AspectContext() { ProxyType = ProxyTypes.Facade, ServiceMethod = m, Service = new InterceptorFactoryMethodTestClass() };
+            var context = new AspectContext(m, new InterceptorFactoryMethodTestClass(), ProxyTypes.Facade);
             interceptorFactory.CallInterceptor(context);
             Assert.Equal(23, (int)context.ReturnValue);
         }
@@ -84,7 +84,7 @@ namespace Norns.Urd.UT
         {
             var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.NoArgsReturnInt));
             interceptorFactory.CreateInterceptor(m, c => c.ReturnValue = ((InheritInterceptorFactoryMethodTestClass)c.Service).BaseNoArgsReturnInt(), ProxyTypes.Inherit);
-            var context = new AspectContext() { ProxyType = ProxyTypes.Inherit, ServiceMethod = m, Service = new InheritInterceptorFactoryMethodTestClass() };
+            var context = new AspectContext(m, new InheritInterceptorFactoryMethodTestClass(), ProxyTypes.Inherit);
             interceptorFactory.CallInterceptor(context);
             Assert.Equal(23, (int)context.ReturnValue);
         }
@@ -94,11 +94,8 @@ namespace Norns.Urd.UT
         {
             var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.HasOneArgsReturnInt));
             interceptorFactory.CreateInterceptor(m, CallMethod(m));
-            var context = new AspectContext()
+            var context = new AspectContext(m, new InterceptorFactoryMethodTestClass(), ProxyTypes.Facade)
             {
-                ProxyType = ProxyTypes.Facade,
-                ServiceMethod = m,
-                Service = new InterceptorFactoryMethodTestClass(),
                 Parameters = new object[] { 4 }
             };
             interceptorFactory.CallInterceptor(context);

@@ -8,6 +8,8 @@ namespace Norns.Urd
     public interface IInterceptorFactory
     {
         void CreateInterceptor(MethodInfo method, AspectDelegate action, ProxyTypes proxyType = ProxyTypes.Facade);
+
+        void CallInterceptor(AspectContext context);
     }
 
     // 静态类 + 生成静态类caller 去除大字典取caller 性能消耗

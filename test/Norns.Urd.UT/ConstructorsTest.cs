@@ -65,14 +65,22 @@ namespace Norns.Urd.UT
 
     public class ConstructorsTest
     {
-        private readonly IProxyCreator creator = ProxyCreatorUTHelper.InitPorxyCreator();
+        private readonly IProxyCreator creator;
+        private readonly IInterceptorFactory interceptor;
+
+        public ConstructorsTest()
+        {
+            var (c, f) = ProxyCreatorUTHelper.InitPorxyCreator();
+            creator = c;
+            interceptor = f;
+        }
 
         [Fact]
         public void InheritWhenNoConstructorsInterface()
         {
             var proxyType = creator.CreateProxyType(typeof(INoConstructorsInterface));
             Assert.Equal("INoConstructorsInterface_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType, new object[] { new TestInterceptorFactory() }) as INoConstructorsInterface;
+            var v = Activator.CreateInstance(proxyType, new object[] { interceptor }) as INoConstructorsInterface;
             Assert.NotNull(v);
         }
 
@@ -81,7 +89,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(OneConstructorNoArgs));
             Assert.Equal("OneConstructorNoArgs_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType, new object[] { new TestInterceptorFactory() }) as OneConstructorNoArgs;
+            var v = Activator.CreateInstance(proxyType, new object[] { interceptor }) as OneConstructorNoArgs;
             Assert.NotNull(v);
         }
 
@@ -90,7 +98,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(OneConstructorOneArgs));
             Assert.Equal("OneConstructorOneArgs_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType, new object[] { new TestInterceptorFactory(), 4 }) as OneConstructorOneArgs;
+            var v = Activator.CreateInstance(proxyType, new object[] { interceptor, 4 }) as OneConstructorOneArgs;
             Assert.NotNull(v);
             Assert.Equal(4, v.A);
         }
@@ -100,13 +108,13 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(TwoConstructorOneArgs));
             Assert.Equal("TwoConstructorOneArgs_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType, new object[] { new TestInterceptorFactory(), 4 }) as TwoConstructorOneArgs;
+            var v = Activator.CreateInstance(proxyType, new object[] { interceptor, 4 }) as TwoConstructorOneArgs;
             Assert.NotNull(v);
             Assert.Equal(4, v.A);
             Assert.Equal(2, proxyType.GetCustomAttribute<TestDataAttribute>().V);
             Assert.Equal(99, proxyType.GetConstructors()[0].GetCustomAttribute<TestDataAttribute>().V);
             Assert.Equal(4, proxyType.GetConstructors()[0].GetParameters()[1].GetCustomAttribute<TestDataAttribute>().V);
-            v = Activator.CreateInstance(proxyType, new object[] { new TestInterceptorFactory()}) as TwoConstructorOneArgs;
+            v = Activator.CreateInstance(proxyType, new object[] { interceptor}) as TwoConstructorOneArgs;
             Assert.NotNull(v);
             Assert.Equal(0, v.A);
         }
@@ -116,10 +124,10 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(AbstractTwoConstructorOneArgs));
             Assert.Equal("AbstractTwoConstructorOneArgs_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType, new object[] { new TestInterceptorFactory(), 4 }) as AbstractTwoConstructorOneArgs;
+            var v = Activator.CreateInstance(proxyType, new object[] { interceptor, 4 }) as AbstractTwoConstructorOneArgs;
             Assert.NotNull(v);
             Assert.Equal(4, v.A);
-            v = Activator.CreateInstance(proxyType, new object[] { new TestInterceptorFactory() }) as AbstractTwoConstructorOneArgs;
+            v = Activator.CreateInstance(proxyType, new object[] { interceptor }) as AbstractTwoConstructorOneArgs;
             Assert.NotNull(v);
             Assert.Equal(0, v.A);
         }

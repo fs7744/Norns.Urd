@@ -9,20 +9,45 @@ namespace Norns.Urd.UT
         public virtual void NoArgsVoid()
         {
         }
+
+        public virtual int NoArgsReturnInt() => 3;
     }
+
+    //public class SubMethodTestClass : MethodTestClass
+    //{
+    //    public override int NoArgsReturnInt() => base.NoArgsReturnInt();
+    //}
 
     public class MethodTest
     {
-        private readonly IProxyCreator creator = ProxyCreatorUTHelper.InitPorxyCreator();
+        private readonly IProxyCreator creator;
+        private readonly IInterceptorFactory interceptor;
+
+        public MethodTest()
+        {
+            var (c, f) = ProxyCreatorUTHelper.InitPorxyCreator();
+            creator = c;
+            interceptor = f;
+        }
 
         [Fact]
         public void WhenPublicMethod()
         {
             var proxyType = creator.CreateProxyType(typeof(MethodTestClass));
             Assert.Equal("MethodTestClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType, new object[] { new TestInterceptorFactory() }) as MethodTestClass;
+            var v = Activator.CreateInstance(proxyType, new object[] { interceptor }) as MethodTestClass;
             Assert.NotNull(v);
             v.NoArgsVoid();
+        }
+
+        [Fact]
+        public void WhenSubMethodTestClass()
+        {
+            var proxyType = creator.CreateProxyType(typeof(MethodTestClass));
+            Assert.Equal("MethodTestClass_Proxy_Inherit", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType, new object[] { interceptor }) as MethodTestClass;
+            Assert.NotNull(v);
+            Assert.Equal(3, v.NoArgsReturnInt());
         }
     }
 }

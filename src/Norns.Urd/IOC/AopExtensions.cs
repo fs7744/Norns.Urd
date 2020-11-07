@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+using Norns.Urd;
 using Norns.Urd.IOC;
 using Norns.Urd.Proxy;
 using System;
 using System.Linq;
 
-namespace Norns.Urd
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class AopExtensions
     {

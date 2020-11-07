@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 
 namespace Norns.Urd.Extensions
 {
-    public static class ILGeneratorExtensions
+    public static class EmitExtensions
     {
         public static void EmitLoadArg(this ILGenerator ilGenerator, int index)
         {
@@ -167,7 +167,7 @@ namespace Norns.Urd.Extensions
             var nnExprType = typeFromInfo.GetNonNullableType();
             var nnType = typeToInfo.GetNonNullableType();
 
-            if (TypeInfoUtils.AreEquivalent(typeFromInfo, typeToInfo))
+            if (TypeExtensions.AreEquivalent(typeFromInfo, typeToInfo))
             {
                 return;
             }
@@ -178,7 +178,7 @@ namespace Norns.Urd.Extensions
                typeTo == typeof(object) ||
                typeFrom == typeof(System.Enum) ||
                typeFrom == typeof(System.ValueType) ||
-               TypeInfoUtils.IsLegalExplicitVariantDelegateConversion(typeFromInfo, typeToInfo))
+               TypeExtensions.IsLegalExplicitVariantDelegateConversion(typeFromInfo, typeToInfo))
             {
                 ilGenerator.EmitCastToType(typeFromInfo, typeToInfo);
             }
@@ -777,8 +777,8 @@ namespace Norns.Urd.Extensions
         #region private
         private static void EmitNullableConversion(this ILGenerator ilGenerator, TypeInfo typeFrom, TypeInfo typeTo, bool isChecked)
         {
-            bool isTypeFromNullable = TypeInfoUtils.IsNullableType(typeFrom);
-            bool isTypeToNullable = TypeInfoUtils.IsNullableType(typeTo);
+            bool isTypeFromNullable = TypeExtensions.IsNullableType(typeFrom);
+            bool isTypeToNullable = TypeExtensions.IsNullableType(typeTo);
             if (isTypeFromNullable && isTypeToNullable)
             {
                 ilGenerator.EmitNullableToNullableConversion(typeFrom, typeTo, isChecked);
@@ -806,8 +806,8 @@ namespace Norns.Urd.Extensions
             ilGenerator.Emit(OpCodes.Brfalse_S, labIfNull);
             ilGenerator.Emit(OpCodes.Ldloca, locFrom);
             ilGenerator.EmitGetValueOrDefault(typeFrom.AsType());
-            Type nnTypeFrom = TypeInfoUtils.GetNonNullableType(typeFrom);
-            Type nnTypeTo = TypeInfoUtils.GetNonNullableType(typeTo);
+            Type nnTypeFrom = TypeExtensions.GetNonNullableType(typeFrom);
+            Type nnTypeTo = TypeExtensions.GetNonNullableType(typeTo);
             ilGenerator.EmitConvertToType(nnTypeFrom, nnTypeTo, isChecked);
             // construct result type
             ConstructorInfo ci = typeTo.GetConstructor(new Type[] { nnTypeTo });
@@ -841,7 +841,7 @@ namespace Norns.Urd.Extensions
             ilGenerator.Emit(OpCodes.Stloc, locFrom);
             ilGenerator.Emit(OpCodes.Ldloca, locFrom);
             ilGenerator.EmitGetValue(typeFrom.AsType());
-            var nnTypeFrom = TypeInfoUtils.GetNonNullableType(typeFrom);
+            var nnTypeFrom = TypeExtensions.GetNonNullableType(typeFrom);
             ilGenerator.EmitConvertToType(nnTypeFrom, typeTo.AsType(), isChecked);
         }
 
@@ -855,7 +855,7 @@ namespace Norns.Urd.Extensions
         private static void EmitNonNullableToNullableConversion(this ILGenerator ilGenerator, TypeInfo typeFrom, TypeInfo typeTo, bool isChecked)
         {
             var locTo = ilGenerator.DeclareLocal(typeTo.AsType());
-            var nnTypeTo = TypeInfoUtils.GetNonNullableType(typeTo);
+            var nnTypeTo = TypeExtensions.GetNonNullableType(typeTo);
             ilGenerator.EmitConvertToType(typeFrom.AsType(), nnTypeTo, isChecked);
             var ci = typeTo.GetConstructor(new Type[] { nnTypeTo });
             ilGenerator.Emit(OpCodes.Newobj, ci);
@@ -865,8 +865,8 @@ namespace Norns.Urd.Extensions
 
         private static void EmitNumericConversion(this ILGenerator ilGenerator, TypeInfo typeFrom, TypeInfo typeTo, bool isChecked)
         {
-            bool isFromUnsigned = TypeInfoUtils.IsUnsigned(typeFrom);
-            bool isFromFloatingPoint = TypeInfoUtils.IsFloatingPoint(typeFrom);
+            bool isFromUnsigned = TypeExtensions.IsUnsigned(typeFrom);
+            bool isFromFloatingPoint = TypeExtensions.IsFloatingPoint(typeFrom);
             if (typeTo.AsType() == typeof(Single))
             {
                 if (isFromUnsigned)

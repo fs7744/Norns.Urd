@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Norns.Urd.Extensions;
 using Norns.Urd.Proxy;
 using System.Reflection;
 

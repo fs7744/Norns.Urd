@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Norns.Urd.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -54,7 +55,7 @@ namespace Norns.Urd.Proxy
             var field = TypeBuilder.DefineField($"fm_{serviceMethod.Name}", typeof(MethodInfo), FieldAttributes.Static | FieldAttributes.Assembly);
             ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod);
             ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod.DeclaringType);
-            ConstructorIL.Emit(OpCodes.Call, EmitExtensions.GetMethod<Func<RuntimeMethodHandle, RuntimeTypeHandle, MethodBase>>((h1, h2) => MethodBase.GetMethodFromHandle(h1, h2)));
+            ConstructorIL.Emit(OpCodes.Call, InternalExtensions.GetMethod<Func<RuntimeMethodHandle, RuntimeTypeHandle, MethodBase>>((h1, h2) => MethodBase.GetMethodFromHandle(h1, h2)));
             ConstructorIL.Emit(OpCodes.Castclass, typeof(MethodInfo));
             ConstructorIL.Emit(OpCodes.Stsfld, field);
             Fields.Add(field.Name, field);

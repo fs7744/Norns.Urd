@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Norns.Urd.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -89,8 +90,6 @@ namespace Norns.Urd.Proxy
 
             context.AssistStaticTypeBuilder.ModuleBuilder = context.ModuleBuilder;
             context.AssistStaticTypeBuilder.TypeBuilder = context.ModuleBuilder.DefineType($"{context.ProxyTypeName}_Assist", TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed, typeof(object));
-            //var constructorIL = context.AssistStaticTypeBuilder.TypeBuilder.DefineTypeInitializer().GetILGenerator();
-            //constructorIL.
         }
 
         public virtual void DefineFields(ProxyGeneratorContext context)

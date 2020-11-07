@@ -11,14 +11,12 @@ namespace Norns.Urd
 
     public class InterceptorCreator : IInterceptorCreator
     {
-#pragma warning disable IDE0052 // Remove unread private members
-        private readonly IAspectConfiguration configuration;
-#pragma warning restore IDE0052 // Remove unread private members
+        //private readonly IAspectConfiguration configuration;
 
-        public InterceptorCreator(IAspectConfiguration configuration)
-        {
-            this.configuration = configuration;
-        }
+        //public InterceptorCreator(IAspectConfiguration configuration)
+        //{
+        //    this.configuration = configuration;
+        //}
 
         public Type CreateProxyType(Type type)
         {

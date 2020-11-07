@@ -27,10 +27,10 @@ namespace Norns.Urd.IOC
             return ServiceDescriptor.Describe(descriptor.ServiceType, i =>
             {
                 var proxy = ActivatorUtilities.CreateInstance(i, type);
-                var f = proxy.GetType().GetField("instance", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var f = proxy.GetType().GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance);
                 f.SetValue(proxy, descriptor.ImplementationFactory != null
                     ? descriptor.ImplementationFactory(i)
-                    : (descriptor.ImplementationInstance != null ? descriptor.ImplementationInstance : ActivatorUtilities.CreateInstance(i, descriptor.ImplementationType)));
+                    : (descriptor.ImplementationInstance ?? ActivatorUtilities.CreateInstance(i, descriptor.ImplementationType)));
                 return proxy;
             }, descriptor.Lifetime);
         }

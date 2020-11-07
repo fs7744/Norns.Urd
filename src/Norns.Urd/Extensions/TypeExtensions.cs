@@ -145,15 +145,15 @@ namespace Norns.Urd.Extensions
             return isValueTaskOfTCache.GetOrAdd(typeInfo, Info => Info.IsGenericType && Info.GetGenericTypeDefinition() == typeof(ValueTask<>));
         }
 
+        public static bool AreEquivalent(TypeInfo t1, TypeInfo t2)
+        {
+            return t1 == t2 || t1.IsEquivalentTo(t2.AsType());
+        }
+
         public static bool IsNullableType(this Type type)
         {
             return type.GetTypeInfo().IsGenericType &&
                    type.GetGenericTypeDefinition() == typeof(Nullable<>);
-        }
-
-        public static bool AreEquivalent(TypeInfo t1, TypeInfo t2)
-        {
-            return t1 == t2 || t1.IsEquivalentTo(t2.AsType());
         }
 
         public static bool IsNullableType(this TypeInfo type)

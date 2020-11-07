@@ -12,7 +12,6 @@ namespace Norns.Urd.Proxy
         protected const string Instance = "instance";
         protected const string GeneratedNameSpace = "Norns.Urd.DynamicGenerated";
         protected static readonly ConstructorInfo ObjectCtor = typeof(object).GetTypeInfo().DeclaredConstructors.Single();
-        private const MethodAttributes OverrideMethodAttributes = MethodAttributes.HideBySig | MethodAttributes.Virtual;
         public virtual ProxyTypes ProxyType { get; } = ProxyTypes.Facade;
 
         public string GetProxyTypeName(Type serviceType)
@@ -26,17 +25,6 @@ namespace Norns.Urd.Proxy
             DefineFields(context);
             DefineConstructors(context);
             DefineMethods(context);
-            //var dp = implTypeBuilder.DefineProperty(p.Name, p.Attributes, p.PropertyType, Type.EmptyTypes);
-            //if (p.CanRead)
-            //{
-            //    var method = MethodBuilderUtils.DefineClassMethod(p.GetMethod, implType, typeDesc);
-            //    dp.SetGetMethod(method);
-            //}
-            //if (p.CanWrite)
-            //{
-            //    var method = MethodBuilderUtils.DefineClassMethod(p.SetMethod, implType, typeDesc);
-            //    dp.SetSetMethod(method);
-            //}
             context.AssistStaticTypeBuilder.CreateType();
             return context.TypeBuilder.CreateTypeInfo().AsType();
         }
@@ -195,28 +183,5 @@ namespace Norns.Urd.Proxy
                     customAttributeData.ConstructorArguments.Select(c => c.Value).ToArray());
             }
         }
-
-        //internal static MethodBuilder DefineClassMethod(MethodInfo method, Type implType, TypeDesc typeDesc)
-        //{
-        //    var attributes = OverrideMethodAttributes;
-
-        //    if (method.Attributes.HasFlag(MethodAttributes.Public))
-        //    {
-        //        attributes = attributes | MethodAttributes.Public;
-        //    }
-
-        //    if (method.Attributes.HasFlag(MethodAttributes.Family))
-        //    {
-        //        attributes = attributes | MethodAttributes.Family;
-        //    }
-
-        //    if (method.Attributes.HasFlag(MethodAttributes.FamORAssem))
-        //    {
-        //        attributes = attributes | MethodAttributes.FamORAssem;
-        //    }
-
-        //    var methodBuilder = DefineMethod(method, method.Name, attributes, implType, typeDesc);
-        //    return methodBuilder;
-        //}
     }
 }

@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Norns.Urd", "src\Norns.Urd\Norns.Urd.csproj", "{396F28A0-999B-4CF1-B7EC-74E5F5063BAA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Norns.Urd.UT", "test\Norns.Urd.UT\Norns.Urd.UT.csproj", "{C54ACC90-5597-4C49-96E8-64D15714A1CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Norns.Urd.UT", "test\Norns.Urd.Test\Norns.Urd.Test.csproj", "{C54ACC90-5597-4C49-96E8-64D15714A1CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

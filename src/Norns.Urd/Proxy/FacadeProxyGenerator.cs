@@ -87,18 +87,18 @@ namespace Norns.Urd.Proxy
                 il.Emit(OpCodes.Call, context.ConstantInfo.GetReturnValue);
                 il.EmitConvertFromObject(method.ReturnType);
             }
-            //for (var i = 0; i < parameters.Length; i++)
-            //{
-            //    if (parameters[i].IsByRef)
-            //    {
-            //        il.EmitLoadArg(i);
-            //        il.Emit(OpCodes.Ldloc, argsLocal);
-            //        il.EmitInt(i);
-            //        il.Emit(OpCodes.Ldelem_Ref);
-            //        il.EmitConvertFromObject(parameters[i].GetElementType());
-            //        il.EmitStRef(parameters[i]);
-            //    }
-            //}
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                if (parameters[i].IsByRef)
+                {
+                    il.EmitLoadArg(i + 1);
+                    il.Emit(OpCodes.Ldloc, argsLocal);
+                    il.EmitInt(i);
+                    il.Emit(OpCodes.Ldelem_Ref);
+                    il.EmitConvertFromObject(parameters[i].GetElementType());
+                    il.EmitStRef(parameters[i]);
+                }
+            }
             il.Emit(OpCodes.Ret);
         }
 

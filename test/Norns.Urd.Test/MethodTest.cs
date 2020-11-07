@@ -12,7 +12,17 @@ namespace Norns.Urd.UT
 
         public virtual int NoArgsReturnInt() => 3;
 
+        public int NotVirtualNoArgsReturnInt() => 3;
+
         public virtual int HasArgsReturnInt(int v) => v;
+
+        public virtual (int, long) HasArgsReturnTuple(int v, ref long y) => (v,y);
+
+        public virtual object[] HasArgsReturnArray(int v, out long y) 
+        {
+            y = 99;
+            return new object[] { v, y };
+        }
     }
 
     public class MethodTest
@@ -37,6 +47,16 @@ namespace Norns.Urd.UT
         }
 
         [Fact]
+        public void WhenNotVirtualNoArgsReturnInt()
+        {
+            var proxyType = creator.CreateProxyType(typeof(MethodTestClass));
+            Assert.Equal("MethodTestClass_Proxy_Inherit", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType) as MethodTestClass;
+            Assert.NotNull(v);
+            Assert.Equal(3, v.NotVirtualNoArgsReturnInt());
+        }
+
+        [Fact]
         public void WhenSubMethodTestClass()
         {
             var proxyType = creator.CreateProxyType(typeof(MethodTestClass));
@@ -55,6 +75,31 @@ namespace Norns.Urd.UT
             Assert.NotNull(v);
             Assert.Equal(17, v.HasArgsReturnInt(7));
             Assert.Equal(19, v.HasArgsReturnInt(9));
+        }
+
+        [Fact]
+        public void WhenHasArgsReturnTuple()
+        {
+            var proxyType = creator.CreateProxyType(typeof(MethodTestClass));
+            Assert.Equal("MethodTestClass_Proxy_Inherit", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType) as MethodTestClass;
+            Assert.NotNull(v);
+            long i = 9;
+            Assert.Equal((7, 9), v.HasArgsReturnTuple(7, ref i));
+        }
+
+        [Fact]
+        public void WhenHasArgsReturnArray()
+        {
+            var proxyType = creator.CreateProxyType(typeof(MethodTestClass));
+            Assert.Equal("MethodTestClass_Proxy_Inherit", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType) as MethodTestClass;
+            Assert.NotNull(v);
+            var array = v.HasArgsReturnArray(7, out var i);
+            Assert.Equal(2, array.Length);
+            Assert.Equal(7, array[0]);
+            Assert.Equal(99L, array[1]);
+            Assert.Equal(99L, i);
         }
     }
 }

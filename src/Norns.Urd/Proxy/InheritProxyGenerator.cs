@@ -8,21 +8,23 @@ namespace Norns.Urd.Proxy
 {
     public class InheritProxyGenerator : FacadeProxyGenerator
     {
-        public InheritProxyGenerator() : base()
-        {
-        }
-
         public override ProxyTypes ProxyType { get; } = ProxyTypes.Inherit;
 
         public override void DefineMethod(ProxyGeneratorContext context, MethodInfo method)
         {
             if (!method.IsVisibleAndVirtual()) return;
             var baseMethodName = $"{method.Name}_Base";
-            MethodBuilder methodBaseBuilder = context.TypeBuilder.DefineMethod(baseMethodName, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, method.GetParameters().Select(i => i.ParameterType).ToArray());
-            var ilGen = methodBaseBuilder.GetILGenerator();
-            ilGen.EmitThis();
-            ilGen.Emit(OpCodes.Call, method);
-            ilGen.Emit(OpCodes.Ret);
+            var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
+            MethodBuilder methodBaseBuilder = context.TypeBuilder.DefineMethod(baseMethodName, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
+            var il = methodBaseBuilder.GetILGenerator();
+            il.EmitThis();
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                il.EmitLoadArg(i + 1);
+            }
+            il.Emit(OpCodes.Call, method);
+            il.Emit(OpCodes.Ret);
+
             base.DefineMethod(context, method);
         }
     }

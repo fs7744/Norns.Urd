@@ -21,9 +21,9 @@ namespace Norns.Urd.UT
         public async Task InvokeAsync(AspectContext context, AspectDelegateAsync next)
         {
             await next(context);
-            if (context.ReturnValue != null)
+            if (context.ReturnValue is int y)
             {
-                context.ReturnValue = (int)context.ReturnValue + 10;
+                context.ReturnValue = y + 10;
             }
         }
     }

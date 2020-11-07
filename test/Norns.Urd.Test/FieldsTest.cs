@@ -6,7 +6,6 @@ namespace Norns.Urd.UT
 {
     public class FieldsTestClass
     {
-        private readonly int PrivateInt;
         protected int ProtectedInt;
         protected internal int ProtectedInternalInt;
         protected internal int InternalProtectedInt;

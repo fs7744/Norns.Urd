@@ -11,7 +11,9 @@ namespace Norns.Urd
 
     public class InterceptorCreator : IInterceptorCreator
     {
+#pragma warning disable IDE0052 // Remove unread private members
         private readonly IAspectConfiguration configuration;
+#pragma warning restore IDE0052 // Remove unread private members
 
         public InterceptorCreator(IAspectConfiguration configuration)
         {

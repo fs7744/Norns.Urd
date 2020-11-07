@@ -1,4 +1,5 @@
 ﻿using Norns.Urd.Extensions;
+using Norns.Urd.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,6 @@ namespace Norns.Urd.Proxy
     {
         protected const string Instance = "instance";
         protected const string GeneratedNameSpace = "Norns.Urd.DynamicGenerated";
-        protected static readonly ConstructorInfo ObjectCtor = typeof(object).GetTypeInfo().DeclaredConstructors.Single();
         public virtual ProxyTypes ProxyType { get; } = ProxyTypes.Facade;
 
         public string GetProxyTypeName(Type serviceType)
@@ -29,36 +29,77 @@ namespace Norns.Urd.Proxy
             return context.TypeBuilder.CreateTypeInfo().AsType();
         }
 
-        public virtual void DefineMethods(ProxyGeneratorContext context)
+        public void DefineMethods(ProxyGeneratorContext context)
         {
-            foreach (var method in context.ServiceType.GetTypeInfo().DeclaredMethods)
+            foreach (var method in context.ServiceType.GetTypeInfo()
+                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(x => !x.IsPropertyBinding()))
             {
-                var mf = context.AssistStaticTypeBuilder.DefineMethodInfo(method, ProxyType);
-                MethodBuilder methodBuilder = context.TypeBuilder.DefineMethod(method.Name, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, method.GetParameters().Select(i => i.ParameterType).ToArray());
-                var il = methodBuilder.GetILGenerator();
-                var caller = context.AssistStaticTypeBuilder.Fields[$"cm_{method.Name}"];
-                il.Emit(OpCodes.Ldsfld, caller);
-                il.Emit(OpCodes.Ldsfld, mf);
-                il.EmitThis();
-                il.Emit(OpCodes.Ldc_I4_0);
-                var f = typeof(AspectContext).GetConstructors().First();
-                il.Emit(OpCodes.Newobj, f);
-                if (method.ReturnType != typeof(void)) // todo: async
+                DefineMethod(context, method);
+            }
+        }
+
+        public virtual void DefineMethod(ProxyGeneratorContext context, MethodInfo method)
+        {
+            var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
+            var mf = context.AssistStaticTypeBuilder.DefineMethodInfo(method, ProxyType);
+            MethodBuilder methodBuilder = context.TypeBuilder.DefineMethod(method.Name, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
+            var il = methodBuilder.GetILGenerator();
+            var caller = context.AssistStaticTypeBuilder.Fields[$"cm_{method.Name}"];
+            il.Emit(OpCodes.Ldsfld, caller);
+            il.Emit(OpCodes.Ldsfld, mf);
+            il.EmitThis();
+            il.Emit(OpCodes.Ldc_I4_0);
+
+            var argsLocal = il.DeclareLocal(typeof(object[]));
+            il.EmitInt(parameters.Length);
+            il.Emit(OpCodes.Newarr, typeof(object));
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                il.Emit(OpCodes.Dup);
+                il.EmitInt(i);
+                il.EmitLoadArg(i + 1);
+                if (parameters[i].IsByRef)
                 {
-                    var c = il.DeclareLocal(typeof(AspectContext));
-                    il.Emit(OpCodes.Stloc, c);
-                    il.Emit(OpCodes.Ldloc, c);
-                    il.Emit(OpCodes.Call, typeof(AspectDelegate).GetMethod(nameof(AspectDelegate.Invoke)));
-                    il.Emit(OpCodes.Ldloc, c);
-                    il.Emit(OpCodes.Call, typeof(AspectContext).GetProperty(nameof(AspectContext.ReturnValue)).GetMethod);
-                    il.Emit(OpCodes.Unbox_Any, method.ReturnType); // todo: 处理各种类型转换
+                    il.EmitLdRef(parameters[i]);
+                    il.EmitConvertToObject(parameters[i].GetElementType());
                 }
                 else
                 {
-                    il.Emit(OpCodes.Call, typeof(AspectDelegate).GetMethod(nameof(AspectDelegate.Invoke)));
+                    il.EmitConvertToObject(parameters[i]);
                 }
-                il.Emit(OpCodes.Ret);
-            } 
+                il.Emit(OpCodes.Stelem_Ref);
+            }
+            il.Emit(OpCodes.Stloc, argsLocal);
+            il.Emit(OpCodes.Ldloc, argsLocal);
+            il.Emit(OpCodes.Newobj, context.ConstantInfo.AspectContextCtor);
+            if (method.IsVoid())
+            {
+                il.Emit(OpCodes.Call, context.ConstantInfo.Invoke);
+            }
+            else
+            {
+                var c = il.DeclareLocal(context.ConstantInfo.AspectContextType);
+                il.Emit(OpCodes.Stloc, c);
+                il.Emit(OpCodes.Ldloc, c);
+                il.Emit(OpCodes.Call, context.ConstantInfo.Invoke);
+                il.Emit(OpCodes.Ldloc, c);
+                il.Emit(OpCodes.Call, context.ConstantInfo.GetReturnValue);
+                il.EmitConvertFromObject(method.ReturnType);
+            }
+            //for (var i = 0; i < parameters.Length; i++)
+            //{
+            //    if (parameters[i].IsByRef)
+            //    {
+            //        il.EmitLoadArg(i);
+            //        il.Emit(OpCodes.Ldloc, argsLocal);
+            //        il.EmitInt(i);
+            //        il.Emit(OpCodes.Ldelem_Ref);
+            //        il.EmitConvertFromObject(parameters[i].GetElementType());
+            //        il.EmitStRef(parameters[i]);
+            //    }
+            //}
+            il.Emit(OpCodes.Ret);
         }
 
         public virtual void DefineType(ProxyGeneratorContext context)
@@ -87,7 +128,7 @@ namespace Norns.Urd.Proxy
 
                 var ilGen = constructorBuilder.GetILGenerator();
                 ilGen.EmitThis();
-                ilGen.Emit(OpCodes.Call, ObjectCtor);
+                ilGen.Emit(OpCodes.Call, context.ConstantInfo.ObjectCtor);
                 ilGen.Emit(OpCodes.Ret);
             }
             else

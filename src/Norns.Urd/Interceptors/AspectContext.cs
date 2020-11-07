@@ -7,11 +7,12 @@ namespace Norns.Urd
 {
     public class AspectContext
     {
-        public AspectContext(MethodInfo serviceMethod, object service, ProxyTypes proxyType)
+        public AspectContext(MethodInfo serviceMethod, object service, ProxyTypes proxyType, object[] parameters)
         {
             ServiceMethod = serviceMethod;
             Service = service;
             ProxyType = proxyType;
+            Parameters = parameters;
         }
 
         public object ReturnValue { get; set; }
@@ -19,7 +20,7 @@ namespace Norns.Urd
         public IServiceProvider ServiceProvider { get; set; }
         public MethodInfo ServiceMethod { get; }
         public object Service { get; }
-        public object[] Parameters { get; set; }
+        public object[] Parameters { get; }
         public ProxyTypes ProxyType { get; }
     }
 }

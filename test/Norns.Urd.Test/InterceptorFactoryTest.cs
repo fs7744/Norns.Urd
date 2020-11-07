@@ -53,17 +53,11 @@ namespace Norns.Urd.UT
             interceptorFactory = new InterceptorFactory(config);
         }
 
-        public AspectDelegate CallMethod(MethodInfo method)
-        {
-            AspectDelegate action = c => c.ReturnValue = method.Invoke(c.Service, c.Parameters);
-            return action;
-        }
-
         [Fact]
         public void SyncWhenPublicMethod()
         {
             var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.NoArgsVoid));
-            var context = new AspectContext(m, new InterceptorFactoryMethodTestClass(), ProxyTypes.Facade);
+            var context = new AspectContext(m, new InterceptorFactoryMethodTestClass(), ProxyTypes.Facade, new object[0]);
             interceptorFactory.GetInterceptor(m, ProxyTypes.Facade)(context);
             Assert.Null(context.ReturnValue);
         }
@@ -72,7 +66,7 @@ namespace Norns.Urd.UT
         public void SyncWhenPublicMethodReturnInt()
         {
             var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.NoArgsReturnInt));
-            var context = new AspectContext(m, new InterceptorFactoryMethodTestClass(), ProxyTypes.Facade);
+            var context = new AspectContext(m, new InterceptorFactoryMethodTestClass(), ProxyTypes.Facade, new object[0]);
             interceptorFactory.GetInterceptor(m, ProxyTypes.Facade)(context);
             Assert.Equal(23, (int)context.ReturnValue);
         }
@@ -81,7 +75,7 @@ namespace Norns.Urd.UT
         public void InheritSyncWhenPublicMethodReturnInt()
         {
             var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.NoArgsReturnInt));
-            var context = new AspectContext(m, new InheritInterceptorFactoryMethodTestClass(), ProxyTypes.Inherit);
+            var context = new AspectContext(m, new InheritInterceptorFactoryMethodTestClass(), ProxyTypes.Inherit, new object[0]);
             interceptorFactory.GetInterceptor(m, ProxyTypes.Inherit)(context);
             Assert.Equal(23, (int)context.ReturnValue);
         }
@@ -90,10 +84,7 @@ namespace Norns.Urd.UT
         public void SyncWhenPublicMethodHasOneArgsReturnInt()
         {
             var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.HasOneArgsReturnInt));
-            var context = new AspectContext(m, new InterceptorFactoryMethodTestClass(), ProxyTypes.Facade)
-            {
-                Parameters = new object[] { 4 }
-            };
+            var context = new AspectContext(m, new InterceptorFactoryMethodTestClass(), ProxyTypes.Facade, new object[] { 4 });
             interceptorFactory.GetInterceptor(m, ProxyTypes.Facade)(context);
             Assert.Equal(27, (int)context.ReturnValue);
         }

@@ -109,7 +109,7 @@ namespace Norns.Urd.Extensions
                 throw new ArgumentNullException(nameof(type));
             }
             ilGenerator.Emit(OpCodes.Ldtoken, type);
-            ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.GetTypeFromHandle);
+            ilGenerator.Emit(OpCodes.Call, ConstantInfo.GetTypeFromHandle);
         }
 
         public static void EmitMethod(this ILGenerator ilGenerator, MethodInfo method)
@@ -142,7 +142,7 @@ namespace Norns.Urd.Extensions
 
             ilGenerator.Emit(OpCodes.Ldtoken, method);
             ilGenerator.Emit(OpCodes.Ldtoken, method.DeclaringType);
-            ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.GetMethodFromHandle);
+            ilGenerator.Emit(OpCodes.Call, ConstantInfo.GetMethodFromHandle);
             ilGenerator.EmitConvertToType(typeof(MethodBase), typeof(MethodInfo));
         }
 

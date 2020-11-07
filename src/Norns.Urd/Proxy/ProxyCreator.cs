@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Norns.Urd.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -15,14 +16,16 @@ namespace Norns.Urd.Proxy
         private readonly object _lock = new object();
         private readonly IAspectConfiguration configuration;
         private readonly IServiceProvider provider;
+        private readonly ConstantInfo constantInfo;
 
-        public ProxyCreator(IEnumerable<IProxyGenerator> generators, IAspectConfiguration configuration, IServiceProvider provider)
+        public ProxyCreator(IEnumerable<IProxyGenerator> generators, IAspectConfiguration configuration, IServiceProvider provider, ConstantInfo constantInfo)
         {
             this.generators = generators.ToDictionary(i => i.ProxyType);
             var asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(GeneratorAssemblyName), AssemblyBuilderAccess.RunAndCollect);
             moduleBuilder = asmBuilder.DefineDynamicModule("core");
             this.configuration = configuration;
             this.provider = provider;
+            this.constantInfo = constantInfo;
         }
 
         public Type CreateProxyType(Type serviceType, ProxyTypes proxyType = ProxyTypes.Inherit)
@@ -39,7 +42,8 @@ namespace Norns.Urd.Proxy
                         ServiceType = serviceType,
                         ModuleBuilder = moduleBuilder,
                         Configuration = configuration,
-                        ServiceProvider = provider
+                        ServiceProvider = provider,
+                        ConstantInfo = constantInfo
                     });
                     definedTypes[name] = type;
                 }

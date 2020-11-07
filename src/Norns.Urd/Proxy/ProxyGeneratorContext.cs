@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Norns.Urd.Extensions;
+using Norns.Urd.Utils;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -18,6 +19,8 @@ namespace Norns.Urd.Proxy
         public IAspectConfiguration Configuration { get => AssistStaticTypeBuilder.Configuration; set => AssistStaticTypeBuilder.Configuration = value; }
 
         public IServiceProvider ServiceProvider { get => AssistStaticTypeBuilder.ServiceProvider; set => AssistStaticTypeBuilder.ServiceProvider = value; }
+
+        public override ConstantInfo ConstantInfo { get => AssistStaticTypeBuilder.ConstantInfo; set => AssistStaticTypeBuilder.ConstantInfo = value; }
     }
 
     public class ProxyTypeContext
@@ -27,6 +30,8 @@ namespace Norns.Urd.Proxy
         public TypeBuilder TypeBuilder { get; set; }
 
         public Dictionary<string, FieldBuilder> Fields { get; } = new Dictionary<string, FieldBuilder>();
+
+        public virtual ConstantInfo ConstantInfo { get; set; }
     }
 
     public class AssistProxyTypeContext : ProxyTypeContext
@@ -52,7 +57,7 @@ namespace Norns.Urd.Proxy
             var field = TypeBuilder.DefineField($"fm_{serviceMethod.Name}", typeof(MethodInfo), FieldAttributes.Static | FieldAttributes.Assembly);
             ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod);
             ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod.DeclaringType);
-            ConstructorIL.Emit(OpCodes.Call, InternalExtensions.GetMethod<Func<RuntimeMethodHandle, RuntimeTypeHandle, MethodBase>>((h1, h2) => MethodBase.GetMethodFromHandle(h1, h2)));
+            ConstructorIL.Emit(OpCodes.Call, ConstantInfo.GetMethodFromHandle);
             ConstructorIL.Emit(OpCodes.Castclass, typeof(MethodInfo));
             ConstructorIL.Emit(OpCodes.Stsfld, field);
             Fields.Add(field.Name, field);

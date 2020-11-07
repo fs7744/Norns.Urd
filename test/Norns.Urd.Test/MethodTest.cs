@@ -11,12 +11,9 @@ namespace Norns.Urd.UT
         }
 
         public virtual int NoArgsReturnInt() => 3;
-    }
 
-    //public class SubMethodTestClass : MethodTestClass
-    //{
-    //    public override int NoArgsReturnInt() => base.NoArgsReturnInt();
-    //}
+        public virtual int HasArgsReturnInt(int v) => v;
+    }
 
     public class MethodTest
     {
@@ -47,6 +44,17 @@ namespace Norns.Urd.UT
             var v = Activator.CreateInstance(proxyType) as MethodTestClass;
             Assert.NotNull(v);
             Assert.Equal(13, v.NoArgsReturnInt());
+        }
+
+        [Fact]
+        public void WhenHasArgsReturnInt()
+        {
+            var proxyType = creator.CreateProxyType(typeof(MethodTestClass));
+            Assert.Equal("MethodTestClass_Proxy_Inherit", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType) as MethodTestClass;
+            Assert.NotNull(v);
+            Assert.Equal(17, v.HasArgsReturnInt(7));
+            Assert.Equal(19, v.HasArgsReturnInt(9));
         }
     }
 }

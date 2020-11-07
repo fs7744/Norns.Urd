@@ -1,6 +1,7 @@
 ﻿using Norns.Urd;
 using Norns.Urd.IOC;
 using Norns.Urd.Proxy;
+using Norns.Urd.Utils;
 using System;
 using System.Linq;
 
@@ -33,6 +34,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddSingleton<IProxyGenerator, InheritProxyGenerator>()
                 .AddSingleton<IProxyCreator, ProxyCreator>()
                 .AddSingleton<IInterceptorFactory, InterceptorFactory>()
+                .AddSingleton<ConstantInfo>()
                 .AddSingleton(config)
                 .AddSingleton<IServiceDescriptorConvertHandler, IngoreServiceDescriptorConvertHandler>()
                 .AddSingleton<IServiceDescriptorConvertHandler, ImplementationFactoryServiceDescriptorConvertHandler>()

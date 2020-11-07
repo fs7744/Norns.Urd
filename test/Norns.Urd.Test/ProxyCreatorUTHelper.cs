@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Norns.Urd.Proxy;
+using Norns.Urd.Utils;
 
 namespace Norns.Urd.UT
 {
@@ -11,6 +12,7 @@ namespace Norns.Urd.UT
                 .AddSingleton<IProxyGenerator, FacadeProxyGenerator>()
                 .AddSingleton<IProxyGenerator, InheritProxyGenerator>()
                 .AddSingleton<IProxyCreator, ProxyCreator>()
+                .AddSingleton<ConstantInfo>()
                 .AddSingleton<IInterceptorFactory, InterceptorFactory>()
                 .AddSingleton<IAspectConfiguration>(new AspectConfiguration())
                 .BuildServiceProvider();

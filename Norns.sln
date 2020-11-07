@@ -9,12 +9,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{115CAC93-F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2D3C36F9-DC12-4CDA-B8A0-3D4800105F17}"
 	ProjectSection(SolutionItems) = preProject
+		ProjectCommon.targets = ProjectCommon.targets
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Norns.Urd", "src\Norns.Urd\Norns.Urd.csproj", "{396F28A0-999B-4CF1-B7EC-74E5F5063BAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Norns.Urd", "src\Norns.Urd\Norns.Urd.csproj", "{396F28A0-999B-4CF1-B7EC-74E5F5063BAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Norns.Urd.UT", "test\Norns.Urd.UT\Norns.Urd.UT.csproj", "{C54ACC90-5597-4C49-96E8-64D15714A1CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Norns.Urd.UT", "test\Norns.Urd.UT\Norns.Urd.UT.csproj", "{C54ACC90-5597-4C49-96E8-64D15714A1CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -43,6 +43,7 @@ namespace Norns.Urd.Proxy
             //    var method = MethodBuilderUtils.DefineClassMethod(p.SetMethod, implType, typeDesc);
             //    dp.SetSetMethod(method);
             //}
+            context.AssistStaticTypeBuilder.CreateType();
             return context.TypeBuilder.CreateTypeInfo().AsType();
         }
 
@@ -65,6 +66,11 @@ namespace Norns.Urd.Proxy
                     ? (typeof(object), new Type[] { serviceType })
                     : (serviceType, Type.EmptyTypes);
             context.TypeBuilder = context.ModuleBuilder.DefineType(context.ProxyTypeName, TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed, parent, interfaceTypes);
+
+            context.AssistStaticTypeBuilder.ModuleBuilder = context.ModuleBuilder;
+            context.AssistStaticTypeBuilder.TypeBuilder = context.ModuleBuilder.DefineType($"{context.ProxyTypeName}_Assist", TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed, typeof(object));
+            //var constructorIL = context.AssistStaticTypeBuilder.TypeBuilder.DefineTypeInitializer().GetILGenerator();
+            //constructorIL.
         }
 
         public virtual void DefineFields(ProxyGeneratorContext context)

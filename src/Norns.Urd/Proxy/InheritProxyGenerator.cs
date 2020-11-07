@@ -17,6 +17,8 @@ namespace Norns.Urd.Proxy
         {
             foreach (var method in context.ServiceType.GetTypeInfo().DeclaredMethods)
             {
+                var mf = context.AssistStaticTypeBuilder.DefineMethodInfo(method, ProxyType);
+
                 var baseMethodName = $"{method.Name}_Base";
                 MethodBuilder methodBaseBuilder = context.TypeBuilder.DefineMethod(baseMethodName, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, method.GetParameters().Select(i => i.ParameterType).ToArray());
                 var ilGen = methodBaseBuilder.GetILGenerator();
@@ -28,11 +30,7 @@ namespace Norns.Urd.Proxy
                 var il = methodBuilder.GetILGenerator();
                 il.EmitThis();
                 il.Emit(OpCodes.Ldfld, context.Fields[InterceptorFactory]);
-                il.Emit(OpCodes.Ldtoken, method);
-                il.Emit(OpCodes.Ldtoken, method.DeclaringType);
-                il.Emit(OpCodes.Call, EmitExtensions.GetMethod<Func<RuntimeMethodHandle, RuntimeTypeHandle, MethodBase>>((h1, h2) => MethodBase.GetMethodFromHandle(h1, h2)));
-                il.Emit(OpCodes.Castclass, typeof(MethodInfo));
-                //il.Emit(OpCodes.Ldtoken, method);
+                il.Emit(OpCodes.Ldsfld, mf);
                 il.EmitThis();
                 il.Emit(OpCodes.Ldc_I4_0);
                 var f = typeof(AspectContext).GetConstructors().First();
@@ -45,11 +43,10 @@ namespace Norns.Urd.Proxy
                     il.Emit(OpCodes.Callvirt, typeof(IInterceptorFactory).GetMethod(nameof(IInterceptorFactory.CallInterceptor)));
                     il.Emit(OpCodes.Ldloc, c);
                     il.Emit(OpCodes.Call, typeof(AspectContext).GetProperty(nameof(AspectContext.ReturnValue)).GetMethod);
-                    il.Emit(OpCodes.Unbox_Any, method.ReturnType); // 处理各种类型转换
+                    il.Emit(OpCodes.Unbox_Any, method.ReturnType); // todo: 处理各种类型转换
                 }
                 else
                 {
-
                     il.Emit(OpCodes.Callvirt, typeof(IInterceptorFactory).GetMethod(nameof(IInterceptorFactory.CallInterceptor)));
                 }
                 il.Emit(OpCodes.Ret);

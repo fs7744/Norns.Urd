@@ -1,0 +1,12 @@
+{
+  "ServerUri": "https://sonar.newegg.org/",
+  "Organization": null,
+  "ProjectKey": "Norns.Urd-main",
+  "ProjectName": "Norns.Urd-main",
+  "Profiles": {
+    "CSharp": {
+      "ProfileKey": "AXG8ctqwAOWj-Jfw_7I_",
+      "ProfileTimestamp": "2020-07-01T03:11:30Z"
+    }
+  }
+}

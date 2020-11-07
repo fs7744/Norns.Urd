@@ -70,7 +70,7 @@ namespace Norns.Urd.UT
 
         public ConstructorsTest()
         {
-            var (c, f) = ProxyCreatorUTHelper.InitPorxyCreator();
+            var (c, f, _) = ProxyCreatorUTHelper.InitPorxyCreator();
             creator = c;
             interceptor = f;
         }

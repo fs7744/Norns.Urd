@@ -9,12 +9,14 @@ namespace Norns.Urd
 {
     public static class AopExtensions
     {
-        public static IServiceCollection ConfigureAop(this IServiceCollection services, IAspectConfiguration config = null)
+        public static IServiceCollection ConfigureAop(this IServiceCollection services, Action<IAspectConfiguration> doConfig = null)
         {
-            config ??= Init(new AspectConfiguration());
+            var config = new AspectConfiguration();
+            doConfig?.Invoke(config);
+            var (converter, interceptorFactory) = Init(config);
             foreach (var item in services.ToArray())
             {
-                var proxy = config.Converter.Convert(item);
+                var proxy = converter.Convert(item);
                 if (proxy != null)
                 {
                     var index = services.IndexOf(item);
@@ -22,11 +24,11 @@ namespace Norns.Urd
                     services.Insert(index, proxy);
                 }
             }
-            services.TryAddSingleton(config.InterceptorFactory);
+            services.TryAddSingleton(interceptorFactory);
             return services;
         }
 
-        public static IAspectConfiguration Init(IAspectConfiguration config)
+        public static (IProxyServiceDescriptorConverter, IInterceptorFactory) Init(IAspectConfiguration config)
         {
             var provider = new ServiceCollection()
                 .AddSingleton<IProxyGenerator, FacadeProxyGenerator>()
@@ -40,9 +42,7 @@ namespace Norns.Urd
                 .AddSingleton<IServiceDescriptorConvertHandler, ImplementationTypeServiceDescriptorConvertHandler>()
                 .AddSingleton<IProxyServiceDescriptorConverter, ProxyServiceDescriptorConverter>()
                 .BuildServiceProvider();
-            config.Converter ??= provider.GetRequiredService<IProxyServiceDescriptorConverter>();
-            config.InterceptorFactory ??= provider.GetRequiredService<IInterceptorFactory>();
-            return config;
+            return (provider.GetRequiredService<IProxyServiceDescriptorConverter>(), provider.GetRequiredService<IInterceptorFactory>());
         }
     }
 }

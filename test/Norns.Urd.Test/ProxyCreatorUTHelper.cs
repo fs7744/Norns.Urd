@@ -5,7 +5,7 @@ namespace Norns.Urd.UT
 {
     public static class ProxyCreatorUTHelper
     {
-        public static (IProxyCreator, IInterceptorFactory) InitPorxyCreator()
+        public static (IProxyCreator, IInterceptorFactory, IAspectConfiguration) InitPorxyCreator()
         {
             var p = new ServiceCollection()
                 .AddSingleton<IProxyGenerator, FacadeProxyGenerator>()
@@ -14,7 +14,7 @@ namespace Norns.Urd.UT
                 .AddSingleton<IInterceptorFactory, InterceptorFactory>()
                 .AddSingleton<IAspectConfiguration>(new AspectConfiguration())
                 .BuildServiceProvider();
-            return (p.GetRequiredService<IProxyCreator>(), p.GetRequiredService<IInterceptorFactory>());
+            return (p.GetRequiredService<IProxyCreator>(), p.GetRequiredService<IInterceptorFactory>(), p.GetRequiredService<IAspectConfiguration>());
         }
     }
 }

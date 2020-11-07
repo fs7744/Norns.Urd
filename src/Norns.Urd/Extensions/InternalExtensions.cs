@@ -20,8 +20,7 @@ namespace Norns.Urd.Extensions
             {
                 throw new ArgumentNullException(nameof(expression));
             }
-            MethodCallExpression methodCallExpression = expression.Body as MethodCallExpression;
-            if (methodCallExpression == null)
+            if (!(expression.Body is MethodCallExpression methodCallExpression))
             {
                 throw new InvalidCastException("Cannot be converted to MethodCallExpression");
             }

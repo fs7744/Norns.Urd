@@ -24,7 +24,7 @@ namespace Norns.Urd.UT
 
         public MethodTest()
         {
-            var (c, f, conf) = ProxyCreatorUTHelper.InitPorxyCreator();
+            var (c, _, conf) = ProxyCreatorUTHelper.InitPorxyCreator();
             creator = c;
             conf.Interceptors.Add(new TestInterceptor());
         }

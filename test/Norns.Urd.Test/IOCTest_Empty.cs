@@ -102,7 +102,7 @@ namespace Norns
                         .AddSingleton<Test.IIocTestInterface>()
                         .AddSingleton<IIocTestInterface>()
                         .ConfigureAop();
-                    Assert.Equal(3, services.Count);
+                    Assert.Equal(2, services.Count);
                     var descriptor = services.First();
                     Assert.True(typeof(Test.IIocTestInterface) == descriptor.ServiceType);
                     Assert.Equal("IIocTestInterface_Proxy_Inherit", descriptor.ImplementationType.Name);
@@ -134,7 +134,7 @@ namespace Norns
                         .AddScoped<Test.IIocTestInterface>()
                         .AddScoped<IIocTestInterface>()
                         .ConfigureAop();
-                    Assert.Equal(3, services.Count);
+                    Assert.Equal(2, services.Count);
                     var descriptor = services.First();
                     Assert.True(typeof(Test.IIocTestInterface) == descriptor.ServiceType);
                     Assert.Equal("IIocTestInterface_Proxy_Inherit", descriptor.ImplementationType.Name);
@@ -166,7 +166,7 @@ namespace Norns
                         .AddTransient<Test.IIocTestInterface>()
                         .AddTransient<IIocTestInterface>()
                         .ConfigureAop();
-                    Assert.Equal(3, services.Count);
+                    Assert.Equal(2, services.Count);
                     var descriptor = services.First();
                     Assert.True(typeof(Test.IIocTestInterface) == descriptor.ServiceType);
                     Assert.Equal("IIocTestInterface_Proxy_Inherit", descriptor.ImplementationType.Name);

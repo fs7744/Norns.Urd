@@ -21,13 +21,11 @@ namespace Norns.Urd.UT
     public class MethodTest
     {
         private readonly IProxyCreator creator;
-        private readonly IInterceptorFactory interceptor;
 
         public MethodTest()
         {
             var (c, f, conf) = ProxyCreatorUTHelper.InitPorxyCreator();
             creator = c;
-            interceptor = f;
             conf.Interceptors.Add(new TestInterceptor());
         }
 
@@ -36,7 +34,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(MethodTestClass));
             Assert.Equal("MethodTestClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType, new object[] { interceptor }) as MethodTestClass;
+            var v = Activator.CreateInstance(proxyType) as MethodTestClass;
             Assert.NotNull(v);
             v.NoArgsVoid();
         }
@@ -46,7 +44,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(MethodTestClass));
             Assert.Equal("MethodTestClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType, new object[] { interceptor }) as MethodTestClass;
+            var v = Activator.CreateInstance(proxyType) as MethodTestClass;
             Assert.NotNull(v);
             Assert.Equal(13, v.NoArgsReturnInt());
         }

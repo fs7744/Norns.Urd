@@ -11,16 +11,9 @@ namespace Norns.Urd.Proxy
     {
         protected const string Instance = "instance";
         protected const string GeneratedNameSpace = "Norns.Urd.DynamicGenerated";
-        protected const string InterceptorFactory = "interceptorFactory";
         protected static readonly ConstructorInfo ObjectCtor = typeof(object).GetTypeInfo().DeclaredConstructors.Single();
-        protected readonly IInterceptorFactory interceptorFactory;
         private const MethodAttributes OverrideMethodAttributes = MethodAttributes.HideBySig | MethodAttributes.Virtual;
         public virtual ProxyTypes ProxyType { get; } = ProxyTypes.Facade;
-
-        public FacadeProxyGenerator(IInterceptorFactory interceptorFactory)
-        {
-            this.interceptorFactory = interceptorFactory;
-        }
 
         public string GetProxyTypeName(Type serviceType)
         {
@@ -95,7 +88,6 @@ namespace Norns.Urd.Proxy
         public virtual void DefineFields(ProxyGeneratorContext context)
         {
             context.Fields.Add(Instance, context.TypeBuilder.DefineField(Instance, context.ServiceType, FieldAttributes.Private));
-            context.Fields.Add(InterceptorFactory, context.TypeBuilder.DefineField(InterceptorFactory, typeof(IInterceptorFactory), FieldAttributes.Private));
         }
 
         public virtual void DefineConstructors(ProxyGeneratorContext context)
@@ -103,25 +95,18 @@ namespace Norns.Urd.Proxy
             var constructorInfos = context.ServiceType.GetTypeInfo().DeclaredConstructors.Where(c => !c.IsStatic && (c.IsPublic || c.IsFamily || c.IsFamilyAndAssembly || c.IsFamilyOrAssembly)).ToArray();
             if (constructorInfos.Length == 0)
             {
-                var constructorBuilder = context.TypeBuilder.DefineConstructor(MethodAttributes.Public, ObjectCtor.CallingConvention, new Type[] { typeof(IInterceptorFactory) });
-
-                constructorBuilder.DefineParameter(1, ParameterAttributes.None, InterceptorFactory);
+                var constructorBuilder = context.TypeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, null);
 
                 var ilGen = constructorBuilder.GetILGenerator();
                 ilGen.EmitThis();
                 ilGen.Emit(OpCodes.Call, ObjectCtor);
-
-                ilGen.EmitThis();
-                ilGen.EmitLoadArg(1);
-                ilGen.Emit(OpCodes.Stfld, context.Fields[InterceptorFactory]);
-
                 ilGen.Emit(OpCodes.Ret);
             }
             else
             {
                 foreach (var constructor in constructorInfos)
                 {
-                    Type[] parameterTypes = new Type[] { typeof(IInterceptorFactory) }.Concat(constructor.GetParameters().Select(i => i.ParameterType)).ToArray();
+                    Type[] parameterTypes = constructor.GetParameters().Select(i => i.ParameterType).ToArray();
                     var constructorBuilder = context.TypeBuilder.DefineConstructor(context.ServiceType.IsAbstract ? constructor.Attributes | MethodAttributes.Public : constructor.Attributes, constructor.CallingConvention, parameterTypes);
                     foreach (var customAttributeData in constructor.CustomAttributes)
                     {
@@ -132,11 +117,7 @@ namespace Norns.Urd.Proxy
                     var ilGen = constructorBuilder.GetILGenerator();
 
                     ilGen.EmitThis();
-                    ilGen.EmitLoadArg(1);
-                    ilGen.Emit(OpCodes.Stfld, context.Fields[InterceptorFactory]);
-
-                    ilGen.EmitThis();
-                    for (var i = 2; i <= parameterTypes.Length; i++)
+                    for (var i = 1; i <= parameterTypes.Length; i++)
                     {
                         ilGen.EmitLoadArg(i);
                     }
@@ -149,11 +130,10 @@ namespace Norns.Urd.Proxy
 
         internal static void DefineParameters(ConstructorInfo constructor, ConstructorBuilder constructorBuilder)
         {
-            constructorBuilder.DefineParameter(1, ParameterAttributes.None, InterceptorFactory);
             var parameters = constructor.GetParameters();
             if (parameters.Length > 0)
             {
-                var paramOffset = 2;
+                var paramOffset = 1;
                 for (var i = 0; i < parameters.Length; i++)
                 {
                     var parameter = parameters[i];

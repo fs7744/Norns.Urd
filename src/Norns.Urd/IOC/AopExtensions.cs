@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
-using Norns.Urd;
+﻿using Norns.Urd;
 using Norns.Urd.IOC;
 using Norns.Urd.Proxy;
 using System;
@@ -13,7 +12,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var config = new AspectConfiguration();
             doConfig?.Invoke(config);
-            var (converter, interceptorFactory) = Init(config);
+            var converter = Init(config);
             foreach (var item in services.ToArray())
             {
                 var proxy = converter.Convert(item);
@@ -24,11 +23,10 @@ namespace Microsoft.Extensions.DependencyInjection
                     services.Insert(index, proxy);
                 }
             }
-            services.TryAddSingleton(interceptorFactory);
             return services;
         }
 
-        public static (IProxyServiceDescriptorConverter, IInterceptorFactory) Init(IAspectConfiguration config)
+        public static IProxyServiceDescriptorConverter Init(IAspectConfiguration config)
         {
             var provider = new ServiceCollection()
                 .AddSingleton<IProxyGenerator, FacadeProxyGenerator>()
@@ -42,7 +40,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddSingleton<IServiceDescriptorConvertHandler, ImplementationTypeServiceDescriptorConvertHandler>()
                 .AddSingleton<IProxyServiceDescriptorConverter, ProxyServiceDescriptorConverter>()
                 .BuildServiceProvider();
-            return (provider.GetRequiredService<IProxyServiceDescriptorConverter>(), provider.GetRequiredService<IInterceptorFactory>());
+            return provider.GetRequiredService<IProxyServiceDescriptorConverter>();
         }
     }
 }

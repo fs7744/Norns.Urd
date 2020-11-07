@@ -37,21 +37,18 @@ namespace Norns.Urd.Proxy
 
         public IServiceProvider ServiceProvider { get; set; }
 
-        public FieldBuilder GetInterceptorFactoryField()
+        public void InitConstructorIL()
         {
-            if (!Fields.ContainsKey("fm_IInterceptorFactory"))
+            if (ConstructorIL == null)
             {
-                var field = TypeBuilder.DefineField("fm_IInterceptorFactory", typeof(IInterceptorFactory), FieldAttributes.Public | FieldAttributes.Static );
-                Fields.Add(field.Name, field);
                 var m = TypeBuilder.DefineMethod("Init", MethodAttributes.Public | MethodAttributes.Static , CallingConventions.Standard, typeof(void), new Type[] { typeof(IInterceptorFactory) });
                 ConstructorIL = m.GetILGenerator();
             }
-            return Fields["fm_IInterceptorFactory"];
         }
 
         public FieldBuilder DefineMethodInfo(MethodInfo serviceMethod, ProxyTypes proxyType)
         {
-            GetInterceptorFactoryField();
+            InitConstructorIL();
             var field = TypeBuilder.DefineField($"fm_{serviceMethod.Name}", typeof(MethodInfo), FieldAttributes.Static | FieldAttributes.Assembly);
             ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod);
             ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod.DeclaringType);
@@ -73,7 +70,7 @@ namespace Norns.Urd.Proxy
 
         public Type CreateType()
         {
-            GetInterceptorFactoryField();
+            InitConstructorIL();
             ConstructorIL.Emit(OpCodes.Ret);
             var type = TypeBuilder.CreateTypeInfo().AsType();
             type.GetMethod("Init").Invoke(null, new object[] { ServiceProvider.GetRequiredService<IInterceptorFactory>() }); // todo:性能优化

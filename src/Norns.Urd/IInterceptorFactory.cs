@@ -10,6 +10,8 @@ namespace Norns.Urd
         void CreateInterceptor(MethodInfo method, AspectDelegate action, ProxyTypes proxyType = ProxyTypes.Facade);
 
         void CallInterceptor(AspectContext context);
+
+        AspectDelegate GetInterceptor(MethodInfo method, ProxyTypes proxyType);
     }
 
     // 静态类 + 生成静态类caller 去除大字典取caller 性能消耗
@@ -78,6 +80,27 @@ namespace Norns.Urd
         {
             var interceptor = context.ProxyType == ProxyTypes.Inherit ? syncInheritInterceptors : syncFacadeInterceptors;
             interceptor[context.ServiceMethod](context);
+        }
+
+        // todo : 性能优化
+        public AspectDelegate GetInterceptor(MethodInfo method, ProxyTypes proxyType)
+        {
+            var baseMethodName = $"{method.Name}_Base";
+            AspectDelegate baseCall;
+            if (proxyType == ProxyTypes.Facade)
+            {
+                baseCall = c => c.ReturnValue = method.Invoke(c.Service, c.Parameters);
+            }
+            else
+            {
+                baseCall = c => c.ReturnValue = c.Service.GetType().GetMethod(baseMethodName).Invoke(c.Service, c.Parameters);
+            }
+
+            return configuration.Interceptors.Select(i =>
+            {
+                MAspectDelegate a = i.Invoke;
+                return a;
+            }).Aggregate(baseCall, (i, j) => c => j(c, i));
         }
     }
 }

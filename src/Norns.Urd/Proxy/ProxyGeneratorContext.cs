@@ -50,7 +50,7 @@ namespace Norns.Urd.Proxy
 
         public FieldBuilder DefineMethodInfo(MethodInfo serviceMethod, ProxyTypes proxyType)
         {
-            GetInterceptorFactoryField();
+            var f = GetInterceptorFactoryField();
             var field = TypeBuilder.DefineField($"fm_{serviceMethod.Name}", typeof(MethodInfo), FieldAttributes.Static | FieldAttributes.Assembly);
             ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod);
             ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod.DeclaringType);
@@ -58,6 +58,14 @@ namespace Norns.Urd.Proxy
             ConstructorIL.Emit(OpCodes.Castclass, typeof(MethodInfo));
             ConstructorIL.Emit(OpCodes.Stsfld, field);
             Fields.Add(field.Name, field);
+
+            var cField = TypeBuilder.DefineField($"cm_{serviceMethod.Name}", typeof(AspectDelegate), FieldAttributes.Static | FieldAttributes.Assembly);
+            ConstructorIL.EmitLoadArg(0);
+            ConstructorIL.Emit(OpCodes.Ldsfld, field);
+            ConstructorIL.Emit(ProxyTypes.Inherit == proxyType ? OpCodes.Ldc_I4_0 : OpCodes.Ldc_I4_1);
+            ConstructorIL.Emit(OpCodes.Callvirt, typeof(IInterceptorFactory).GetMethod(nameof(IInterceptorFactory.GetInterceptor)));
+            ConstructorIL.Emit(OpCodes.Stsfld, cField);
+            Fields.Add(cField.Name, cField);
 
             return field;
         }

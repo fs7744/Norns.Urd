@@ -6,9 +6,7 @@ namespace Norns.Urd.UT
 {
     public class FieldsTestClass
     {
-#pragma warning disable S1144 // Unused private types or members should be removed
-        private int PrivateInt;
-#pragma warning restore S1144 // Unused private types or members should be removed
+        private readonly int PrivateInt;
         protected int ProtectedInt;
         protected internal int ProtectedInternalInt;
         protected internal int InternalProtectedInt;
@@ -22,7 +20,7 @@ namespace Norns.Urd.UT
 
         public FieldsTest()
         {
-            var (c, f, _) = ProxyCreatorUTHelper.InitPorxyCreator();
+            var (c, _, _) = ProxyCreatorUTHelper.InitPorxyCreator();
             creator = c;
         }
 

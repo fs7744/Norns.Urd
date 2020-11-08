@@ -25,7 +25,6 @@ namespace Norns.Urd
             this.configuration = configuration;
         }
 
-        // todo : 性能优化
         public AspectDelegate GetInterceptor(MethodInfo method, ProxyTypes proxyType)
         {
             AspectDelegate baseCall;
@@ -128,13 +127,13 @@ namespace Norns.Urd
 
         public AspectDelegateAsync GetInterceptorAsync(MethodInfo method, ProxyTypes proxyType)
         {
-            var baseMethodName = $"{method.Name}_Base";
             AspectDelegateAsync baseCall;
             if (proxyType == ProxyTypes.Facade)
             {
+                var syncbaseCall = CreateSyncCaller(method);
                 baseCall = async c =>
                 {
-                    c.ReturnValue = method.Invoke(c.Service, c.Parameters);
+                    syncbaseCall(c);
 
                     switch (c.ReturnValue)
                     {
@@ -153,9 +152,10 @@ namespace Norns.Urd
             }
             else
             {
+                var lazyCaller = new LazyCaller($"{method.Name}_Base");
                 baseCall = async c =>
                 {
-                    c.ReturnValue = c.Service.GetType().GetMethod(baseMethodName).Invoke(c.Service, c.Parameters);
+                    lazyCaller.Call(c);
 
                     switch (c.ReturnValue)
                     {

@@ -201,29 +201,29 @@ namespace Norns.Urd.UT
 
         #region Async
 
-        //[Fact]
-        //public async Task AsyncWhenNoArgsVoidTask()
-        //{
-        //    var proxyType = creator.CreateProxyType(typeof(AsyncMethodTestClass));
-        //    Assert.Equal("AsyncMethodTestClass_Proxy_Inherit", proxyType.Name);
-        //    var v = Activator.CreateInstance(proxyType) as AsyncMethodTestClass;
-        //    Assert.NotNull(v);
-        //    var task = v.NoArgsVoidTask();
-        //    await task;
-        //    Assert.True(task.IsCompleted);
-        //}
+        [Fact]
+        public void AsyncWhenNoArgsVoidTask()
+        {
+            var proxyType = creator.CreateProxyType(typeof(AsyncMethodTestClass));
+            Assert.Equal("AsyncMethodTestClass_Proxy_Inherit", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType) as AsyncMethodTestClass;
+            Assert.NotNull(v);
+            var task = v.NoArgsVoidTask();
+            task.ConfigureAwait(false).GetAwaiter().GetResult();
+            Assert.True(task.IsCompleted);
+        }
 
-        //[Fact]
-        //public async Task AsyncWhenNoArgsVoidValueTask()
-        //{
-        //    var proxyType = creator.CreateProxyType(typeof(AsyncMethodTestClass));
-        //    Assert.Equal("AsyncMethodTestClass_Proxy_Inherit", proxyType.Name);
-        //    var v = Activator.CreateInstance(proxyType) as AsyncMethodTestClass;
-        //    Assert.NotNull(v);
-        //    var task = v.NoArgsVoidValueTask();
-        //    await task;
-        //    Assert.True(task.IsCompleted);
-        //}
+        [Fact]
+        public void AsyncWhenNoArgsVoidValueTask()
+        {
+            var proxyType = creator.CreateProxyType(typeof(AsyncMethodTestClass));
+            Assert.Equal("AsyncMethodTestClass_Proxy_Inherit", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType) as AsyncMethodTestClass;
+            Assert.NotNull(v);
+            var task = v.NoArgsVoidValueTask();
+            task.ConfigureAwait(false).GetAwaiter().GetResult();
+            Assert.True(task.IsCompleted);
+        }
 
         #endregion Async
     }

@@ -2,6 +2,7 @@
 using Norns.Urd.Proxy;
 using Norns.Urd.Utils;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -38,11 +39,18 @@ namespace Norns.Urd
                 baseCall = lazyCaller.Call;
             }
 
-            return configuration.Interceptors.Select(i =>
+            return FindInterceptors(method).Select(i =>
             {
                 MAspectDelegate a = i.Invoke;
                 return a;
             }).Aggregate(baseCall, (i, j) => c => j(c, i));
+        }
+
+        public IEnumerable<IInterceptor> FindInterceptors(MethodInfo method)
+        {
+            return configuration.Filters.CanAspect(method)
+                ? configuration.Interceptors
+                : new List<IInterceptor>();
         }
 
         public class LazyCaller
@@ -219,7 +227,7 @@ namespace Norns.Urd
                 baseCall = lazyCaller.Call;
             }
 
-            return configuration.Interceptors.Select(i =>
+            return FindInterceptors(method).Select(i =>
             {
                 MAspectDelegateAsync a = i.InvokeAsync;
                 return a;

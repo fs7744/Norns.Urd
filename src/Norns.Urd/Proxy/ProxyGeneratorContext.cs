@@ -63,7 +63,6 @@ namespace Norns.Urd.Proxy
             Fields.Add(field.Name, field);
 
             var isAsync = serviceMethod.IsAsync();
-            var a = isAsync ? ConstantInfo.GetInterceptorAsync : ConstantInfo.GetInterceptor;
             var cField = TypeBuilder.DefineField($"cm_{serviceMethod.Name}", isAsync ? typeof(AspectDelegateAsync) : typeof(AspectDelegate), FieldAttributes.Static | FieldAttributes.Assembly);
             ConstructorIL.EmitLoadArg(0);
             ConstructorIL.Emit(OpCodes.Ldsfld, field);

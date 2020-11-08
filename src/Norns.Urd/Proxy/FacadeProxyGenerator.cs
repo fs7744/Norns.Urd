@@ -24,8 +24,33 @@ namespace Norns.Urd.Proxy
             DefineFields(context);
             DefineConstructors(context);
             DefineMethods(context);
+            DefineProperties(context);
             context.AssistStaticTypeBuilder.CreateType();
             return context.TypeBuilder.CreateTypeInfo().AsType();
+        }
+
+        public virtual void DefineProperties(ProxyGeneratorContext context)
+        {
+            foreach (var property in context.ServiceType.GetTypeInfo().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            {
+                var propertyBuilder = context.TypeBuilder.DefineProperty(property.Name, property.Attributes, property.PropertyType, Type.EmptyTypes);
+
+                foreach (var customAttributeData in property.CustomAttributes)
+                {
+                    propertyBuilder.SetCustomAttribute(DefineCustomAttribute(customAttributeData));
+                }
+
+                if (property.CanRead)
+                {
+                    var method = DefineMethod(context, property.GetMethod);
+                    propertyBuilder.SetGetMethod(method);
+                }
+                if (property.CanWrite)
+                {
+                    var method = DefineMethod(context, property.SetMethod);
+                    propertyBuilder.SetSetMethod(method);
+                }
+            }
         }
 
         public void DefineMethods(ProxyGeneratorContext context)
@@ -44,7 +69,7 @@ namespace Norns.Urd.Proxy
             il.Emit(OpCodes.Ldfld, context.Fields[ConstantInfo.Instance]);
         }
 
-        public virtual void DefineMethod(ProxyGeneratorContext context, MethodInfo method)
+        public virtual MethodBuilder DefineMethod(ProxyGeneratorContext context, MethodInfo method)
         {
             var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
             var mf = context.AssistStaticTypeBuilder.DefineMethodInfo(method, ProxyType);
@@ -122,6 +147,7 @@ namespace Norns.Urd.Proxy
                 }
             }
             il.Emit(OpCodes.Ret);
+            return methodBuilder;
         }
 
         public virtual void DefineType(ProxyGeneratorContext context)

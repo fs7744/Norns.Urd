@@ -21,9 +21,9 @@ namespace Norns.Urd.Proxy
             context.Fields.Add(ConstantInfo.ServiceProvider, context.TypeBuilder.DefineField(ConstantInfo.ServiceProvider, typeof(IServiceProvider), FieldAttributes.Private));
         }
 
-        public override void DefineMethod(ProxyGeneratorContext context, MethodInfo method)
+        public override MethodBuilder DefineMethod(ProxyGeneratorContext context, MethodInfo method)
         {
-            if (!method.IsVisibleAndVirtual()) return;
+            if (!method.IsVisibleAndVirtual()) return null;
             var baseMethodName = $"{method.Name}_Base";
             var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
             MethodBuilder methodBaseBuilder = context.TypeBuilder.DefineMethod(baseMethodName, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
@@ -43,7 +43,7 @@ namespace Norns.Urd.Proxy
             }
 
             il.Emit(OpCodes.Ret);
-            base.DefineMethod(context, method);
+            return base.DefineMethod(context, method);
         }
     }
 }

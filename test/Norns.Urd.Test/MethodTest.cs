@@ -27,6 +27,8 @@ namespace Norns.Urd.UT
             y = 99;
             return new object[] { v, y };
         }
+
+        public virtual int IntP { get; set; }
     }
 
     public class AsyncMethodTestClass
@@ -152,6 +154,18 @@ namespace Norns.Urd.UT
             var v = Activator.CreateInstance(proxyType, new object[] { null }) as MethodTestClass;
             Assert.NotNull(v);
             v.NoArgsVoid();
+        }
+
+        [Fact]
+        public void WhenIntPProperty()
+        {
+            var proxyType = creator.CreateProxyType(typeof(MethodTestClass));
+            Assert.Equal("MethodTestClass_Proxy_Inherit", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as MethodTestClass;
+            Assert.NotNull(v);
+            v.IntP = 5;
+            Assert.Equal(15, v.IntP);
+            Assert.Equal(15, v.IntP);
         }
 
         [Fact]

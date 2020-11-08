@@ -27,7 +27,6 @@ namespace Norns.Urd.Proxy
             var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
             MethodBuilder methodBaseBuilder = context.TypeBuilder.DefineMethod(baseMethodName, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
             var il = methodBaseBuilder.GetILGenerator();
-            //var isInterface = method.DeclaringType.IsInterface;
             if (method.IsAbstract)
             {
                 il.EmitDefault(method.ReturnType);

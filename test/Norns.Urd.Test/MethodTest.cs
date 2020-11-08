@@ -34,6 +34,28 @@ namespace Norns.Urd.UT
         public MethodTestClass Do2() => new MethodTestClass();
     }
 
+    public abstract class AbstractMethodTestClass
+    {
+        public abstract MethodTestClass Do();
+
+        public virtual MethodTestClass Do2() => new MethodTestClass();
+
+        public int Do3() => 3;
+
+        public virtual int Do4() => 3;
+
+        protected virtual int Do5() => 5;
+    }
+
+    public class SubClass : AbstractMethodTestClass
+    {
+        public override MethodTestClass Do() => new MethodTestClass();
+
+        protected override int Do5() => base.Do5() + 5;
+
+        public int CallDo5() => Do5();
+    }
+
     public class MethodTest
     {
         private readonly IProxyCreator creator;
@@ -46,7 +68,34 @@ namespace Norns.Urd.UT
         }
 
         [Fact]
-        public void InterfaceWhenDefaultMethod()
+        public void SubClassWhenHasOverrideMethod()
+        {
+            var proxyType = creator.CreateProxyType(typeof(SubClass), ProxyTypes.Inherit);
+            Assert.Equal("SubClass_Proxy_Inherit", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType) as SubClass;
+            Assert.NotNull(v);
+            Assert.NotNull(v.Do2());
+            Assert.NotNull(v.Do());
+            Assert.Equal(3, v.Do3());
+            Assert.Equal(13, v.Do4());
+            Assert.Equal(20, v.CallDo5());
+        }
+
+        [Fact]
+        public void AbstractClassWhenHasBaseMethod()
+        {
+            var proxyType = creator.CreateProxyType(typeof(AbstractMethodTestClass), ProxyTypes.Inherit);
+            Assert.Equal("AbstractMethodTestClass_Proxy_Inherit", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType) as AbstractMethodTestClass;
+            Assert.NotNull(v);
+            Assert.NotNull(v.Do2());
+            Assert.Null(v.Do());
+            Assert.Equal(3, v.Do3());
+            Assert.Equal(13, v.Do4());
+        }
+
+        [Fact]
+        public void InterfaceWhenHasDefaultMethod()
         {
             var proxyType = creator.CreateProxyType(typeof(IMethodTestInterface), ProxyTypes.Inherit);
             Assert.Equal("IMethodTestInterface_Proxy_Inherit", proxyType.Name);

@@ -57,11 +57,6 @@ namespace Norns.Urd.Extensions
             return member.Name;
         }
 
-        internal static bool IsReturnTask(this MethodInfo methodInfo)
-        {
-            return typeof(Task).GetTypeInfo().IsAssignableFrom(methodInfo.ReturnType.GetTypeInfo());
-        }
-
         internal static Type[] GetParameterTypes(this MethodBase method)
         {
             return method.GetParameters().Select(x => x.ParameterType).ToArray();

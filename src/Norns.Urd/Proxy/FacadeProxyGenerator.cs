@@ -87,6 +87,17 @@ namespace Norns.Urd.Proxy
             {
                 il.Emit(OpCodes.Call, context.ConstantInfo.InvokeAsync);
             }
+            else if (method.IsReturnTask() || method.IsReturnValueTask())
+            {
+                var c = il.DeclareLocal(context.ConstantInfo.AspectContextType);
+                il.Emit(OpCodes.Stloc, c);
+                il.Emit(OpCodes.Ldloc, c);
+                il.Emit(OpCodes.Call, context.ConstantInfo.InvokeAsync);
+                il.Emit(OpCodes.Pop);
+                il.Emit(OpCodes.Ldloc, c);
+                il.Emit(OpCodes.Call, context.ConstantInfo.GetReturnValue);
+                il.EmitConvertFromObject(method.ReturnType);
+            }
             else
             {
                 var c = il.DeclareLocal(context.ConstantInfo.AspectContextType);

@@ -65,10 +65,42 @@ namespace Norns.Urd
             }
         }
 
+        public class AsyncLazyCaller
+        {
+            public AsyncLazyCaller(string method)
+            {
+                this.method = method;
+            }
+
+            private AspectDelegateAsync caller;
+            private readonly string method;
+
+            public async Task Call(AspectContext context)
+            {
+                if (caller == null)
+                {
+                    caller = CreateAsyncCaller(context.Service.GetType().GetMethod(method));
+                }
+                await caller(context);
+            }
+        }
+
         public static AspectDelegate CreateSyncCaller(MethodInfo method)
         {
+            return (AspectDelegate)CreateCaller(method).CreateDelegate(typeof(AspectDelegate));
+        }
+
+        public static AspectDelegateAsync CreateAsyncCaller(MethodInfo method)
+        {
+            return (AspectDelegateAsync)CreateCaller(method).CreateDelegate(typeof(AspectDelegateAsync));
+        }
+
+        public static DynamicMethod CreateCaller(MethodInfo method)
+        {
+            var isAsync = method.IsAsync();
+
             DynamicMethod dynamicMethod = new DynamicMethod($"invoker_{Guid.NewGuid()}",
-        typeof(void), new Type[] { typeof(AspectContext) }, method.Module, true);
+                isAsync ? typeof(Task) : typeof(void), new Type[] { typeof(AspectContext) }, method.Module, true);
             var il = dynamicMethod.GetILGenerator();
             il.EmitLoadArg(0);
             if (!method.IsVoid())
@@ -107,8 +139,33 @@ namespace Norns.Urd
             il.Emit(OpCodes.Callvirt, method);
             if (!method.IsVoid())
             {
+                var returnLocal = il.DeclareLocal(method.ReturnType);
+                il.Emit(OpCodes.Stloc, returnLocal);
+                il.Emit(OpCodes.Ldloc, returnLocal);
                 il.EmitConvertToObject(method.ReturnType);
                 il.Emit(OpCodes.Call, ConstantInfo.SetReturnValue);
+                if (isAsync)
+                {
+                    il.Emit(OpCodes.Ldloc, returnLocal);
+                    if (method.IsReturnTask())
+                    {
+                        il.EmitConvertToType(method.ReturnType, typeof(Task));
+                        il.Emit(OpCodes.Call, ConstantInfo.Await);
+                    }
+                    else if (method.IsValueTask())
+                    {
+                        il.Emit(OpCodes.Call, ConstantInfo.AwaitValueTask);
+                    }
+                    else if (method.IsReturnValueTask())
+                    {
+                        var returnType = method.ReturnType.GetTypeInfo().GetGenericArguments().Single();
+                        il.Emit(OpCodes.Call, ConstantInfo.AwaitValueTaskReturnValue.MakeGenericMethod(returnType));
+                    }
+                    else
+                    {
+                        il.Emit(OpCodes.Call, ConstantInfo.Await);
+                    }
+                }
             }
             for (var i = 0; i < parameters.Length; i++)
             {
@@ -122,7 +179,31 @@ namespace Norns.Urd
                 }
             }
             il.Emit(OpCodes.Ret);
-            return (AspectDelegate)dynamicMethod.CreateDelegate(typeof(AspectDelegate));
+            return dynamicMethod;
+        }
+
+        public static async Task Await(Task task)
+        {
+            if (!task.IsCompleted)
+            {
+                await task;
+            }
+        }
+
+        public static async Task AwaitValueTask(ValueTask task)
+        {
+            if (!task.IsCompleted)
+            {
+                await task;
+            }
+        }
+
+        public static async Task AwaitValueTaskReturnValue<T>(ValueTask<T> task)
+        {
+            if (!task.IsCompleted)
+            {
+                await task;
+            }
         }
 
         public AspectDelegateAsync GetInterceptorAsync(MethodInfo method, ProxyTypes proxyType)
@@ -130,47 +211,12 @@ namespace Norns.Urd
             AspectDelegateAsync baseCall;
             if (proxyType == ProxyTypes.Facade)
             {
-                var syncbaseCall = CreateSyncCaller(method);
-                baseCall = async c =>
-                {
-                    syncbaseCall(c);
-
-                    switch (c.ReturnValue)
-                    {
-                        case Task t:
-                            await t;
-                            break;
-
-                        case ValueTask t:
-                            await t;
-                            break;
-
-                        default:
-                            break;
-                    }
-                };
+                baseCall = CreateAsyncCaller(method);
             }
             else
             {
-                var lazyCaller = new LazyCaller($"{method.Name}_Base");
-                baseCall = async c =>
-                {
-                    lazyCaller.Call(c);
-
-                    switch (c.ReturnValue)
-                    {
-                        case Task t:
-                            await t;
-                            break;
-
-                        case ValueTask t:
-                            await t;
-                            break;
-
-                        default:
-                            break;
-                    }
-                };
+                var lazyCaller = new AsyncLazyCaller($"{method.Name}_Base");
+                baseCall = lazyCaller.Call;
             }
 
             return configuration.Interceptors.Select(i =>

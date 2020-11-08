@@ -30,11 +30,23 @@ namespace Norns.Urd.UT
 
     public class AsyncMethodTestClass
     {
-        public virtual Task NoArgsVoidTask() => Task.Delay(200);
+        public virtual Task NoArgsVoidTask() => Task.Delay(20);
 
         public virtual async ValueTask NoArgsVoidValueTask()
         {
-            await Task.Delay(200);
+            await Task.Delay(10);
+        }
+
+        public virtual async ValueTask<int> NoArgsVoidValueTaskReturnInt()
+        {
+            await Task.Delay(10);
+            return 55;
+        }
+
+        public virtual async Task<long> NoArgsVoidTaskReturnLong()
+        {
+            await Task.Delay(10);
+            return 66L;
         }
     }
 
@@ -202,29 +214,54 @@ namespace Norns.Urd.UT
         #region Async
 
         [Fact]
-        public void WhenNoArgsVoidTaskAsync()
+        public async Task WhenNoArgsVoidTaskAsync()
         {
             var proxyType = creator.CreateProxyType(typeof(AsyncMethodTestClass));
             Assert.Equal("AsyncMethodTestClass_Proxy_Inherit", proxyType.Name);
             var v = Activator.CreateInstance(proxyType) as AsyncMethodTestClass;
             Assert.NotNull(v);
             var task = v.NoArgsVoidTask();
-            task.ConfigureAwait(false).GetAwaiter().GetResult();
+            await task;
             Assert.True(task.IsCompleted);
         }
 
         [Fact]
-        public void WhenNoArgsVoidValueTaskAsync()
+        public async Task WhenNoArgsVoidValueTaskAsync()
         {
             var proxyType = creator.CreateProxyType(typeof(AsyncMethodTestClass));
             Assert.Equal("AsyncMethodTestClass_Proxy_Inherit", proxyType.Name);
             var v = Activator.CreateInstance(proxyType) as AsyncMethodTestClass;
             Assert.NotNull(v);
             var task = v.NoArgsVoidValueTask();
-            task.ConfigureAwait(false).GetAwaiter().GetResult();
+            await task;
             Assert.True(task.IsCompleted);
         }
 
+        [Fact]
+        public void WhenNoArgsVoidValueTaskReturnInt()
+        {
+            var proxyType = creator.CreateProxyType(typeof(AsyncMethodTestClass));
+            Assert.Equal("AsyncMethodTestClass_Proxy_Inherit", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType) as AsyncMethodTestClass;
+            Assert.NotNull(v);
+            var task = v.NoArgsVoidValueTaskReturnInt();
+            var a = task.GetAwaiter().GetResult();
+            Assert.Equal(55, a);
+            Assert.True(task.IsCompleted);
+        }
+
+        [Fact]
+        public async Task WhenNoArgsVoidTaskReturnLong()
+        {
+            var proxyType = creator.CreateProxyType(typeof(AsyncMethodTestClass));
+            Assert.Equal("AsyncMethodTestClass_Proxy_Inherit", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType) as AsyncMethodTestClass;
+            Assert.NotNull(v);
+            var task = v.NoArgsVoidTaskReturnLong();
+            var a = await task;
+            Assert.Equal(66L, a);
+            Assert.True(task.IsCompleted);
+        }
         #endregion Async
     }
 }

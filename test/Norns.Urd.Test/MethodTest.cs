@@ -30,6 +30,8 @@ namespace Norns.Urd.UT
     public interface IMethodTestInterface
     {
         MethodTestClass Do();
+
+        public MethodTestClass Do2() => new MethodTestClass();
     }
 
     public class MethodTest
@@ -44,7 +46,17 @@ namespace Norns.Urd.UT
         }
 
         [Fact]
-        public void InterfaceWhenPublicMethod()
+        public void InterfaceWhenDefaultMethod()
+        {
+            var proxyType = creator.CreateProxyType(typeof(IMethodTestInterface), ProxyTypes.Inherit);
+            Assert.Equal("IMethodTestInterface_Proxy_Inherit", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType) as IMethodTestInterface;
+            Assert.NotNull(v);
+            Assert.NotNull(v.Do2());
+        }
+
+        [Fact]
+        public void InterfaceWhenVirtualMethod()
         {
             var proxyType = creator.CreateProxyType(typeof(IMethodTestInterface), ProxyTypes.Facade);
             Assert.Equal("IMethodTestInterface_Proxy_Facade", proxyType.Name);

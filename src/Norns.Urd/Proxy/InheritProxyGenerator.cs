@@ -15,6 +15,11 @@ namespace Norns.Urd.Proxy
             il.EmitThis();
         }
 
+        public override void DefineFields(ProxyGeneratorContext context)
+        {
+            // Method intentionally left empty to avoid instance field.
+        }
+
         public override void DefineMethod(ProxyGeneratorContext context, MethodInfo method)
         {
             if (!method.IsVisibleAndVirtual()) return;

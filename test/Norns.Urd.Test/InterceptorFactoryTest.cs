@@ -1,5 +1,4 @@
 ﻿using Norns.Urd.Proxy;
-using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -18,12 +17,21 @@ namespace Norns.Urd.UT
 
     public class TestInterceptor : IInterceptor
     {
+        public void Invoke(AspectContext context, AspectDelegate next)
+        {
+            next(context);
+            if (context.ReturnValue is int y)
+            {
+                context.ReturnValue = y + 10;
+            }
+        }
+
         public async Task InvokeAsync(AspectContext context, AspectDelegateAsync next)
         {
             await next(context);
             if (context.ReturnValue is int y)
             {
-                context.ReturnValue = y + 10;
+                context.ReturnValue = y + 5;
             }
         }
     }

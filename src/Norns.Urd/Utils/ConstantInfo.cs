@@ -21,11 +21,15 @@ namespace Norns.Urd.Utils
         public readonly ConstructorInfo AspectContextCtor = typeof(AspectContext).GetConstructors().First();
         
         public readonly MethodInfo Invoke = typeof(AspectDelegate).GetMethod(nameof(AspectDelegate.Invoke));
-        
+
+        public readonly MethodInfo InvokeAsync = typeof(AspectDelegateAsync).GetMethod(nameof(AspectDelegateAsync.Invoke));
+
         public readonly MethodInfo GetReturnValue = typeof(AspectContext).GetProperty(nameof(AspectContext.ReturnValue)).GetMethod;
 
-        public readonly HashSet<string> IgnoreMethods = new HashSet<string> { "Finalize" };
+        public readonly HashSet<string> IgnoreMethods = new HashSet<string> { "Finalize", "ToString", "Equals", "GetHashCode" };
 
         public readonly MethodInfo GetInterceptor = typeof(IInterceptorFactory).GetMethod(nameof(IInterceptorFactory.GetInterceptor));
+
+        public readonly MethodInfo GetInterceptorAsync = typeof(IInterceptorFactory).GetMethod(nameof(IInterceptorFactory.GetInterceptorAsync));
     }
 }

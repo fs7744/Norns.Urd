@@ -2,6 +2,7 @@
 using Norns.Urd.Proxy;
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Norns.Urd.UT
@@ -24,6 +25,15 @@ namespace Norns.Urd.UT
         {
             y = 99;
             return new object[] { v, y };
+        }
+    }
+
+    public class AsyncMethodTestClass
+    {
+        public virtual Task NoArgsVoidTask() => Task.Delay(200);
+        public virtual async ValueTask NoArgsVoidValueTask()
+        {
+            await Task.Delay(200);
         }
     }
 
@@ -66,6 +76,8 @@ namespace Norns.Urd.UT
             creator = c;
             conf.Interceptors.Add(new TestInterceptor());
         }
+
+        #region Sync
 
         [Fact]
         public void SubClassWhenHasOverrideMethod()
@@ -183,5 +195,33 @@ namespace Norns.Urd.UT
             Assert.Equal(99L, array[1]);
             Assert.Equal(99L, i);
         }
+
+        #endregion Sync
+
+        #region Async
+        [Fact]
+        public async Task AsyncWhenNoArgsVoidTask()
+        {
+            var proxyType = creator.CreateProxyType(typeof(AsyncMethodTestClass));
+            Assert.Equal("AsyncMethodTestClass_Proxy_Inherit", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType) as AsyncMethodTestClass;
+            Assert.NotNull(v);
+            var task = v.NoArgsVoidTask();
+            await task;
+            Assert.True(task.IsCompleted);
+        }
+
+        [Fact]
+        public async Task AsyncWhenNoArgsVoidValueTask()
+        {
+            var proxyType = creator.CreateProxyType(typeof(AsyncMethodTestClass));
+            Assert.Equal("AsyncMethodTestClass_Proxy_Inherit", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType) as AsyncMethodTestClass;
+            Assert.NotNull(v);
+            var task = v.NoArgsVoidValueTask();
+            await task;
+            Assert.True(task.IsCompleted);
+        }
+        #endregion
     }
 }

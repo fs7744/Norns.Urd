@@ -45,6 +45,16 @@ namespace Norns.Urd.Utils
             return returnType.IsTask();
         }
 
+        public static bool IsValueTask(this MethodInfo methodInfo)
+        {
+            if (methodInfo == null)
+            {
+                throw new ArgumentNullException(nameof(methodInfo));
+            }
+            var returnType = methodInfo.ReturnType.GetTypeInfo();
+            return returnType.IsValueTask();
+        }
+        
         public static bool IsReturnTask(this MethodInfo methodInfo)
         {
             if (methodInfo == null)

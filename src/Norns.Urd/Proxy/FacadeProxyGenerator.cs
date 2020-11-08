@@ -33,7 +33,7 @@ namespace Norns.Urd.Proxy
         {
             foreach (var method in context.ServiceType.GetTypeInfo()
                 .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => !x.IsPropertyBinding()))
+                .Where(x => !x.IsPropertyBinding() && !context.ConstantInfo.IgnoreMethods.Contains(x.Name)))
             {
                 DefineMethod(context, method);
             }
@@ -83,12 +83,26 @@ namespace Norns.Urd.Proxy
             {
                 il.Emit(OpCodes.Call, context.ConstantInfo.Invoke);
             }
+            else if (method.IsTask() || method.IsValueTask())
+            {
+                il.Emit(OpCodes.Call, context.ConstantInfo.InvokeAsync);
+            }
+            else if (method.IsAsync())
+            {
+                var c = il.DeclareLocal(context.ConstantInfo.AspectContextType);
+                il.Emit(OpCodes.Stloc, c);
+                il.Emit(OpCodes.Ldloc, c);
+                il.Emit(OpCodes.Call, context.ConstantInfo.InvokeAsync);
+                il.Emit(OpCodes.Ldloc, c);
+                il.Emit(OpCodes.Call, context.ConstantInfo.GetReturnValue);
+                il.EmitConvertFromObject(method.ReturnType);
+            }
             else
             {
                 var c = il.DeclareLocal(context.ConstantInfo.AspectContextType);
                 il.Emit(OpCodes.Stloc, c);
                 il.Emit(OpCodes.Ldloc, c);
-                il.Emit(OpCodes.Call, context.ConstantInfo.Invoke);
+                il.Emit(OpCodes.Call, method.IsAsync() ? context.ConstantInfo.InvokeAsync : context.ConstantInfo.Invoke);
                 il.Emit(OpCodes.Ldloc, c);
                 il.Emit(OpCodes.Call, context.ConstantInfo.GetReturnValue);
                 il.EmitConvertFromObject(method.ReturnType);

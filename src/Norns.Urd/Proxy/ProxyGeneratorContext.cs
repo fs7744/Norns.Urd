@@ -62,11 +62,13 @@ namespace Norns.Urd.Proxy
             ConstructorIL.Emit(OpCodes.Stsfld, field);
             Fields.Add(field.Name, field);
 
-            var cField = TypeBuilder.DefineField($"cm_{serviceMethod.Name}", typeof(AspectDelegate), FieldAttributes.Static | FieldAttributes.Assembly);
+            var isAsync = serviceMethod.IsAsync();
+            var a = isAsync ? ConstantInfo.GetInterceptorAsync : ConstantInfo.GetInterceptor;
+            var cField = TypeBuilder.DefineField($"cm_{serviceMethod.Name}", isAsync ? typeof(AspectDelegateAsync) : typeof(AspectDelegate), FieldAttributes.Static | FieldAttributes.Assembly);
             ConstructorIL.EmitLoadArg(0);
             ConstructorIL.Emit(OpCodes.Ldsfld, field);
             ConstructorIL.Emit(ProxyTypes.Inherit == proxyType ? OpCodes.Ldc_I4_0 : OpCodes.Ldc_I4_1);
-            ConstructorIL.Emit(OpCodes.Callvirt, ConstantInfo.GetInterceptor);
+            ConstructorIL.Emit(OpCodes.Callvirt, isAsync ? ConstantInfo.GetInterceptorAsync : ConstantInfo.GetInterceptor);
             ConstructorIL.Emit(OpCodes.Stsfld, cField);
             Fields.Add(cField.Name, cField);
 

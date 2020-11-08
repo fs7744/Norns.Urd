@@ -11,6 +11,10 @@ namespace Norns.Urd.Test.Extensions
         [Fact]
         public void IsNullableType()
         {
+            Assert.False(typeof(int).IsNullableType());
+            Assert.True(typeof(int?).IsNullableType());
+            Assert.False(typeof(object).IsNullableType());
+
             Assert.False(typeof(int).GetTypeInfo().IsNullableType());
             Assert.True(typeof(int?).GetTypeInfo().IsNullableType());
             Assert.False(typeof(object).GetTypeInfo().IsNullableType());
@@ -86,7 +90,7 @@ namespace Norns.Urd.Test.Extensions
         [InlineData(typeof(DateTime))]
         [InlineData(typeof(UInt64))]
         [InlineData(typeof(FakePublicVisible))]
-        public void GetDefaultValue(Type type)
+        public void GetTypeInfoDefaultValue(Type type)
         {
             var typeInfo = null as TypeInfo;
             var exception = Record.Exception(() =>
@@ -108,6 +112,23 @@ namespace Norns.Urd.Test.Extensions
             else if (type == typeof(UInt64))
             {
                 Assert.Equal(0, value);
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(void))]
+        [InlineData(typeof(DateTime))]
+        public void GetTypeDefaultValue(Type type)
+        {
+            var value = type.GetDefaultValue();
+            if (type == typeof(void))
+            {
+                Assert.Null(value);
+            }
+            else
+            {
+                var expected = default(DateTime);
+                Assert.Equal(expected, value);
             }
         }
 

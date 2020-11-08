@@ -202,7 +202,7 @@ namespace Norns.Urd.UT
         #region Async
 
         [Fact]
-        public void AsyncWhenNoArgsVoidTask()
+        public void WhenNoArgsVoidTaskAsync()
         {
             var proxyType = creator.CreateProxyType(typeof(AsyncMethodTestClass));
             Assert.Equal("AsyncMethodTestClass_Proxy_Inherit", proxyType.Name);
@@ -214,7 +214,7 @@ namespace Norns.Urd.UT
         }
 
         [Fact]
-        public void AsyncWhenNoArgsVoidValueTask()
+        public void WhenNoArgsVoidValueTaskAsync()
         {
             var proxyType = creator.CreateProxyType(typeof(AsyncMethodTestClass));
             Assert.Equal("AsyncMethodTestClass_Proxy_Inherit", proxyType.Name);

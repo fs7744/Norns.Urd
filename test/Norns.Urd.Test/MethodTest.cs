@@ -53,6 +53,7 @@ namespace Norns.Urd.UT
             var v = Activator.CreateInstance(proxyType) as IMethodTestInterface;
             Assert.NotNull(v);
             Assert.NotNull(v.Do2());
+            Assert.Null(v.Do());
         }
 
         [Fact]

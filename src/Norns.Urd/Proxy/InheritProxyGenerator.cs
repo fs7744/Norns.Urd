@@ -27,14 +27,22 @@ namespace Norns.Urd.Proxy
             var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
             MethodBuilder methodBaseBuilder = context.TypeBuilder.DefineMethod(baseMethodName, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
             var il = methodBaseBuilder.GetILGenerator();
-            il.EmitThis();
-            for (var i = 1; i <= parameters.Length; i++)
+            var isInterface = method.DeclaringType.IsInterface;
+            if (!isInterface || !method.IsAbstract)
             {
-                il.EmitLoadArg(i);
+                il.EmitThis();
+                for (var i = 1; i <= parameters.Length; i++)
+                {
+                    il.EmitLoadArg(i);
+                }
+                il.Emit(OpCodes.Call, method);
             }
-            il.Emit(OpCodes.Call, method);
-            il.Emit(OpCodes.Ret);
+            else
+            {
+                il.EmitDefault(method.ReturnType);
+            }
 
+            il.Emit(OpCodes.Ret);
             base.DefineMethod(context, method);
         }
     }

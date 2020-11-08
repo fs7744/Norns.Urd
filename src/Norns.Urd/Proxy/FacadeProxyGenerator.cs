@@ -10,7 +10,6 @@ namespace Norns.Urd.Proxy
 {
     public class FacadeProxyGenerator : IProxyGenerator
     {
-        protected const string Instance = "instance";
         protected const string GeneratedNameSpace = "Norns.Urd.DynamicGenerated";
         public virtual ProxyTypes ProxyType { get; } = ProxyTypes.Facade;
 
@@ -42,7 +41,7 @@ namespace Norns.Urd.Proxy
         public virtual void GetServiceInstance(ProxyGeneratorContext context, ILGenerator il)
         {
             il.EmitThis();
-            il.Emit(OpCodes.Ldfld, context.Fields[Instance]);
+            il.Emit(OpCodes.Ldfld, context.Fields[ConstantInfo.Instance]);
         }
 
         public virtual void DefineMethod(ProxyGeneratorContext context, MethodInfo method)
@@ -78,6 +77,8 @@ namespace Norns.Urd.Proxy
             }
             il.Emit(OpCodes.Stloc, argsLocal);
             il.Emit(OpCodes.Ldloc, argsLocal);
+            il.EmitThis();
+            il.Emit(OpCodes.Ldfld, context.Fields[ConstantInfo.ServiceProvider]);
             il.Emit(OpCodes.Newobj, context.ConstantInfo.AspectContextCtor);
             if (method.IsVoid())
             {
@@ -137,7 +138,8 @@ namespace Norns.Urd.Proxy
 
         public virtual void DefineFields(ProxyGeneratorContext context)
         {
-            context.Fields.Add(Instance, context.TypeBuilder.DefineField(Instance, context.ServiceType, FieldAttributes.Private));
+            context.Fields.Add(ConstantInfo.Instance, context.TypeBuilder.DefineField(ConstantInfo.Instance, context.ServiceType, FieldAttributes.Private));
+            context.Fields.Add(ConstantInfo.ServiceProvider, context.TypeBuilder.DefineField(ConstantInfo.ServiceProvider, typeof(IServiceProvider), FieldAttributes.Private));
         }
 
         public virtual void DefineConstructors(ProxyGeneratorContext context)
@@ -145,18 +147,21 @@ namespace Norns.Urd.Proxy
             var constructorInfos = context.ServiceType.GetTypeInfo().DeclaredConstructors.Where(c => !c.IsStatic && (c.IsPublic || c.IsFamily || c.IsFamilyAndAssembly || c.IsFamilyOrAssembly)).ToArray();
             if (constructorInfos.Length == 0)
             {
-                var constructorBuilder = context.TypeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, null);
+                var constructorBuilder = context.TypeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, new Type[] { typeof(IServiceProvider) });
 
                 var ilGen = constructorBuilder.GetILGenerator();
                 ilGen.EmitThis();
                 ilGen.Emit(OpCodes.Call, context.ConstantInfo.ObjectCtor);
+                ilGen.EmitThis();
+                ilGen.EmitLoadArg(1);
+                ilGen.Emit(OpCodes.Stfld, context.Fields[ConstantInfo.ServiceProvider]);
                 ilGen.Emit(OpCodes.Ret);
             }
             else
             {
                 foreach (var constructor in constructorInfos)
                 {
-                    Type[] parameterTypes = constructor.GetParameters().Select(i => i.ParameterType).ToArray();
+                    Type[] parameterTypes = constructor.GetParameters().Select(i => i.ParameterType).Concat(new Type[] { typeof(IServiceProvider) }).ToArray();
                     var constructorBuilder = context.TypeBuilder.DefineConstructor(context.ServiceType.IsAbstract ? constructor.Attributes | MethodAttributes.Public : constructor.Attributes, constructor.CallingConvention, parameterTypes);
                     foreach (var customAttributeData in constructor.CustomAttributes)
                     {
@@ -167,12 +172,14 @@ namespace Norns.Urd.Proxy
                     var ilGen = constructorBuilder.GetILGenerator();
 
                     ilGen.EmitThis();
-                    for (var i = 1; i <= parameterTypes.Length; i++)
+                    for (var i = 1; i < parameterTypes.Length; i++)
                     {
                         ilGen.EmitLoadArg(i);
                     }
                     ilGen.Emit(OpCodes.Call, constructor);
-
+                    ilGen.EmitThis();
+                    ilGen.EmitLoadArg(parameterTypes.Length);
+                    ilGen.Emit(OpCodes.Stfld, context.Fields[ConstantInfo.ServiceProvider]);
                     ilGen.Emit(OpCodes.Ret);
                 }
             }

@@ -65,7 +65,7 @@ namespace Norns.Urd.UT
         public void SyncWhenPublicMethod()
         {
             var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.NoArgsVoid));
-            var context = new AspectContext(m, new InterceptorFactoryMethodTestClass(), ProxyTypes.Facade, new object[0]);
+            var context = new AspectContext(m, new InterceptorFactoryMethodTestClass(), ProxyTypes.Facade, new object[0], null);
             interceptorFactory.GetInterceptor(m, ProxyTypes.Facade)(context);
             Assert.Null(context.ReturnValue);
         }
@@ -74,7 +74,7 @@ namespace Norns.Urd.UT
         public void SyncWhenPublicMethodReturnInt()
         {
             var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.NoArgsReturnInt));
-            var context = new AspectContext(m, new InterceptorFactoryMethodTestClass(), ProxyTypes.Facade, new object[0]);
+            var context = new AspectContext(m, new InterceptorFactoryMethodTestClass(), ProxyTypes.Facade, new object[0], null);
             interceptorFactory.GetInterceptor(m, ProxyTypes.Facade)(context);
             Assert.Equal(23, (int)context.ReturnValue);
         }
@@ -83,7 +83,7 @@ namespace Norns.Urd.UT
         public void InheritSyncWhenPublicMethodReturnInt()
         {
             var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.NoArgsReturnInt));
-            var context = new AspectContext(m, new InheritInterceptorFactoryMethodTestClass(), ProxyTypes.Inherit, new object[0]);
+            var context = new AspectContext(m, new InheritInterceptorFactoryMethodTestClass(), ProxyTypes.Inherit, new object[0], null);
             interceptorFactory.GetInterceptor(m, ProxyTypes.Inherit)(context);
             Assert.Equal(23, (int)context.ReturnValue);
         }
@@ -92,7 +92,7 @@ namespace Norns.Urd.UT
         public void SyncWhenPublicMethodHasOneArgsReturnInt()
         {
             var m = typeof(InterceptorFactoryMethodTestClass).GetMethod(nameof(InterceptorFactoryMethodTestClass.HasOneArgsReturnInt));
-            var context = new AspectContext(m, new InterceptorFactoryMethodTestClass(), ProxyTypes.Facade, new object[] { 4 });
+            var context = new AspectContext(m, new InterceptorFactoryMethodTestClass(), ProxyTypes.Facade, new object[] { 4 }, null);
             interceptorFactory.GetInterceptor(m, ProxyTypes.Facade)(context);
             Assert.Equal(27, (int)context.ReturnValue);
         }

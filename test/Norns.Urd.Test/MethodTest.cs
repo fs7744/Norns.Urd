@@ -1,5 +1,6 @@
 ﻿using Moq;
 using Norns.Urd.Proxy;
+using Norns.Urd.Utils;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -97,7 +98,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(SubClass), ProxyTypes.Inherit);
             Assert.Equal("SubClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType) as SubClass;
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as SubClass;
             Assert.NotNull(v);
             Assert.NotNull(v.Do2());
             Assert.NotNull(v.Do());
@@ -111,7 +112,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(AbstractMethodTestClass), ProxyTypes.Inherit);
             Assert.Equal("AbstractMethodTestClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType) as AbstractMethodTestClass;
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as AbstractMethodTestClass;
             Assert.NotNull(v);
             Assert.NotNull(v.Do2());
             Assert.Null(v.Do());
@@ -124,7 +125,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(IMethodTestInterface), ProxyTypes.Inherit);
             Assert.Equal("IMethodTestInterface_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType) as IMethodTestInterface;
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as IMethodTestInterface;
             Assert.NotNull(v);
             Assert.NotNull(v.Do2());
             Assert.Null(v.Do());
@@ -135,9 +136,9 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(IMethodTestInterface), ProxyTypes.Facade);
             Assert.Equal("IMethodTestInterface_Proxy_Facade", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType) as IMethodTestInterface;
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as IMethodTestInterface;
             Assert.NotNull(v);
-            var f = proxyType.GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance);
+            var f = proxyType.GetField(ConstantInfo.Instance, BindingFlags.NonPublic | BindingFlags.Instance);
             var m = new Mock<IMethodTestInterface>();
             f.SetValue(v, m.Object);
             Assert.Null(v.Do());
@@ -148,7 +149,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(MethodTestClass));
             Assert.Equal("MethodTestClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType) as MethodTestClass;
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as MethodTestClass;
             Assert.NotNull(v);
             v.NoArgsVoid();
         }
@@ -158,7 +159,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(MethodTestClass));
             Assert.Equal("MethodTestClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType) as MethodTestClass;
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as MethodTestClass;
             Assert.NotNull(v);
             Assert.Equal(3, v.NotVirtualNoArgsReturnInt());
         }
@@ -168,7 +169,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(MethodTestClass));
             Assert.Equal("MethodTestClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType) as MethodTestClass;
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as MethodTestClass;
             Assert.NotNull(v);
             Assert.Equal(13, v.NoArgsReturnInt());
         }
@@ -178,7 +179,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(MethodTestClass));
             Assert.Equal("MethodTestClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType) as MethodTestClass;
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as MethodTestClass;
             Assert.NotNull(v);
             Assert.Equal(17, v.HasArgsReturnInt(7));
             Assert.Equal(19, v.HasArgsReturnInt(9));
@@ -189,7 +190,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(MethodTestClass));
             Assert.Equal("MethodTestClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType) as MethodTestClass;
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as MethodTestClass;
             Assert.NotNull(v);
             long i = 9;
             Assert.Equal((7, 9), v.HasArgsReturnTuple(7, ref i));
@@ -200,7 +201,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(MethodTestClass));
             Assert.Equal("MethodTestClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType) as MethodTestClass;
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as MethodTestClass;
             Assert.NotNull(v);
             var array = v.HasArgsReturnArray(7, out var i);
             Assert.Equal(2, array.Length);
@@ -218,7 +219,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(AsyncMethodTestClass));
             Assert.Equal("AsyncMethodTestClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType) as AsyncMethodTestClass;
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as AsyncMethodTestClass;
             Assert.NotNull(v);
             var task = v.NoArgsVoidTask();
             await task;
@@ -230,7 +231,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(AsyncMethodTestClass));
             Assert.Equal("AsyncMethodTestClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType) as AsyncMethodTestClass;
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as AsyncMethodTestClass;
             Assert.NotNull(v);
             var task = v.NoArgsVoidValueTask();
             await task;
@@ -242,7 +243,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(AsyncMethodTestClass));
             Assert.Equal("AsyncMethodTestClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType) as AsyncMethodTestClass;
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as AsyncMethodTestClass;
             Assert.NotNull(v);
             var task = v.NoArgsVoidValueTaskReturnInt();
             var a = task.GetAwaiter().GetResult();
@@ -255,7 +256,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(AsyncMethodTestClass));
             Assert.Equal("AsyncMethodTestClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType) as AsyncMethodTestClass;
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as AsyncMethodTestClass;
             Assert.NotNull(v);
             var task = v.NoArgsVoidTaskReturnLong();
             var a = await task;

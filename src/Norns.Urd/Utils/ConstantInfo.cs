@@ -8,6 +8,10 @@ namespace Norns.Urd.Utils
 {
     public class ConstantInfo
     {
+        public const string Instance = "_facade_instance";
+
+        public const string ServiceProvider = "_proxy_serviceProvider";
+
         public static readonly MethodInfo GetTypeFromHandle = InternalExtensions.GetMethod<Func<RuntimeTypeHandle, Type>>(handle => Type.GetTypeFromHandle(handle));
         
         public static readonly MethodInfo GetMethodFromHandle = InternalExtensions.GetMethod<Func<RuntimeMethodHandle, RuntimeTypeHandle, MethodBase>>((h1, h2) => MethodBase.GetMethodFromHandle(h1, h2));

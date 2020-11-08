@@ -1,5 +1,6 @@
 ﻿using Norns.Urd.Extensions;
 using Norns.Urd.Utils;
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -17,7 +18,7 @@ namespace Norns.Urd.Proxy
 
         public override void DefineFields(ProxyGeneratorContext context)
         {
-            // Method intentionally left empty to avoid instance field.
+            context.Fields.Add(ConstantInfo.ServiceProvider, context.TypeBuilder.DefineField(ConstantInfo.ServiceProvider, typeof(IServiceProvider), FieldAttributes.Private));
         }
 
         public override void DefineMethod(ProxyGeneratorContext context, MethodInfo method)

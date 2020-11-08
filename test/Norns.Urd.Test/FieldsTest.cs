@@ -28,7 +28,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(FieldsTestClass));
             Assert.Equal("FieldsTestClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType) as FieldsTestClass;
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as FieldsTestClass;
             Assert.NotNull(v);
             Assert.Equal(0, v.PublicInt);
             Assert.Equal(0, v.ProtectedInternalInt);

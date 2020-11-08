@@ -78,7 +78,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(INoConstructorsInterface));
             Assert.Equal("INoConstructorsInterface_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType) as INoConstructorsInterface;
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as INoConstructorsInterface;
             Assert.NotNull(v);
         }
 
@@ -87,7 +87,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(OneConstructorNoArgs));
             Assert.Equal("OneConstructorNoArgs_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType) as OneConstructorNoArgs;
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as OneConstructorNoArgs;
             Assert.NotNull(v);
         }
 
@@ -96,7 +96,7 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(OneConstructorOneArgs));
             Assert.Equal("OneConstructorOneArgs_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType, new object[] { 4 }) as OneConstructorOneArgs;
+            var v = Activator.CreateInstance(proxyType, new object[] { 4, null }) as OneConstructorOneArgs;
             Assert.NotNull(v);
             Assert.Equal(4, v.A);
         }
@@ -106,13 +106,13 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(TwoConstructorOneArgs));
             Assert.Equal("TwoConstructorOneArgs_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType, new object[] { 4 }) as TwoConstructorOneArgs;
+            var v = Activator.CreateInstance(proxyType, new object[] { 4, null }) as TwoConstructorOneArgs;
             Assert.NotNull(v);
             Assert.Equal(4, v.A);
             Assert.Equal(2, proxyType.GetCustomAttribute<TestDataAttribute>().V);
             Assert.Equal(99, proxyType.GetConstructors()[0].GetCustomAttribute<TestDataAttribute>().V);
             Assert.Equal(4, proxyType.GetConstructors()[0].GetParameters()[0].GetCustomAttribute<TestDataAttribute>().V);
-            v = Activator.CreateInstance(proxyType) as TwoConstructorOneArgs;
+            v = Activator.CreateInstance(proxyType, new object[] { null }) as TwoConstructorOneArgs;
             Assert.NotNull(v);
             Assert.Equal(0, v.A);
         }
@@ -122,10 +122,10 @@ namespace Norns.Urd.UT
         {
             var proxyType = creator.CreateProxyType(typeof(AbstractTwoConstructorOneArgs));
             Assert.Equal("AbstractTwoConstructorOneArgs_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType, new object[] { 4 }) as AbstractTwoConstructorOneArgs;
+            var v = Activator.CreateInstance(proxyType, new object[] { 4, null }) as AbstractTwoConstructorOneArgs;
             Assert.NotNull(v);
             Assert.Equal(4, v.A);
-            v = Activator.CreateInstance(proxyType) as AbstractTwoConstructorOneArgs;
+            v = Activator.CreateInstance(proxyType, new object[] { null }) as AbstractTwoConstructorOneArgs;
             Assert.NotNull(v);
             Assert.Equal(0, v.A);
         }

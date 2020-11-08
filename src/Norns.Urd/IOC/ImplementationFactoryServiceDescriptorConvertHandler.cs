@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Norns.Urd.Extensions;
 using Norns.Urd.Proxy;
+using Norns.Urd.Utils;
 using System.Reflection;
 
 namespace Norns.Urd.IOC
@@ -27,7 +28,7 @@ namespace Norns.Urd.IOC
             return ServiceDescriptor.Describe(descriptor.ServiceType, i =>
             {
                 var proxy = ActivatorUtilities.CreateInstance(i, type);
-                var f = proxy.GetType().GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance); // todo: 性能优化
+                var f = proxy.GetType().GetField(ConstantInfo.Instance, BindingFlags.NonPublic | BindingFlags.Instance); // todo: 性能优化
                 f.SetValue(proxy, descriptor.ImplementationFactory != null
                     ? descriptor.ImplementationFactory(i)
                     : (descriptor.ImplementationInstance ?? ActivatorUtilities.CreateInstance(i, descriptor.ImplementationType)));

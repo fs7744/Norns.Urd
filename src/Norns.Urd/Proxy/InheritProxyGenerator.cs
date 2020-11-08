@@ -28,9 +28,9 @@ namespace Norns.Urd.Proxy
             MethodBuilder methodBaseBuilder = context.TypeBuilder.DefineMethod(baseMethodName, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
             var il = methodBaseBuilder.GetILGenerator();
             il.EmitThis();
-            for (var i = 0; i < parameters.Length; i++)
+            for (var i = 1; i <= parameters.Length; i++)
             {
-                il.EmitLoadArg(i + 1);
+                il.EmitLoadArg(i);
             }
             il.Emit(OpCodes.Call, method);
             il.Emit(OpCodes.Ret);

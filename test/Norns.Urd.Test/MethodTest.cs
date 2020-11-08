@@ -1,5 +1,7 @@
-﻿using Norns.Urd.Proxy;
+﻿using Moq;
+using Norns.Urd.Proxy;
 using System;
+using System.Reflection;
 using Xunit;
 
 namespace Norns.Urd.UT
@@ -16,13 +18,18 @@ namespace Norns.Urd.UT
 
         public virtual int HasArgsReturnInt(int v) => v;
 
-        public virtual (int, long) HasArgsReturnTuple(int v, ref long y) => (v,y);
+        public virtual (int, long) HasArgsReturnTuple(int v, ref long y) => (v, y);
 
-        public virtual object[] HasArgsReturnArray(int v, out long y) 
+        public virtual object[] HasArgsReturnArray(int v, out long y)
         {
             y = 99;
             return new object[] { v, y };
         }
+    }
+
+    public interface IMethodTestInterface
+    {
+        MethodTestClass Do();
     }
 
     public class MethodTest
@@ -34,6 +41,19 @@ namespace Norns.Urd.UT
             var (c, _, conf) = ProxyCreatorUTHelper.InitPorxyCreator();
             creator = c;
             conf.Interceptors.Add(new TestInterceptor());
+        }
+
+        [Fact]
+        public void InterfaceWhenPublicMethod()
+        {
+            var proxyType = creator.CreateProxyType(typeof(IMethodTestInterface), ProxyTypes.Facade);
+            Assert.Equal("IMethodTestInterface_Proxy_Facade", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType) as IMethodTestInterface;
+            Assert.NotNull(v);
+            var f = proxyType.GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance);
+            var m = new Mock<IMethodTestInterface>();
+            f.SetValue(v, m.Object);
+            Assert.Null(v.Do());
         }
 
         [Fact]

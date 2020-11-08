@@ -66,7 +66,7 @@ namespace Norns.Urd.Proxy
             ConstructorIL.EmitLoadArg(0);
             ConstructorIL.Emit(OpCodes.Ldsfld, field);
             ConstructorIL.Emit(ProxyTypes.Inherit == proxyType ? OpCodes.Ldc_I4_0 : OpCodes.Ldc_I4_1);
-            ConstructorIL.Emit(OpCodes.Callvirt, typeof(IInterceptorFactory).GetMethod(nameof(IInterceptorFactory.GetInterceptor)));
+            ConstructorIL.Emit(OpCodes.Callvirt, ConstantInfo.GetInterceptor);
             ConstructorIL.Emit(OpCodes.Stsfld, cField);
             Fields.Add(cField.Name, cField);
 

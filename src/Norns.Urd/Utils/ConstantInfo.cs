@@ -25,5 +25,7 @@ namespace Norns.Urd.Utils
         public readonly MethodInfo GetReturnValue = typeof(AspectContext).GetProperty(nameof(AspectContext.ReturnValue)).GetMethod;
 
         public readonly HashSet<string> IgnoreMethods = new HashSet<string> { "Finalize" };
+
+        public readonly MethodInfo GetInterceptor = typeof(IInterceptorFactory).GetMethod(nameof(IInterceptorFactory.GetInterceptor));
     }
 }

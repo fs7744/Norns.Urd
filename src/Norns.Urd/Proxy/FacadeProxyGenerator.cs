@@ -39,6 +39,12 @@ namespace Norns.Urd.Proxy
             }
         }
 
+        public virtual void GetServiceInstance(ProxyGeneratorContext context, ILGenerator il)
+        {
+            il.EmitThis();
+            il.Emit(OpCodes.Ldfld, context.Fields[Instance]);
+        }
+
         public virtual void DefineMethod(ProxyGeneratorContext context, MethodInfo method)
         {
             var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
@@ -48,7 +54,7 @@ namespace Norns.Urd.Proxy
             var caller = context.AssistStaticTypeBuilder.Fields[$"cm_{method.Name}"];
             il.Emit(OpCodes.Ldsfld, caller);
             il.Emit(OpCodes.Ldsfld, mf);
-            il.EmitThis();
+            GetServiceInstance(context, il);
             il.Emit(OpCodes.Ldc_I4_0);
 
             var argsLocal = il.DeclareLocal(typeof(object[]));

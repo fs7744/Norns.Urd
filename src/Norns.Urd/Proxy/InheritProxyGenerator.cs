@@ -10,6 +10,11 @@ namespace Norns.Urd.Proxy
     {
         public override ProxyTypes ProxyType { get; } = ProxyTypes.Inherit;
 
+        public override void GetServiceInstance(ProxyGeneratorContext context, ILGenerator il)
+        {
+            il.EmitThis();
+        }
+
         public override void DefineMethod(ProxyGeneratorContext context, MethodInfo method)
         {
             if (!method.IsVisibleAndVirtual()) return;

@@ -26,6 +26,12 @@ namespace Norns.Urd.Utils
 
         public readonly MethodInfo GetReturnValue = typeof(AspectContext).GetProperty(nameof(AspectContext.ReturnValue)).GetMethod;
 
+        public static readonly MethodInfo SetReturnValue = typeof(AspectContext).GetProperty(nameof(AspectContext.ReturnValue)).SetMethod;
+
+        public static readonly MethodInfo GetParameters = typeof(AspectContext).GetProperty(nameof(AspectContext.Parameters)).GetMethod;
+
+        public static readonly MethodInfo GetService = typeof(AspectContext).GetProperty(nameof(AspectContext.Service)).GetMethod;
+
         public readonly HashSet<string> IgnoreMethods = new HashSet<string> { "Finalize", "ToString", "Equals", "GetHashCode" };
 
         public readonly MethodInfo GetInterceptor = typeof(IInterceptorFactory).GetMethod(nameof(IInterceptorFactory.GetInterceptor));

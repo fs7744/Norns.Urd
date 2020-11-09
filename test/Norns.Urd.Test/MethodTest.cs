@@ -40,6 +40,19 @@ namespace Norns.Urd.UT
         }
     }
 
+    public class GenericMethodTestClass2<T>
+    {
+        public virtual T GenericMethod(T t)
+        {
+            return t;
+        }
+
+        public virtual R GenericMethod3<R>(R t)
+        {
+            return t;
+        }
+    }
+
     public class AsyncMethodTestClass
     {
         public virtual Task NoArgsVoidTask() => Task.Delay(20);
@@ -114,6 +127,29 @@ namespace Norns.Urd.UT
             Assert.Equal(76, v.GenericMethod(66));
             Assert.Equal(98, v.GenericMethod(88));
             Assert.Equal(88.6, v.GenericMethod(88.6));
+        }
+
+        [Fact]
+        public void WhenGenericMethod2()
+        {
+            var proxyType = creator.CreateProxyType(typeof(GenericMethodTestClass2<int>));
+            //Assert.Equal("GenericMethodTestClass_Proxy_Inherit", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as GenericMethodTestClass2<int>;
+            Assert.NotNull(v);
+            Assert.Equal(76, v.GenericMethod(66));
+            Assert.Equal(98, v.GenericMethod(88));
+        }
+
+        [Fact]
+        public void WhenGenericMethod3()
+        {
+            var proxyType = creator.CreateProxyType(typeof(GenericMethodTestClass2<int>));
+            //Assert.Equal("GenericMethodTestClass_Proxy_Inherit", proxyType.Name);
+            var v = Activator.CreateInstance(proxyType, new object[] { null }) as GenericMethodTestClass2<int>;
+            Assert.NotNull(v);
+            Assert.Equal(76, v.GenericMethod3(66));
+            Assert.Equal(98, v.GenericMethod3(88));
+            Assert.Equal(88.6, v.GenericMethod3(88.6));
         }
 
         [Fact]

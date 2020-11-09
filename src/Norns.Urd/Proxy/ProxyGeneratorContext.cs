@@ -46,7 +46,7 @@ namespace Norns.Urd.Proxy
         {
             if (ConstructorIL == null)
             {
-                var m = TypeBuilder.DefineMethod("Init", MethodAttributes.Public | MethodAttributes.Static , CallingConventions.Standard, typeof(void), new Type[] { typeof(IInterceptorFactory) });
+                var m = TypeBuilder.DefineMethod("Init", MethodAttributes.Public | MethodAttributes.Static, CallingConventions.Standard, typeof(void), new Type[] { typeof(IInterceptorFactory) });
                 ConstructorIL = m.GetILGenerator();
             }
         }
@@ -79,7 +79,7 @@ namespace Norns.Urd.Proxy
             InitConstructorIL();
             ConstructorIL.Emit(OpCodes.Ret);
             var type = TypeBuilder.CreateTypeInfo().AsType();
-            type.GetMethod("Init").Invoke(null, new object[] { ServiceProvider.GetRequiredService<IInterceptorFactory>() }); // todo:性能优化
+            type.GetMethod("Init").Invoke(null, new object[] { ServiceProvider.GetRequiredService<IInterceptorFactory>() });
             return type;
         }
     }

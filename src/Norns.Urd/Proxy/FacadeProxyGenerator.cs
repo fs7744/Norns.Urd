@@ -79,10 +79,22 @@ namespace Norns.Urd.Proxy
             var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
             var mf = context.AssistStaticTypeBuilder.DefineMethodInfo(method, ProxyType);
             MethodBuilder methodBuilder = context.TypeBuilder.DefineMethod(method.Name, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
+            DefineGenericParameter(method, methodBuilder);
             var il = methodBuilder.GetILGenerator();
             var caller = context.AssistStaticTypeBuilder.Fields[$"cm_{method.Name}"];
             il.Emit(OpCodes.Ldsfld, caller);
-            il.Emit(OpCodes.Ldsfld, mf);
+            if (method.IsGenericMethodDefinition)
+            {
+                var gm = method.MakeGenericMethod(methodBuilder.GetGenericArguments());
+                il.Emit(OpCodes.Ldtoken, gm);
+                il.Emit(OpCodes.Ldtoken, gm.DeclaringType);
+                il.Emit(OpCodes.Call, ConstantInfo.GetMethodFromHandle);
+                il.Emit(OpCodes.Castclass, typeof(MethodInfo));
+            }
+            else
+            {
+                il.Emit(OpCodes.Ldsfld, mf);
+            }
             GetServiceInstance(context, il);
             il.Emit(OpCodes.Ldc_I4_0);
 
@@ -155,6 +167,74 @@ namespace Norns.Urd.Proxy
             return methodBuilder;
         }
 
+
+        public static void DefineGenericParameter(Type targetType, TypeBuilder typeBuilder)
+        {
+            if (!targetType.GetTypeInfo().IsGenericTypeDefinition)
+            {
+                return;
+            }
+            var genericArguments = targetType.GetTypeInfo().GetGenericArguments().Select(t => t.GetTypeInfo()).ToArray();
+            var genericArgumentsBuilders = typeBuilder.DefineGenericParameters(genericArguments.Select(a => a.Name).ToArray());
+            for (var index = 0; index < genericArguments.Length; index++)
+            {
+                genericArgumentsBuilders[index].SetGenericParameterAttributes(ToClassGenericParameterAttributes(genericArguments[index].GenericParameterAttributes));
+                foreach (var constraint in genericArguments[index].GetGenericParameterConstraints().Select(t => t.GetTypeInfo()))
+                {
+                    if (constraint.IsClass) genericArgumentsBuilders[index].SetBaseTypeConstraint(constraint.AsType());
+                    if (constraint.IsInterface) genericArgumentsBuilders[index].SetInterfaceConstraints(constraint.AsType());
+                }
+            }
+        }
+
+        public static GenericParameterAttributes ToClassGenericParameterAttributes(GenericParameterAttributes attributes)
+        {
+            if (attributes == GenericParameterAttributes.None)
+            {
+                return GenericParameterAttributes.None;
+            }
+            if (attributes.HasFlag(GenericParameterAttributes.SpecialConstraintMask))
+            {
+                return GenericParameterAttributes.SpecialConstraintMask;
+            }
+            if (attributes.HasFlag(GenericParameterAttributes.NotNullableValueTypeConstraint))
+            {
+                return GenericParameterAttributes.NotNullableValueTypeConstraint;
+            }
+            if (attributes.HasFlag(GenericParameterAttributes.ReferenceTypeConstraint) && attributes.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint))
+            {
+                return GenericParameterAttributes.ReferenceTypeConstraint | GenericParameterAttributes.DefaultConstructorConstraint;
+            }
+            if (attributes.HasFlag(GenericParameterAttributes.ReferenceTypeConstraint))
+            {
+                return GenericParameterAttributes.ReferenceTypeConstraint;
+            }
+            if (attributes.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint))
+            {
+                return GenericParameterAttributes.DefaultConstructorConstraint;
+            }
+            return GenericParameterAttributes.None;
+        }
+
+        protected static void DefineGenericParameter(MethodInfo tergetMethod, MethodBuilder methodBuilder)
+        {
+            if (!tergetMethod.IsGenericMethod)
+            {
+                return;
+            }
+            var genericArguments = tergetMethod.GetGenericArguments().Select(t => t.GetTypeInfo()).ToArray();
+            var genericArgumentsBuilders = methodBuilder.DefineGenericParameters(genericArguments.Select(a => a.Name).ToArray());
+            for (var index = 0; index < genericArguments.Length; index++)
+            {
+                genericArgumentsBuilders[index].SetGenericParameterAttributes(genericArguments[index].GenericParameterAttributes);
+                foreach (var constraint in genericArguments[index].GetGenericParameterConstraints().Select(t => t.GetTypeInfo()))
+                {
+                    if (constraint.IsClass) genericArgumentsBuilders[index].SetBaseTypeConstraint(constraint.AsType());
+                    if (constraint.IsInterface) genericArgumentsBuilders[index].SetInterfaceConstraints(constraint.AsType());
+                }
+            }
+        }
+
         public virtual void DefineType(ProxyGeneratorContext context)
         {
             var serviceType = context.ServiceType;
@@ -162,7 +242,7 @@ namespace Norns.Urd.Proxy
                     ? (typeof(object), new Type[] { serviceType })
                     : (serviceType, Type.EmptyTypes);
             context.TypeBuilder = context.ModuleBuilder.DefineType(context.ProxyTypeName, TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed, parent, interfaceTypes);
-
+            DefineGenericParameter(serviceType, context.TypeBuilder);
             context.AssistStaticTypeBuilder.ModuleBuilder = context.ModuleBuilder;
             context.AssistStaticTypeBuilder.TypeBuilder = context.ModuleBuilder.DefineType($"{context.ProxyTypeName}_Assist", TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed, typeof(object));
         }

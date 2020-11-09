@@ -14,7 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var config = new AspectConfiguration();
             doConfig?.Invoke(config);
             var converter = Init(config);
-            foreach (var item in services.ToArray())
+            foreach (var item in services.Where(i => config.Filters.CanAspect(i.ServiceType)).ToArray())
             {
                 var proxy = converter.Convert(item);
                 if (proxy != null)

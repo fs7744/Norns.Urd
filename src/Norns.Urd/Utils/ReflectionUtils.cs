@@ -6,6 +6,16 @@ namespace Norns.Urd.Utils
 {
     public static class ReflectionUtils
     {
+        public static bool IsVisibleAndVirtual(this PropertyInfo property)
+        {
+            if (property == null)
+            {
+                throw new ArgumentNullException(nameof(property));
+            }
+            return (property.CanRead && property.GetMethod.IsVisibleAndVirtual()) ||
+                   (property.CanWrite && property.GetMethod.IsVisibleAndVirtual());
+        }
+
         public static bool IsVisibleAndVirtual(this MethodInfo method)
         {
             if (method == null)

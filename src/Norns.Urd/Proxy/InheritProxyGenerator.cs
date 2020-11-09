@@ -21,6 +21,14 @@ namespace Norns.Urd.Proxy
             context.Fields.Add(ConstantInfo.ServiceProvider, context.TypeBuilder.DefineField(ConstantInfo.ServiceProvider, typeof(IServiceProvider), FieldAttributes.Private));
         }
 
+        public override void DefineProperty(ProxyGeneratorContext context, PropertyInfo property)
+        {
+            if (property.IsVisibleAndVirtual())
+            {
+                base.DefineProperty(context, property);
+            }
+        }
+
         public override MethodBuilder DefineMethod(ProxyGeneratorContext context, MethodInfo method)
         {
             if (!method.IsVisibleAndVirtual()) return null;

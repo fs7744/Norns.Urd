@@ -33,23 +33,28 @@ namespace Norns.Urd.Proxy
         {
             foreach (var property in context.ServiceType.GetTypeInfo().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
             {
-                var propertyBuilder = context.TypeBuilder.DefineProperty(property.Name, property.Attributes, property.PropertyType, Type.EmptyTypes);
+                DefineProperty(context, property);
+            }
+        }
 
-                foreach (var customAttributeData in property.CustomAttributes)
-                {
-                    propertyBuilder.SetCustomAttribute(DefineCustomAttribute(customAttributeData));
-                }
+        public virtual void DefineProperty(ProxyGeneratorContext context, PropertyInfo property)
+        {
+            var propertyBuilder = context.TypeBuilder.DefineProperty(property.Name, property.Attributes, property.PropertyType, Type.EmptyTypes);
 
-                if (property.CanRead)
-                {
-                    var method = DefineMethod(context, property.GetMethod);
-                    propertyBuilder.SetGetMethod(method);
-                }
-                if (property.CanWrite)
-                {
-                    var method = DefineMethod(context, property.SetMethod);
-                    propertyBuilder.SetSetMethod(method);
-                }
+            foreach (var customAttributeData in property.CustomAttributes)
+            {
+                propertyBuilder.SetCustomAttribute(DefineCustomAttribute(customAttributeData));
+            }
+
+            if (property.CanRead)
+            {
+                var method = DefineMethod(context, property.GetMethod);
+                propertyBuilder.SetGetMethod(method);
+            }
+            if (property.CanWrite)
+            {
+                var method = DefineMethod(context, property.SetMethod);
+                propertyBuilder.SetSetMethod(method);
             }
         }
 

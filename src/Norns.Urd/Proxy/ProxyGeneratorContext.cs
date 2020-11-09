@@ -74,6 +74,25 @@ namespace Norns.Urd.Proxy
             return field;
         }
 
+        public FieldBuilder DefineGenericMethodInfo(MethodInfo serviceMethod, ProxyTypes proxyType)
+        {
+            InitConstructorIL();
+
+            var isAsync = serviceMethod.IsAsync();
+            var cField = TypeBuilder.DefineField($"cm_{serviceMethod.Name}", isAsync ? typeof(AspectDelegateAsync) : typeof(AspectDelegate), FieldAttributes.Static | FieldAttributes.Assembly);
+            ConstructorIL.EmitLoadArg(0);
+            ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod);
+            ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod.DeclaringType);
+            ConstructorIL.Emit(OpCodes.Call, ConstantInfo.GetMethodFromHandle);
+            ConstructorIL.Emit(OpCodes.Castclass, typeof(MethodInfo));
+            ConstructorIL.Emit(ProxyTypes.Inherit == proxyType ? OpCodes.Ldc_I4_0 : OpCodes.Ldc_I4_1);
+            ConstructorIL.Emit(OpCodes.Callvirt, isAsync ? ConstantInfo.GetGenericInterceptorAsync : ConstantInfo.GetGenericInterceptor);
+            ConstructorIL.Emit(OpCodes.Stsfld, cField);
+            Fields.Add(cField.Name, cField);
+
+            return cField;
+        }
+
         public Type CreateType()
         {
             InitConstructorIL();

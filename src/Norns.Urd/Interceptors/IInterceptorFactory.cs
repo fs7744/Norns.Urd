@@ -2,6 +2,7 @@
 using Norns.Urd.Proxy;
 using Norns.Urd.Utils;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -15,6 +16,10 @@ namespace Norns.Urd
         AspectDelegate GetInterceptor(MethodInfo method, ProxyTypes proxyType);
 
         AspectDelegateAsync GetInterceptorAsync(MethodInfo method, ProxyTypes proxyType);
+
+        AspectDelegate GetGenericInterceptor(MethodInfo method, ProxyTypes proxyType);
+
+        AspectDelegateAsync GetGenericInterceptorAsync(MethodInfo method, ProxyTypes proxyType);
     }
 
     public class InterceptorFactory : IInterceptorFactory
@@ -46,11 +51,49 @@ namespace Norns.Urd
             }).Aggregate(baseCall, (i, j) => c => j(c, i));
         }
 
+        public AspectDelegate GetGenericInterceptor(MethodInfo method, ProxyTypes proxyType)
+        {
+            AspectDelegate baseCall;
+            var lazyCaller = new LazyGenericCaller(proxyType == ProxyTypes.Facade ? method.Name : $"{method.Name}_Base");
+            baseCall = lazyCaller.Call;
+
+            return FindInterceptors(method).Select(i =>
+            {
+                MAspectDelegate a = i.Invoke;
+                return a;
+            }).Aggregate(baseCall, (i, j) => c => j(c, i));
+        }
+
         public IEnumerable<IInterceptor> FindInterceptors(MethodInfo method)
         {
             return configuration.Filters.CanAspect(method)
                 ? configuration.Interceptors
                 : new List<IInterceptor>();
+        }
+
+        public class LazyGenericCaller
+        {
+            private MethodInfo caller;
+            private readonly string method;
+            private readonly ConcurrentDictionary<MethodInfo, AspectDelegate> callers = new ConcurrentDictionary<MethodInfo, AspectDelegate>();
+
+            public LazyGenericCaller(string method)
+            {
+                this.method = method;
+            }
+
+            public void Call(AspectContext context)
+            {
+                if (caller == null)
+                {
+                    caller = context.Service.GetType().GetMethod(method);
+                }
+                callers.GetOrAdd(context.ServiceMethod, serviceMethod =>
+                {
+                    var m = caller.MakeGenericMethod(serviceMethod.GetGenericArguments());
+                    return CreateSyncCaller(m);
+                })(context);
+            }
         }
 
         public class LazyCaller
@@ -90,6 +133,31 @@ namespace Norns.Urd
                     caller = CreateAsyncCaller(context.Service.GetType().GetMethod(method));
                 }
                 await caller(context);
+            }
+        }
+
+        public class AsyncLazyGenericCaller
+        {
+            private MethodInfo caller;
+            private readonly string method;
+            private readonly ConcurrentDictionary<MethodInfo, AspectDelegateAsync> callers = new ConcurrentDictionary<MethodInfo, AspectDelegateAsync>();
+
+            public AsyncLazyGenericCaller(string method)
+            {
+                this.method = method;
+            }
+
+            public async Task Call(AspectContext context)
+            {
+                if (caller == null)
+                {
+                    caller = context.Service.GetType().GetMethod(method);
+                }
+                await callers.GetOrAdd(context.ServiceMethod, serviceMethod =>
+                {
+                    var m = caller.MakeGenericMethod(serviceMethod.GetGenericArguments());
+                    return CreateAsyncCaller(m);
+                })(context);
             }
         }
 
@@ -226,6 +294,19 @@ namespace Norns.Urd
                 var lazyCaller = new AsyncLazyCaller($"{method.Name}_Base");
                 baseCall = lazyCaller.Call;
             }
+
+            return FindInterceptors(method).Select(i =>
+            {
+                MAspectDelegateAsync a = i.InvokeAsync;
+                return a;
+            }).Aggregate(baseCall, (i, j) => c => j(c, i));
+        }
+
+        public AspectDelegateAsync GetGenericInterceptorAsync(MethodInfo method, ProxyTypes proxyType)
+        {
+            AspectDelegateAsync baseCall;
+            var lazyCaller = new AsyncLazyGenericCaller(proxyType == ProxyTypes.Facade ? method.Name : $"{method.Name}_Base");
+            baseCall = lazyCaller.Call;
 
             return FindInterceptors(method).Select(i =>
             {

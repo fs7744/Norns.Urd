@@ -48,12 +48,9 @@ namespace Norns.Urd.Utils
 
         public static readonly MethodInfo AwaitValueTaskReturnValue = typeof(InterceptorFactory).GetMethod(nameof(InterceptorFactory.AwaitValueTaskReturnValue));
 
-        public static readonly MethodInfo TestM = typeof(ConstantInfo).GetMethod(nameof(ConstantInfo.Test));
+        public readonly MethodInfo GetGenericInterceptor = typeof(IInterceptorFactory).GetMethod(nameof(IInterceptorFactory.GetGenericInterceptor));
 
-        public static object Test(object o)
-        {
-            return o;
-        }
+        public readonly MethodInfo GetGenericInterceptorAsync = typeof(IInterceptorFactory).GetMethod(nameof(IInterceptorFactory.GetGenericInterceptorAsync));
     }
 }
 

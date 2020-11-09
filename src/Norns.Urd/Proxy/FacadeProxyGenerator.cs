@@ -77,14 +77,13 @@ namespace Norns.Urd.Proxy
         public virtual MethodBuilder DefineMethod(ProxyGeneratorContext context, MethodInfo method)
         {
             var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
-            var mf = context.AssistStaticTypeBuilder.DefineMethodInfo(method, ProxyType);
             MethodBuilder methodBuilder = context.TypeBuilder.DefineMethod(method.Name, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
             DefineGenericParameter(method, methodBuilder);
             var il = methodBuilder.GetILGenerator();
-            var caller = context.AssistStaticTypeBuilder.Fields[$"cm_{method.Name}"];
-            il.Emit(OpCodes.Ldsfld, caller);
             if (method.IsGenericMethodDefinition)
             {
+                var caller = context.AssistStaticTypeBuilder.DefineGenericMethodInfo(method, ProxyType);
+                il.Emit(OpCodes.Ldsfld, caller);
                 var gm = method.MakeGenericMethod(methodBuilder.GetGenericArguments());
                 il.Emit(OpCodes.Ldtoken, gm);
                 il.Emit(OpCodes.Ldtoken, gm.DeclaringType);
@@ -93,10 +92,13 @@ namespace Norns.Urd.Proxy
             }
             else
             {
+                var mf = context.AssistStaticTypeBuilder.DefineMethodInfo(method, ProxyType);
+                var caller = context.AssistStaticTypeBuilder.Fields[$"cm_{method.Name}"];
+                il.Emit(OpCodes.Ldsfld, caller);
                 il.Emit(OpCodes.Ldsfld, mf);
             }
             GetServiceInstance(context, il);
-            il.Emit(OpCodes.Ldc_I4_0);
+            il.Emit(ProxyTypes.Inherit == ProxyType ? OpCodes.Ldc_I4_0 : OpCodes.Ldc_I4_1);
 
             var argsLocal = il.DeclareLocal(typeof(object[]));
             il.EmitInt(parameters.Length);

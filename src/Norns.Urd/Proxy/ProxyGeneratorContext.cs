@@ -54,43 +54,63 @@ namespace Norns.Urd.Proxy
         public FieldBuilder DefineMethodInfo(MethodInfo serviceMethod, ProxyTypes proxyType)
         {
             InitConstructorIL();
-            var field = TypeBuilder.DefineField($"fm_{serviceMethod.Name}", typeof(MethodInfo), FieldAttributes.Static | FieldAttributes.Assembly);
-            ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod);
-            ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod.DeclaringType);
-            ConstructorIL.Emit(OpCodes.Call, ConstantInfo.GetMethodFromHandle);
-            ConstructorIL.Emit(OpCodes.Castclass, typeof(MethodInfo));
-            ConstructorIL.Emit(OpCodes.Stsfld, field);
-            Fields.Add(field.Name, field);
+            var fmName = $"fm_{serviceMethod.Name}";
+            if (!Fields.ContainsKey(fmName))
+            {
+                var field = TypeBuilder.DefineField(fmName, typeof(MethodInfo), FieldAttributes.Static | FieldAttributes.Assembly);
+                ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod);
+                ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod.DeclaringType);
+                ConstructorIL.Emit(OpCodes.Call, ConstantInfo.GetMethodFromHandle);
+                ConstructorIL.Emit(OpCodes.Castclass, typeof(MethodInfo));
+                ConstructorIL.Emit(OpCodes.Stsfld, field);
+                Fields.Add(field.Name, field);
 
-            var isAsync = serviceMethod.IsAsync();
-            var cField = TypeBuilder.DefineField($"cm_{serviceMethod.Name}", isAsync ? typeof(AspectDelegateAsync) : typeof(AspectDelegate), FieldAttributes.Static | FieldAttributes.Assembly);
-            ConstructorIL.EmitLoadArg(0);
-            ConstructorIL.Emit(OpCodes.Ldsfld, field);
-            ConstructorIL.Emit(ProxyTypes.Inherit == proxyType ? OpCodes.Ldc_I4_0 : OpCodes.Ldc_I4_1);
-            ConstructorIL.Emit(OpCodes.Callvirt, isAsync ? ConstantInfo.GetInterceptorAsync : ConstantInfo.GetInterceptor);
-            ConstructorIL.Emit(OpCodes.Stsfld, cField);
-            Fields.Add(cField.Name, cField);
+                var cmName = $"cm_{serviceMethod.Name}";
+                if (!Fields.ContainsKey(cmName))
+                {
+                    var isAsync = serviceMethod.IsAsync();
+                    var cField = TypeBuilder.DefineField($"cm_{serviceMethod.Name}", isAsync ? typeof(AspectDelegateAsync) : typeof(AspectDelegate), FieldAttributes.Static | FieldAttributes.Assembly);
+                    ConstructorIL.EmitLoadArg(0);
+                    ConstructorIL.Emit(OpCodes.Ldsfld, field);
+                    ConstructorIL.Emit(ProxyTypes.Inherit == proxyType ? OpCodes.Ldc_I4_0 : OpCodes.Ldc_I4_1);
+                    ConstructorIL.Emit(OpCodes.Callvirt, isAsync ? ConstantInfo.GetInterceptorAsync : ConstantInfo.GetInterceptor);
+                    ConstructorIL.Emit(OpCodes.Stsfld, cField);
+                    Fields.Add(cField.Name, cField);
+                }
 
-            return field;
+                return field;
+            }
+            else
+            {
+                return Fields[fmName];
+            }
         }
 
         public FieldBuilder DefineGenericMethodInfo(MethodInfo serviceMethod, ProxyTypes proxyType)
         {
             InitConstructorIL();
+            var cmName = $"cm_{serviceMethod.Name}";
+            if (!Fields.ContainsKey(cmName))
+            {
+                var isAsync = serviceMethod.IsAsync();
 
-            var isAsync = serviceMethod.IsAsync();
-            var cField = TypeBuilder.DefineField($"cm_{serviceMethod.Name}", isAsync ? typeof(AspectDelegateAsync) : typeof(AspectDelegate), FieldAttributes.Static | FieldAttributes.Assembly);
-            ConstructorIL.EmitLoadArg(0);
-            ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod);
-            ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod.DeclaringType);
-            ConstructorIL.Emit(OpCodes.Call, ConstantInfo.GetMethodFromHandle);
-            ConstructorIL.Emit(OpCodes.Castclass, typeof(MethodInfo));
-            ConstructorIL.Emit(ProxyTypes.Inherit == proxyType ? OpCodes.Ldc_I4_0 : OpCodes.Ldc_I4_1);
-            ConstructorIL.Emit(OpCodes.Callvirt, isAsync ? ConstantInfo.GetGenericInterceptorAsync : ConstantInfo.GetGenericInterceptor);
-            ConstructorIL.Emit(OpCodes.Stsfld, cField);
-            Fields.Add(cField.Name, cField);
+                var cField = TypeBuilder.DefineField($"cm_{serviceMethod.Name}", isAsync ? typeof(AspectDelegateAsync) : typeof(AspectDelegate), FieldAttributes.Static | FieldAttributes.Assembly);
+                ConstructorIL.EmitLoadArg(0);
+                ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod);
+                ConstructorIL.Emit(OpCodes.Ldtoken, serviceMethod.DeclaringType);
+                ConstructorIL.Emit(OpCodes.Call, ConstantInfo.GetMethodFromHandle);
+                ConstructorIL.Emit(OpCodes.Castclass, typeof(MethodInfo));
+                ConstructorIL.Emit(ProxyTypes.Inherit == proxyType ? OpCodes.Ldc_I4_0 : OpCodes.Ldc_I4_1);
+                ConstructorIL.Emit(OpCodes.Callvirt, isAsync ? ConstantInfo.GetGenericInterceptorAsync : ConstantInfo.GetGenericInterceptor);
+                ConstructorIL.Emit(OpCodes.Stsfld, cField);
+                Fields.Add(cField.Name, cField);
 
-            return cField;
+                return cField;
+            }
+            else
+            {
+                return Fields[cmName];
+            }
         }
 
         public Type CreateType()

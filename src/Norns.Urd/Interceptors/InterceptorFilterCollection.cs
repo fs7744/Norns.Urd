@@ -16,6 +16,12 @@ namespace Norns.Urd
             typeFilters.Add(i => !i.Namespace.StartsWith(@namespace));
         }
 
+        public void NamespaceStartWith(string @namespace)
+        {
+            methodFilters.Add(i => i.DeclaringType.Namespace.StartsWith(@namespace));
+            typeFilters.Add(i => i.Namespace.StartsWith(@namespace));
+        }
+
         internal bool CanAspect(Type type)
         {
             return typeFilters.All(i => i(type));

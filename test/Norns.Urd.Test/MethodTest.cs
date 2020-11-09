@@ -104,15 +104,15 @@ namespace Norns.Urd.UT
 
         #region Sync
 
-        [Fact]
-        public void WhenGenericMethod()
-        {
-            var proxyType = creator.CreateProxyType(typeof(GenericMethodTestClass));
-            Assert.Equal("GenericMethodTestClass_Proxy_Inherit", proxyType.Name);
-            var v = Activator.CreateInstance(proxyType, new object[] { null }) as GenericMethodTestClass;
-            Assert.NotNull(v);
-            Assert.Equal(76, v.GenericMethod(66));
-        }
+        //[Fact]
+        //public void WhenGenericMethod()
+        //{
+        //    var proxyType = creator.CreateProxyType(typeof(GenericMethodTestClass));
+        //    Assert.Equal("GenericMethodTestClass_Proxy_Inherit", proxyType.Name);
+        //    var v = Activator.CreateInstance(proxyType, new object[] { null }) as GenericMethodTestClass;
+        //    Assert.NotNull(v);
+        //    Assert.Equal(76, v.GenericMethod(66));
+        //}
 
         [Fact]
         public void SubClassWhenHasOverrideMethod()

@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3FD69CA3-BAF7-4B7A-AAB2-B9853759F4D7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{115CAC93-F1BB-40FA-A55E-D846ED028024}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2D3C36F9-DC12-4CDA-B8A0-3D4800105F17}"
+	ProjectSection(SolutionItems) = preProject
+		ProjectCommon.targets = ProjectCommon.targets
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Norns.Urd", "src\Norns.Urd\Norns.Urd.csproj", "{396F28A0-999B-4CF1-B7EC-74E5F5063BAA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Norns.Urd.Test", "test\Norns.Urd.Test\Norns.Urd.Test.csproj", "{C54ACC90-5597-4C49-96E8-64D15714A1CD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{396F28A0-999B-4CF1-B7EC-74E5F5063BAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{396F28A0-999B-4CF1-B7EC-74E5F5063BAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{396F28A0-999B-4CF1-B7EC-74E5F5063BAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{396F28A0-999B-4CF1-B7EC-74E5F5063BAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C54ACC90-5597-4C49-96E8-64D15714A1CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C54ACC90-5597-4C49-96E8-64D15714A1CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C54ACC90-5597-4C49-96E8-64D15714A1CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C54ACC90-5597-4C49-96E8-64D15714A1CD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{396F28A0-999B-4CF1-B7EC-74E5F5063BAA} = {3FD69CA3-BAF7-4B7A-AAB2-B9853759F4D7}
+		{C54ACC90-5597-4C49-96E8-64D15714A1CD} = {115CAC93-F1BB-40FA-A55E-D846ED028024}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C2BFA03B-F071-472F-95AD-C2E127881EDE}
+	EndGlobalSection
+EndGlobal

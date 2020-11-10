@@ -20,9 +20,4 @@
     <ProjectReference Include="..\..\src\Norns.Urd\Norns.Urd.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DynamicProxy\" />
-    <Folder Include="Reflection\" />
-  </ItemGroup>
-
 </Project>

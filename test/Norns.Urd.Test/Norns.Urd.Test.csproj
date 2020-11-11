@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <Folder Include="DynamicProxy\" />
-    <Folder Include="Reflection\" />
   </ItemGroup>
 
 </Project>

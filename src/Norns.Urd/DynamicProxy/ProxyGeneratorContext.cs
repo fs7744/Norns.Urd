@@ -1,13 +1,13 @@
 ﻿using Norns.Urd.Interceptors;
-using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Norns.Urd.DynamicProxy
 {
     public class ProxyGeneratorContext
     {
-        public Type ServiceType { get; set; }
+        public TypeInfo ServiceType { get; set; }
 
         public ModuleBuilder ModuleBuilder { get; set; }
 

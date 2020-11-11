@@ -1,11 +1,12 @@
-﻿using System.Reflection;
+﻿using Norns.Urd.DynamicProxy;
+using System.Reflection;
 using System.Text;
 
 namespace Norns.Urd.Reflection
 {
     public static class TypeExtenions
     {
-        private static string GetDisplayName(this TypeInfo typeInfo)
+        public static string GetDisplayName(this TypeInfo typeInfo)
         {
             var name = new StringBuilder(typeInfo.Name).Replace('+', '.');
             if (typeInfo.IsGenericParameter)
@@ -35,7 +36,7 @@ namespace Norns.Urd.Reflection
             return name.ToString();
         }
 
-        private static string GetFullDisplayName(this TypeInfo typeInfo)
+        public static string GetFullDisplayName(this TypeInfo typeInfo)
         {
             var name = new StringBuilder(typeInfo.Name).Replace('+', '.');
             if (typeInfo.IsGenericParameter)
@@ -68,5 +69,12 @@ namespace Norns.Urd.Reflection
             }
             return name.ToString();
         }
+
+        public static string GetProxyTypeName(this TypeInfo serviceType, ProxyTypes proxyType)
+        {
+            return $"{Constants.GeneratedNamespace}.{serviceType.GetDisplayName()}_Proxy_{proxyType}";
+        }
+
+        public static
     }
 }

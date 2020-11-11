@@ -24,7 +24,7 @@ namespace Norns.Urd.DynamicProxy
 
         public ProxyGenerator(IInterceptorConfiguration configuration)
         {
-            var asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Constants.GeneratednNamespace), AssemblyBuilderAccess.RunAndCollect);
+            var asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Constants.GeneratedNamespace), AssemblyBuilderAccess.RunAndCollect);
             moduleBuilder = asmBuilder.DefineDynamicModule("core");
             this.configuration = configuration;
         }

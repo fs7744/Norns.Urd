@@ -1,5 +1,6 @@
 ﻿using Norns.Urd.Interceptors;
 using System;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Norns.Urd.DynamicProxy
@@ -14,7 +15,7 @@ namespace Norns.Urd.DynamicProxy
             {
                 Configuration = configuration,
                 ModuleBuilder = moduleBuilder,
-                ServiceType = serviceType
+                ServiceType = serviceType.GetTypeInfo()
             };
             DefineType(context);
             var type = context.TypeBuilder.CreateTypeInfo().AsType();
@@ -27,7 +28,7 @@ namespace Norns.Urd.DynamicProxy
 
         private void DefineType(ProxyGeneratorContext context)
         {
-            throw new NotImplementedException();
+            //context.TypeBuilder = context.ModuleBuilder.DefineType(
         }
     }
 

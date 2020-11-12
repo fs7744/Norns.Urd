@@ -1,6 +1,5 @@
 ﻿using Norns.Urd.Interceptors;
 using System;
-using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Norns.Urd.DynamicProxy
@@ -11,24 +10,8 @@ namespace Norns.Urd.DynamicProxy
 
         public Type Create(Type serviceType, IInterceptorConfiguration configuration, ModuleBuilder moduleBuilder)
         {
-            var context = new ProxyGeneratorContext()
-            {
-                Configuration = configuration,
-                ModuleBuilder = moduleBuilder,
-                ServiceType = serviceType.GetTypeInfo()
-            };
-            DefineType(context);
-            var type = context.TypeBuilder.CreateTypeInfo().AsType();
-            var staticType = context.TypeBuilder == context.StaticTypeBuilder
-                ? type
-                : context.StaticTypeBuilder.CreateTypeInfo().AsType();
-            staticType.GetMethod(Constants.Init).Invoke(null, new object[] { configuration });
-            return type;
-        }
-
-        private void DefineType(ProxyGeneratorContext context)
-        {
-            //context.TypeBuilder = context.ModuleBuilder.DefineType(
+            var context = new ProxyGeneratorContext(moduleBuilder, serviceType, configuration, ProxyType);
+            return context.Complete();
         }
     }
 

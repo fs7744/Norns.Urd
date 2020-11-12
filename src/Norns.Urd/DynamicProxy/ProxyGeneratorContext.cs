@@ -1,24 +1,34 @@
 ﻿using Norns.Urd.Interceptors;
-using System.Collections.Generic;
+using Norns.Urd.Reflection;
+using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Norns.Urd.DynamicProxy
 {
-    public class ProxyGeneratorContext
+    public readonly struct ProxyGeneratorContext
     {
-        public TypeInfo ServiceType { get; set; }
+        public ProxyGeneratorContext(ModuleBuilder moduleBuilder, Type serviceType, IInterceptorConfiguration configuration, ProxyTypes proxyType)
+        {
+            ServiceType = serviceType.GetTypeInfo();
+            Configuration = configuration;
+            ProxyType = new TypeBuilderContainer(moduleBuilder, moduleBuilder.DefineProxyType(ServiceType, proxyType));
+            AssistType = new AssistTypeBuilderContainer(moduleBuilder, moduleBuilder.DefineProxyAssistType(ProxyType.TypeBuilder));
+        }
 
-        public ModuleBuilder ModuleBuilder { get; set; }
+        public TypeInfo ServiceType { get; }
 
-        public IInterceptorConfiguration Configuration { get; set; }
+        public IInterceptorConfiguration Configuration { get; }
 
-        public TypeBuilder TypeBuilder { get; set; }
+        public TypeBuilderContainer ProxyType { get; }
 
-        public Dictionary<string, FieldBuilder> Fields { get; } = new Dictionary<string, FieldBuilder>();
+        public AssistTypeBuilderContainer AssistType { get; }
 
-        public TypeBuilder StaticTypeBuilder { get; set; }
-
-        public Dictionary<string, FieldBuilder> StaticFields { get; } = new Dictionary<string, FieldBuilder>();
+        public Type Complete()
+        {
+            var type = ProxyType.Complete();
+            AssistType.Complete(Configuration);
+            return type;
+        }
     }
 }

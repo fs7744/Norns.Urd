@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Norns.Urd.Interceptors
+﻿namespace Norns.Urd.Interceptors
 {
     public interface IInterceptorConfiguration
     {

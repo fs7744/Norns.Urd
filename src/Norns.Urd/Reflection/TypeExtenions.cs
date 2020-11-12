@@ -90,6 +90,11 @@ namespace Norns.Urd.Reflection
             return pType;
         }
 
+        public static TypeBuilder DefineProxyAssistType(this ModuleBuilder module, TypeBuilder proxyType)
+        {
+            return module.DefineType($"{proxyType.FullName}_Assist", ProxyTypeAttributes, typeof(object), Type.EmptyTypes);
+        }
+
         private static void DefineGenericParameter(TypeBuilder typeBuilder, Type targetType)
         {
             if (targetType.GetTypeInfo().IsGenericTypeDefinition)

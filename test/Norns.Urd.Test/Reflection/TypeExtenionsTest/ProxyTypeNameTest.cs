@@ -15,8 +15,12 @@ namespace Norns.Urd.Test.Reflection.TypeExtenionsTest
         {
         }
 
-        public class NestedProxyTypeNameTest
+        public class NestedProxyTypeNameTest : IDisposable
         {
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public class NestedProxyTypeNameTest<T, R>

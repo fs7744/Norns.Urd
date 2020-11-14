@@ -1,4 +1,5 @@
 ﻿using Norns.Urd.DynamicProxy;
+using Norns.Urd.Reflection;
 using System;
 using System.Reflection;
 
@@ -21,12 +22,12 @@ namespace Microsoft.Extensions.DependencyInjection
                 { ServiceType: { IsSealed: true } }
                 or { ServiceType: { IsValueType: true } }
                 or { ServiceType: { IsEnum: true } }
-                    //|| !serviceType.GetTypeInfo().IsVisible()
                     => false,
+                _ when !descriptor.ServiceType.GetTypeInfo().IsVisible() => false,
                 var i when i.ImplementationFactory is not null => TryCreateFacadeImplementation(i, i.ImplementationFactory, out proxyServiceDescriptor),
                 var i when i.ImplementationInstance is not null => TryCreateFacadeImplementation(i, x => i.ImplementationInstance, out proxyServiceDescriptor),
                 var i when i.ImplementationType.IsSealed
-                    //|| !i.ImplementationType.GetTypeInfo().IsVisible()
+                    || !i.ImplementationType.GetTypeInfo().IsVisible()
                     => TryCreateFacadeImplementation(i, x => ActivatorUtilities.CreateInstance(x, i.ImplementationType), out proxyServiceDescriptor),
                 _ => TryCreateInheritImplementation(descriptor, out proxyServiceDescriptor)
             };
@@ -34,13 +35,16 @@ namespace Microsoft.Extensions.DependencyInjection
 
         internal bool TryCreateFacadeImplementation(ServiceDescriptor descriptor, Func<IServiceProvider, object> implementationFactory, out ServiceDescriptor proxyServiceDescriptor)
         {
-            ServiceDescriptor createServiceDescriptor(ServiceDescriptor x, Type type) => ServiceDescriptor.Describe(x.ServiceType, i =>
+            ServiceDescriptor createServiceDescriptor(ServiceDescriptor x, Type type)
             {
-                var proxy = ActivatorUtilities.CreateInstance(i, type);
-                var f = proxy.GetType().GetField(Constants.Instance, BindingFlags.NonPublic | BindingFlags.Instance); // todo: 性能优化
-                f.SetValue(proxy, implementationFactory(i));
-                return proxy;
-            }, x.Lifetime);
+                var setInstance = type.GetField(Constants.Instance, BindingFlags.NonPublic | BindingFlags.Instance).CreateSetter();
+                return ServiceDescriptor.Describe(x.ServiceType, i =>
+                {
+                    var proxy = ActivatorUtilities.CreateInstance(i, type);
+                    setInstance(proxy, implementationFactory(i));
+                    return proxy;
+                }, x.Lifetime);
+            }
 
             return TryCreateImplementation(ProxyTypes.Facade, descriptor, createServiceDescriptor, out proxyServiceDescriptor);
         }

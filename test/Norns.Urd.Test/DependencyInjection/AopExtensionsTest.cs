@@ -5,6 +5,15 @@ using Xunit;
 
 namespace Norns.Urd.Test.DependencyInjection
 {
+    //todo : facade support interfaces
+    //todo : abstract di convert test
+    //todo : internal di convert test
+    //todo : method, Property
+    //todo : IServiceProvider
+    //todo : Property inject
+    //todo : Interceptor creator
+    //todo ：Interceptor, NonAspectAttribute filter 
+    //todo : api start test
     public interface IGenericTest<T, R>
     {
         //T F { get; }

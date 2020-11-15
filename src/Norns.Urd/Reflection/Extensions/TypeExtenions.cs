@@ -1,4 +1,5 @@
-﻿using Norns.Urd.DynamicProxy;
+﻿using Norns.Urd.Attributes;
+using Norns.Urd.DynamicProxy;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -244,11 +245,11 @@ namespace Norns.Urd.Reflection
         {
             return Type.GetTypeCode(GetNonNullableType(typeInfo)) switch
             {
-                TypeCode.Byte 
-                or TypeCode.UInt16 
-                or TypeCode.Char 
-                or TypeCode.UInt32 
-                or TypeCode.UInt64 
+                TypeCode.Byte
+                or TypeCode.UInt16
+                or TypeCode.Char
+                or TypeCode.UInt32
+                or TypeCode.UInt64
                 => true,
                 _ => false,
             };
@@ -261,6 +262,27 @@ namespace Norns.Urd.Reflection
                 TypeCode.Single or TypeCode.Double => true,
                 _ => false,
             };
+        }
+
+        public static MemberReflector<TypeInfo> GetReflector(this TypeInfo type)
+        {
+            static MemberReflector<TypeInfo> Create(TypeInfo t) => new MemberReflector<TypeInfo>(t);
+            return ReflectorCache<TypeInfo, MemberReflector<TypeInfo>>.GetOrAdd(type, Create);
+        }
+
+        public static MemberReflector<TypeInfo> GetReflector(this Type type)
+        {
+            return type.GetTypeInfo().GetReflector();
+        }
+
+        public static bool IsProxyType(this TypeInfo type)
+        {
+            return type.GetReflector().IsDefined<DynamicProxyAttribute>();
+        }
+
+        public static bool IsProxyType(this Type type)
+        {
+            return type.GetTypeInfo().IsProxyType();
         }
 
         #endregion Type

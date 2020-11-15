@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using Norns.Urd.Reflection;
 using System;
 using Xunit;
@@ -58,6 +59,12 @@ namespace Norns.Urd.Test.DependencyInjection
         }
     }
 
+    [NonAspect]
+    public interface INonAspectGenericTest<T, R> //: IDisposable
+    {
+        //T F { get; }
+    }
+
     public class SubGenericTest<T, R> : AbstractGenericTest<T, R>
     {
         //T F { get; }
@@ -75,6 +82,18 @@ namespace Norns.Urd.Test.DependencyInjection
 
     public class AopExtensionsTest
     {
+        [Fact]
+        public void WhenNonAspectGenericTest()
+        {
+            var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient<INonAspectGenericTest<int, long>>(i => new Mock<INonAspectGenericTest<int, long>>().Object))
+                .GetRequiredService<INonAspectGenericTest<int, long>>();
+            var pt = p.GetType();
+            Assert.False(pt.IsProxyType());
+            Assert.Null(pt.CreateInstanceGetter());
+            Assert.NotNull(p);
+            //Assert.NotNull(p as IDisposable);
+        }
+
         [Fact]
         public void WhenGenericOnlyInterfaceTest()
         {

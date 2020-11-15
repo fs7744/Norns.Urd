@@ -17,6 +17,7 @@ namespace Norns.Urd.DynamicProxy
             var context = new ProxyGeneratorContext(moduleBuilder, serviceType, configuration, ProxyType);
             DefineFields(context);
             DefineCustomAttributes(context);
+            //DefineConstructors(context);
             return context.Complete();
         }
 
@@ -26,7 +27,7 @@ namespace Norns.Urd.DynamicProxy
             or { IsValueType: true }
             or { IsEnum: true }
                     => true,
-            _ when !serviceType.GetTypeInfo().IsVisible() => true,
+            _ when !serviceType.GetTypeInfo().IsVisible() || serviceType.GetReflector().IsDefined<NonAspectAttribute>() => true,
             _ => configuration.IsIgnoreType(serviceType)
         };
 

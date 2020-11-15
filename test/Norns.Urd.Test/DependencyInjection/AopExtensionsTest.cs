@@ -6,8 +6,7 @@ using Xunit;
 namespace Norns.Urd.Test.DependencyInjection
 {
     //todo : facade support interfaces
-    //todo : abstract di convert test
-    //todo : internal di convert test
+    //todo : interface abstract no ImplementationType
     //todo : method, Property
     //todo : IServiceProvider
     //todo : Property inject
@@ -28,10 +27,25 @@ namespace Norns.Urd.Test.DependencyInjection
     {
         //public T F => default;
     }
+    internal class InternalGenericTest<T, R> : ISealedGenericTest<T, R>
+    {
+        //public T F => default;
+    }
+
 
     public class GenericTest<T, R> : IGenericTest<T, R>
     {
         //public T F => default;
+    }
+
+    public abstract class AbstractGenericTest<T, R>
+    {
+        //T F { get; }
+    }
+
+    public class SubGenericTest<T, R> : AbstractGenericTest<T, R>
+    {
+        //T F { get; }
     }
 
     public static class AopTestExtensions
@@ -80,7 +94,7 @@ namespace Norns.Urd.Test.DependencyInjection
         }
 
         [Fact]
-        public void WhenSealedOpenGenericImplementationFactoryTest()
+        public void WhenSealedGenericImplementationFactoryTest()
         {
             var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient<ISealedGenericTest<int, long>>(i => new SealedGenericTest<int, long>()))
                 .GetRequiredService<ISealedGenericTest<int, long>>();
@@ -91,13 +105,79 @@ namespace Norns.Urd.Test.DependencyInjection
         }
 
         [Fact]
-        public void WhenSealedOpenGenericImplementationTypeTest()
+        public void WhenSealedGenericImplementationTypeTest()
         {
             var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient<ISealedGenericTest<int, long>, SealedGenericTest<int, long>>())
                 .GetRequiredService<ISealedGenericTest<int, long>>();
             var pt = p.GetType();
             Assert.True(pt.IsProxyType());
             Assert.NotNull(pt.CreateInstanceGetter()(pt));
+            Assert.NotNull(p);
+        }
+
+        [Fact]
+        public void WhenInternalOpenGenericTest()
+        {
+            var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient(typeof(ISealedGenericTest<,>), typeof(InternalGenericTest<,>)))
+                 .GetRequiredService<ISealedGenericTest<int, long>>();
+            var pt = p.GetType();
+            Assert.False(pt.IsProxyType());
+            Assert.Null(pt.CreateInstanceGetter());
+            Assert.NotNull(p);
+        }
+
+        [Fact]
+        public void WhenInternalGenericImplementationFactoryTest()
+        {
+            var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient<ISealedGenericTest<int, long>>(i => new InternalGenericTest<int, long>()))
+                .GetRequiredService<ISealedGenericTest<int, long>>();
+            var pt = p.GetType();
+            Assert.True(pt.IsProxyType());
+            Assert.NotNull(pt.CreateInstanceGetter()(pt));
+            Assert.NotNull(p);
+        }
+
+        [Fact]
+        public void WhenInternalGenericImplementationTypeTest()
+        {
+            var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient<ISealedGenericTest<int, long>, InternalGenericTest<int, long>>())
+                .GetRequiredService<ISealedGenericTest<int, long>>();
+            var pt = p.GetType();
+            Assert.True(pt.IsProxyType());
+            Assert.NotNull(pt.CreateInstanceGetter()(pt));
+            Assert.NotNull(p);
+        }
+
+        [Fact]
+        public void WhenAbstractOpenGenericTest()
+        {
+            var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient(typeof(AbstractGenericTest<,>), typeof(SubGenericTest<,>)))
+                 .GetRequiredService<AbstractGenericTest<int, long>>();
+            var pt = p.GetType();
+            Assert.True(pt.IsProxyType());
+            Assert.Null(pt.CreateInstanceGetter());
+            Assert.NotNull(p);
+        }
+
+        [Fact]
+        public void WhenAbstractGenericImplementationFactoryTest()
+        {
+            var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient<AbstractGenericTest<int, long>>(i => new SubGenericTest<int, long>()))
+                .GetRequiredService<AbstractGenericTest<int, long>>();
+            var pt = p.GetType();
+            Assert.True(pt.IsProxyType());
+            Assert.NotNull(pt.CreateInstanceGetter()(pt));
+            Assert.NotNull(p);
+        }
+
+        [Fact]
+        public void WhenAbstractGenericImplementationTypeTest()
+        {
+            var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient<AbstractGenericTest<int, long>, SubGenericTest<int, long>>())
+                .GetRequiredService<AbstractGenericTest<int, long>>();
+            var pt = p.GetType();
+            Assert.True(pt.IsProxyType());
+            Assert.Null(pt.CreateInstanceGetter());
             Assert.NotNull(p);
         }
     }

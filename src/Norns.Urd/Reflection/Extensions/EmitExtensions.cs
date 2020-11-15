@@ -6,6 +6,11 @@ namespace Norns.Urd.Reflection
 {
     public static class EmitExtensions
     {
+        public static void EmitThis(this ILGenerator il)
+        {
+            il.EmitLoadArg(0);
+        }
+
         public static void EmitLoadArg(this ILGenerator il, int index)
         {
             switch (index)
@@ -145,6 +150,7 @@ namespace Norns.Urd.Reflection
                 il.EmitNonNullableToNullableConversion(typeFrom, typeTo, isChecked);
             }
         }
+
         public static void EmitHasValue(this ILGenerator il, Type nullableType)
         {
             MethodInfo mi = nullableType.GetTypeInfo().GetMethod("get_HasValue", BindingFlags.Instance | BindingFlags.Public);
@@ -262,28 +268,36 @@ namespace Norns.Urd.Reflection
                             case TypeCode.SByte:
                                 il.Emit(OpCodes.Conv_Ovf_I1_Un);
                                 break;
+
                             case TypeCode.Int16:
                                 il.Emit(OpCodes.Conv_Ovf_I2_Un);
                                 break;
+
                             case TypeCode.Int32:
                                 il.Emit(OpCodes.Conv_Ovf_I4_Un);
                                 break;
+
                             case TypeCode.Int64:
                                 il.Emit(OpCodes.Conv_Ovf_I8_Un);
                                 break;
+
                             case TypeCode.Byte:
                                 il.Emit(OpCodes.Conv_Ovf_U1_Un);
                                 break;
+
                             case TypeCode.UInt16:
                             case TypeCode.Char:
                                 il.Emit(OpCodes.Conv_Ovf_U2_Un);
                                 break;
+
                             case TypeCode.UInt32:
                                 il.Emit(OpCodes.Conv_Ovf_U4_Un);
                                 break;
+
                             case TypeCode.UInt64:
                                 il.Emit(OpCodes.Conv_Ovf_U8_Un);
                                 break;
+
                             default:
                                 throw new InvalidCastException();
                         }
@@ -295,28 +309,36 @@ namespace Norns.Urd.Reflection
                             case TypeCode.SByte:
                                 il.Emit(OpCodes.Conv_Ovf_I1);
                                 break;
+
                             case TypeCode.Int16:
                                 il.Emit(OpCodes.Conv_Ovf_I2);
                                 break;
+
                             case TypeCode.Int32:
                                 il.Emit(OpCodes.Conv_Ovf_I4);
                                 break;
+
                             case TypeCode.Int64:
                                 il.Emit(OpCodes.Conv_Ovf_I8);
                                 break;
+
                             case TypeCode.Byte:
                                 il.Emit(OpCodes.Conv_Ovf_U1);
                                 break;
+
                             case TypeCode.UInt16:
                             case TypeCode.Char:
                                 il.Emit(OpCodes.Conv_Ovf_U2);
                                 break;
+
                             case TypeCode.UInt32:
                                 il.Emit(OpCodes.Conv_Ovf_U4);
                                 break;
+
                             case TypeCode.UInt64:
                                 il.Emit(OpCodes.Conv_Ovf_U8);
                                 break;
+
                             default:
                                 throw new InvalidCastException();
                         }
@@ -329,22 +351,28 @@ namespace Norns.Urd.Reflection
                         case TypeCode.SByte:
                             il.Emit(OpCodes.Conv_I1);
                             break;
+
                         case TypeCode.Byte:
                             il.Emit(OpCodes.Conv_U1);
                             break;
+
                         case TypeCode.Int16:
                             il.Emit(OpCodes.Conv_I2);
                             break;
+
                         case TypeCode.UInt16:
                         case TypeCode.Char:
                             il.Emit(OpCodes.Conv_U2);
                             break;
+
                         case TypeCode.Int32:
                             il.Emit(OpCodes.Conv_I4);
                             break;
+
                         case TypeCode.UInt32:
                             il.Emit(OpCodes.Conv_U4);
                             break;
+
                         case TypeCode.Int64:
                             if (isFromUnsigned)
                             {
@@ -355,6 +383,7 @@ namespace Norns.Urd.Reflection
                                 il.Emit(OpCodes.Conv_I8);
                             }
                             break;
+
                         case TypeCode.UInt64:
                             if (isFromUnsigned || isFromFloatingPoint)
                             {
@@ -365,6 +394,7 @@ namespace Norns.Urd.Reflection
                                 il.Emit(OpCodes.Conv_I8);
                             }
                             break;
+
                         default:
                             throw new InvalidCastException();
                     }

@@ -8,7 +8,6 @@ namespace Norns.Urd.Test.DependencyInjection
 {
     //todo : facade support interfaces
     //todo : method, Property
-    //todo : IServiceProvider
     //todo : Property inject
     //todo : Interceptor creator
     //todo ：Interceptor, NonAspectAttribute filter 
@@ -90,6 +89,8 @@ namespace Norns.Urd.Test.DependencyInjection
             var pt = p.GetType();
             Assert.False(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
+            Assert.Null(pt.CreateServiceProviderGetter());
+            Assert.Null(pt.CreateServiceProviderGetter());
             Assert.NotNull(p);
             //Assert.NotNull(p as IDisposable);
         }
@@ -102,6 +103,7 @@ namespace Norns.Urd.Test.DependencyInjection
             var pt = p.GetType();
             Assert.True(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
+            Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
             //Assert.NotNull(p as IDisposable);
         }
@@ -114,6 +116,7 @@ namespace Norns.Urd.Test.DependencyInjection
             var pt = p.GetType();
             Assert.True(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
+            Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
             //Assert.NotNull(p as IDisposable);
         }
@@ -126,6 +129,7 @@ namespace Norns.Urd.Test.DependencyInjection
             var pt = p.GetType();
             Assert.True(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
+            Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
             //Assert.NotNull(p as IDisposable);
         }
@@ -138,6 +142,7 @@ namespace Norns.Urd.Test.DependencyInjection
             var pt = p.GetType();
             Assert.True(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
+            Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
             //Assert.NotNull(p as IDisposable);
         }
@@ -150,6 +155,7 @@ namespace Norns.Urd.Test.DependencyInjection
             var pt = p.GetType();
             Assert.False(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
+            Assert.Null(pt.CreateServiceProviderGetter());
             Assert.NotNull(p);
             //Assert.NotNull(p as IDisposable);
         }
@@ -162,6 +168,7 @@ namespace Norns.Urd.Test.DependencyInjection
             var pt = p.GetType();
             Assert.True(pt.IsProxyType());
             Assert.NotNull(pt.CreateInstanceGetter()(pt));
+            Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
             //Assert.NotNull(p as IDisposable);
         }
@@ -174,6 +181,7 @@ namespace Norns.Urd.Test.DependencyInjection
             var pt = p.GetType();
             Assert.True(pt.IsProxyType());
             Assert.NotNull(pt.CreateInstanceGetter()(pt));
+            Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
             //Assert.NotNull(p as IDisposable);
         }
@@ -186,6 +194,7 @@ namespace Norns.Urd.Test.DependencyInjection
             var pt = p.GetType();
             Assert.False(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
+            Assert.Null(pt.CreateServiceProviderGetter());
             Assert.NotNull(p);
             //Assert.NotNull(p as IDisposable);
         }
@@ -198,6 +207,7 @@ namespace Norns.Urd.Test.DependencyInjection
             var pt = p.GetType();
             Assert.True(pt.IsProxyType());
             Assert.NotNull(pt.CreateInstanceGetter()(pt));
+            Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
             //Assert.NotNull(p as IDisposable);
         }
@@ -210,6 +220,7 @@ namespace Norns.Urd.Test.DependencyInjection
             var pt = p.GetType();
             Assert.True(pt.IsProxyType());
             Assert.NotNull(pt.CreateInstanceGetter()(pt));
+            Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
             //Assert.NotNull(p as IDisposable);
         }
@@ -222,6 +233,7 @@ namespace Norns.Urd.Test.DependencyInjection
             var pt = p.GetType();
             Assert.True(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
+            Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
             //Assert.NotNull(p as IDisposable);
         }
@@ -234,6 +246,7 @@ namespace Norns.Urd.Test.DependencyInjection
             var pt = p.GetType();
             Assert.True(pt.IsProxyType());
             Assert.NotNull(pt.CreateInstanceGetter()(pt));
+            Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
             //Assert.NotNull(p as IDisposable);
         }
@@ -246,6 +259,7 @@ namespace Norns.Urd.Test.DependencyInjection
             var pt = p.GetType();
             Assert.True(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
+            Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
             //Assert.NotNull(p as IDisposable);
         }

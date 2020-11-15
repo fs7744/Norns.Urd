@@ -18,13 +18,19 @@ namespace Norns.Urd
         public static Func<object, object> CreateInstanceGetter(this Type type)
         {
             var field = type.GetField(Constants.Instance, BindingFlags.NonPublic | BindingFlags.Instance);
-            return field?.CreateGetter();
+            return field?.CreateGetter<object, object>();
         }
 
         public static Action<object, object> CreateInstanceSetter(this Type type)
         {
             var field = type.GetField(Constants.Instance, BindingFlags.NonPublic | BindingFlags.Instance);
             return field?.CreateSetter();
+        }
+
+        public static Func<object, IServiceProvider> CreateServiceProviderGetter(this Type type)
+        {
+            var field = type.GetField(Constants.ServiceProvider, BindingFlags.NonPublic | BindingFlags.Instance);
+            return field?.CreateGetter<object, IServiceProvider>();
         }
     }
 }

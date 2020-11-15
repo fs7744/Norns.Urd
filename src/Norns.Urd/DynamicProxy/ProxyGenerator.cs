@@ -29,19 +29,11 @@ namespace Norns.Urd.DynamicProxy
             this.configuration = configuration;
         }
 
-        public Type Create(Type serviceType, ProxyTypes proxyType)
+        public Type Create(Type serviceType, ProxyTypes proxyType) => proxyType switch
         {
-            switch (proxyType)
-            {
-                case ProxyTypes.Inherit:
-                    return inherit.Create(serviceType, configuration, moduleBuilder);
-
-                case ProxyTypes.Facade:
-                    return facade.Create(serviceType, configuration, moduleBuilder);
-
-                default:
-                    return null;
-            }
-        }
+            ProxyTypes.Inherit => inherit.Create(serviceType, configuration, moduleBuilder),
+            ProxyTypes.Facade => facade.Create(serviceType, configuration, moduleBuilder),
+            _ => null,
+        };
     }
 }

@@ -1,4 +1,5 @@
-﻿using Norns.Urd.DynamicProxy;
+﻿using Norns.Urd;
+using Norns.Urd.DynamicProxy;
 using Norns.Urd.Reflection;
 using System;
 using System.Reflection;
@@ -23,6 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 or { ServiceType: { IsValueType: true } }
                 or { ServiceType: { IsEnum: true } }
                     => false,
+                { ServiceType: { IsGenericTypeDefinition: true } } => TryCreateInheritImplementation(descriptor, out proxyServiceDescriptor),
                 _ when !descriptor.ServiceType.GetTypeInfo().IsVisible() => false,
                 var i when i.ImplementationFactory is not null => TryCreateFacadeImplementation(i, i.ImplementationFactory, out proxyServiceDescriptor),
                 var i when i.ImplementationInstance is not null => TryCreateFacadeImplementation(i, x => i.ImplementationInstance, out proxyServiceDescriptor),
@@ -37,7 +39,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             ServiceDescriptor createServiceDescriptor(ServiceDescriptor x, Type type)
             {
-                var setInstance = type.GetField(Constants.Instance, BindingFlags.NonPublic | BindingFlags.Instance).CreateSetter();
+                var setInstance = type.CreateInstanceSetter();
                 return ServiceDescriptor.Describe(x.ServiceType, i =>
                 {
                     var proxy = ActivatorUtilities.CreateInstance(i, type);

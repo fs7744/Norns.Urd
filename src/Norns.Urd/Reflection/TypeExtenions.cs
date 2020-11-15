@@ -26,14 +26,14 @@ namespace Norns.Urd.Reflection
                  ? typeInfo.GenericTypeParameters
                  : typeInfo.GenericTypeArguments;
                 name = name.Replace("`", "").Replace(arguments.Length.ToString(), "");
-                name.Append("<");
+                name.Append('<');
                 name.Append(GetDisplayName(arguments[0].GetTypeInfo()));
                 for (var i = 1; i < arguments.Length; i++)
                 {
-                    name.Append(",");
+                    name.Append(',');
                     name.Append(GetDisplayName(arguments[i].GetTypeInfo()));
                 }
-                name.Append(">");
+                name.Append('>');
             }
             if (typeInfo.IsNested)
             {
@@ -65,14 +65,14 @@ namespace Norns.Urd.Reflection
                  ? typeInfo.GenericTypeParameters
                  : typeInfo.GenericTypeArguments;
                 name = name.Replace("`", "").Replace(arguments.Length.ToString(), "");
-                name.Append("<");
+                name.Append('<');
                 name.Append(GetFullDisplayName(arguments[0].GetTypeInfo()));
                 for (var i = 1; i < arguments.Length; i++)
                 {
-                    name.Append(",");
+                    name.Append(',');
                     name.Append(GetFullDisplayName(arguments[i].GetTypeInfo()));
                 }
-                name.Append(">");
+                name.Append('>');
             }
             return name.ToString();
         }

@@ -80,6 +80,18 @@ namespace Norns.Urd.Reflection
             }
         }
 
+        public static void EmitConvertToObject(this ILGenerator il, Type typeFrom)
+        {
+            if (typeFrom.GetTypeInfo().IsGenericParameter)
+            {
+                il.Emit(OpCodes.Box, typeFrom);
+            }
+            else
+            {
+                il.EmitConvertTo(typeFrom, typeof(object), true);
+            }
+        }
+
         public static void EmitConvertObjectTo(this ILGenerator il, Type type)
         {
             if (type.IsGenericParameter)

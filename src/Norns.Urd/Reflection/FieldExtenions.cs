@@ -17,5 +17,15 @@ namespace Norns.Urd.Reflection
             il.Emit(OpCodes.Ret);
             return (Action<object, object>)method.CreateDelegate(typeof(Action<object, object>));
         }
+        public static Func<object, object> CreateGetter(this FieldInfo field)
+        {
+            var method = new DynamicMethod(Guid.NewGuid().ToString("N"), typeof(object), new Type[] { typeof(object) });
+            var il = method.GetILGenerator();
+            il.EmitLoadArg(0);
+            il.Emit(OpCodes.Ldfld, field);
+            il.EmitConvertToObject(field.FieldType);
+            il.Emit(OpCodes.Ret);
+            return (Func<object, object>)method.CreateDelegate(typeof(Func<object, object>));
+        }
     }
 }

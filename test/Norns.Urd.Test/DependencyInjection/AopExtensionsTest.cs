@@ -6,19 +6,18 @@ using Xunit;
 namespace Norns.Urd.Test.DependencyInjection
 {
     //todo : facade support interfaces
-    //todo : interface abstract no ImplementationType
     //todo : method, Property
     //todo : IServiceProvider
     //todo : Property inject
     //todo : Interceptor creator
     //todo ：Interceptor, NonAspectAttribute filter 
     //todo : api start test
-    public interface IGenericTest<T, R>
+    public interface IGenericTest<T, R> //: IDisposable
     {
         //T F { get; }
     }
 
-    public interface ISealedGenericTest<T, R>
+    public interface ISealedGenericTest<T, R> //: IDisposable
     {
         //T F { get; }
     }
@@ -26,21 +25,37 @@ namespace Norns.Urd.Test.DependencyInjection
     public sealed class SealedGenericTest<T, R> : ISealedGenericTest<T, R>
     {
         //public T F => default;
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
     internal class InternalGenericTest<T, R> : ISealedGenericTest<T, R>
     {
         //public T F => default;
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 
 
     public class GenericTest<T, R> : IGenericTest<T, R>
     {
         //public T F => default;
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 
-    public abstract class AbstractGenericTest<T, R>
+    public abstract class AbstractGenericTest<T, R> : IDisposable
     {
         //T F { get; }
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class SubGenericTest<T, R> : AbstractGenericTest<T, R>
@@ -61,6 +76,30 @@ namespace Norns.Urd.Test.DependencyInjection
     public class AopExtensionsTest
     {
         [Fact]
+        public void WhenGenericOnlyInterfaceTest()
+        {
+            var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient<IGenericTest<int, long>>())
+                 .GetRequiredService<IGenericTest<int, long>>();
+            var pt = p.GetType();
+            Assert.True(pt.IsProxyType());
+            Assert.Null(pt.CreateInstanceGetter());
+            Assert.NotNull(p);
+            //Assert.NotNull(p as IDisposable);
+        }
+
+        [Fact]
+        public void WhenGenericOnlyAbstractGenericClassTest()
+        {
+            var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient<AbstractGenericTest<int, long>>())
+                 .GetRequiredService<AbstractGenericTest<int, long>>();
+            var pt = p.GetType();
+            Assert.True(pt.IsProxyType());
+            Assert.Null(pt.CreateInstanceGetter());
+            Assert.NotNull(p);
+            //Assert.NotNull(p as IDisposable);
+        }
+
+        [Fact]
         public void WhenGenericTest()
         {
             var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient<IGenericTest<int, long>, GenericTest<int, long>>())
@@ -69,6 +108,7 @@ namespace Norns.Urd.Test.DependencyInjection
             Assert.True(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
             Assert.NotNull(p);
+            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -80,6 +120,7 @@ namespace Norns.Urd.Test.DependencyInjection
             Assert.True(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
             Assert.NotNull(p);
+            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -91,6 +132,7 @@ namespace Norns.Urd.Test.DependencyInjection
             Assert.False(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
             Assert.NotNull(p);
+            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -102,6 +144,7 @@ namespace Norns.Urd.Test.DependencyInjection
             Assert.True(pt.IsProxyType());
             Assert.NotNull(pt.CreateInstanceGetter()(pt));
             Assert.NotNull(p);
+            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -113,6 +156,7 @@ namespace Norns.Urd.Test.DependencyInjection
             Assert.True(pt.IsProxyType());
             Assert.NotNull(pt.CreateInstanceGetter()(pt));
             Assert.NotNull(p);
+            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -124,6 +168,7 @@ namespace Norns.Urd.Test.DependencyInjection
             Assert.False(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
             Assert.NotNull(p);
+            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -135,6 +180,7 @@ namespace Norns.Urd.Test.DependencyInjection
             Assert.True(pt.IsProxyType());
             Assert.NotNull(pt.CreateInstanceGetter()(pt));
             Assert.NotNull(p);
+            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -146,6 +192,7 @@ namespace Norns.Urd.Test.DependencyInjection
             Assert.True(pt.IsProxyType());
             Assert.NotNull(pt.CreateInstanceGetter()(pt));
             Assert.NotNull(p);
+            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -157,6 +204,7 @@ namespace Norns.Urd.Test.DependencyInjection
             Assert.True(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
             Assert.NotNull(p);
+            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -168,6 +216,7 @@ namespace Norns.Urd.Test.DependencyInjection
             Assert.True(pt.IsProxyType());
             Assert.NotNull(pt.CreateInstanceGetter()(pt));
             Assert.NotNull(p);
+            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -179,6 +228,7 @@ namespace Norns.Urd.Test.DependencyInjection
             Assert.True(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
             Assert.NotNull(p);
+            //Assert.NotNull(p as IDisposable);
         }
     }
 }

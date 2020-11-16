@@ -42,8 +42,6 @@ namespace Norns.Urd.DynamicProxy
 
         protected abstract void DefineNonAspectMethod(in ProxyGeneratorContext context, MethodInfo method);
 
-        
-
         protected virtual void DefineMethod(in ProxyGeneratorContext context, MethodInfo method)
         {
         }
@@ -141,6 +139,20 @@ namespace Norns.Urd.DynamicProxy
 
         protected override void DefineNonAspectMethod(in ProxyGeneratorContext context, MethodInfo method)
         {
+            if (!method.IsVisibleAndVirtual()) return;
+            var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
+            MethodBuilder methodBuilder = context.ProxyType.TypeBuilder.DefineMethod(method.Name, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
+            methodBuilder.DefineGenericParameter(method);
+            var il = methodBuilder.GetILGenerator();
+            il.EmitThis();
+            il.Emit(OpCodes.Ldfld, context.ProxyType.Fields[Constants.Instance]);
+            for (var i = 1; i <= parameters.Length; i++)
+            {
+                il.EmitLoadArg(i);
+            }
+            il.Emit(OpCodes.Callvirt, method);
+            il.Emit(OpCodes.Ret);
+            context.ProxyType.TypeBuilder.DefineMethodOverride(methodBuilder, method);
         }
     }
 

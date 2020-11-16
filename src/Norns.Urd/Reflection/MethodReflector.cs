@@ -17,14 +17,12 @@ namespace Norns.Urd.Reflection
 
         private static PropertyInfo GetBindingProperty(MethodInfo method)
         {
-            static MethodInfo GetPropertyMethod(PropertyInfo p) => p switch
+            foreach (var item in method.DeclaringType.GetTypeInfo().GetProperties())
             {
-                { CanRead: true } => p.GetMethod,
-                _ => p.SetMethod
-            };
-            return method.DeclaringType.GetTypeInfo()
-                .GetProperties()
-                .FirstOrDefault(i => GetPropertyMethod(i) == method);
+                if (item.CanRead && item.GetMethod == method) return item;
+                if (item.CanWrite && item.SetMethod == method) return item;
+            }
+            return null;
         }
 
         private static string GetDisplayName(MethodInfo method)

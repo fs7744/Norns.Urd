@@ -13,7 +13,7 @@ namespace Norns.Urd.Test.DependencyInjection
     //todo : api start test
     public interface IGenericTest<T, R> //: IDisposable
     {
-        //T F { get; }
+        T F { get; set; }
     }
 
     public interface ISealedGenericTest<T, R> //: IDisposable
@@ -31,7 +31,7 @@ namespace Norns.Urd.Test.DependencyInjection
     }
     internal class InternalGenericTest<T, R> : ISealedGenericTest<T, R>
     {
-        //public T F => default;
+        //public virtual T F { get; set; }
         public void Dispose()
         {
             throw new NotImplementedException();
@@ -41,7 +41,7 @@ namespace Norns.Urd.Test.DependencyInjection
 
     public class GenericTest<T, R> : IGenericTest<T, R>
     {
-        //public T F => default;
+        public virtual T F { get; set; }
         public void Dispose()
         {
             throw new NotImplementedException();

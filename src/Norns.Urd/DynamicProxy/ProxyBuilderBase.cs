@@ -45,7 +45,7 @@ namespace Norns.Urd.DynamicProxy
                 ? DefineMethod(context, property.GetMethod)
                 : null;
 
-            var setMethod = property.CanRead && property.SetMethod.IsVisibleAndVirtual()
+            var setMethod = property.CanWrite && property.SetMethod.IsVisibleAndVirtual()
                 ? DefineMethod(context, property.SetMethod)
                 : null;
 

@@ -19,7 +19,33 @@ namespace Norns.Urd.DynamicProxy
             DefineFields(context);
             DefineCustomAttributes(context);
             DefineConstructors(context);
+            DefineMethods(context);
             return context.Complete();
+        }
+
+        private void DefineMethods(in ProxyGeneratorContext context)
+        {
+            foreach (var method in context.ServiceType
+                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(x => x.IsNotPropertyBinding() && !Constants.IgnoreMethods.Contains(x.Name)))
+            {
+                if (method.GetReflector().IsDefined<NonAspectAttribute>())
+                {
+                    DefineNonAspectMethod(context, method);
+                }
+                else if (method.IsVisibleAndVirtual())
+                {
+                    DefineMethod(context, method);
+                }
+            }
+        }
+
+        protected abstract void DefineNonAspectMethod(in ProxyGeneratorContext context, MethodInfo method);
+
+        
+
+        protected virtual void DefineMethod(in ProxyGeneratorContext context, MethodInfo method)
+        {
         }
 
         #region Constructor
@@ -112,10 +138,39 @@ namespace Norns.Urd.DynamicProxy
             base.DefineFields(context);
             context.ProxyType.Fields.Add(Constants.Instance, context.ProxyType.TypeBuilder.DefineField(Constants.Instance, context.ServiceType, FieldAttributes.Private));
         }
+
+        protected override void DefineNonAspectMethod(in ProxyGeneratorContext context, MethodInfo method)
+        {
+        }
     }
 
     public class InheritProxyBuilder : ProxyBuilderBase
     {
         protected override ProxyTypes ProxyType { get; } = ProxyTypes.Inherit;
+
+        protected override void DefineNonAspectMethod(in ProxyGeneratorContext context, MethodInfo method)
+        {
+            if (!method.IsVisibleAndVirtual()) return;
+            var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
+            MethodBuilder methodBuilder = context.ProxyType.TypeBuilder.DefineMethod(method.Name, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
+            methodBuilder.DefineGenericParameter(method);
+            var il = methodBuilder.GetILGenerator();
+            if (method.IsAbstract)
+            {
+                il.EmitDefault(method.ReturnType);
+            }
+            else
+            {
+                il.EmitThis();
+                for (var i = 1; i <= parameters.Length; i++)
+                {
+                    il.EmitLoadArg(i);
+                }
+                il.Emit(OpCodes.Call, method);
+            }
+
+            il.Emit(OpCodes.Ret);
+            context.ProxyType.TypeBuilder.DefineMethodOverride(methodBuilder, method);
+        }
     }
 }

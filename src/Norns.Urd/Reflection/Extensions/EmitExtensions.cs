@@ -6,6 +6,72 @@ namespace Norns.Urd.Reflection
 {
     public static class EmitExtensions
     {
+        public static void EmitDefault(this ILGenerator il, Type type)
+        {
+            if (type == typeof(void)) return;
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Object:
+                case TypeCode.DateTime:
+                    if (type.GetTypeInfo().IsValueType)
+                    {
+                        // Type.GetTypeCode on an enum returns the underlying
+                        // integer TypeCode, so we won't get here.
+                        // This is the IL for default(T) if T is a generic type
+                        // parameter, so it should work for any type. It's also
+                        // the standard pattern for structs.
+                        LocalBuilder lb = il.DeclareLocal(type);
+                        il.Emit(OpCodes.Ldloca, lb);
+                        il.Emit(OpCodes.Initobj, type);
+                        il.Emit(OpCodes.Ldloc, lb);
+                    }
+                    else
+                    {
+                        il.Emit(OpCodes.Ldnull);
+                    }
+                    break;
+
+                case TypeCode.Empty:
+                case TypeCode.String:
+                    il.Emit(OpCodes.Ldnull);
+                    break;
+
+                case TypeCode.Boolean:
+                case TypeCode.Char:
+                case TypeCode.SByte:
+                case TypeCode.Byte:
+                case TypeCode.Int16:
+                case TypeCode.UInt16:
+                case TypeCode.Int32:
+                case TypeCode.UInt32:
+                    il.Emit(OpCodes.Ldc_I4_0);
+                    break;
+
+                case TypeCode.Int64:
+                case TypeCode.UInt64:
+                    il.Emit(OpCodes.Ldc_I4_0);
+                    il.Emit(OpCodes.Conv_I8);
+                    break;
+
+                case TypeCode.Single:
+                    il.Emit(OpCodes.Ldc_R4, default(Single));
+                    break;
+
+                case TypeCode.Double:
+                    il.Emit(OpCodes.Ldc_R8, default(Double));
+                    break;
+
+                case TypeCode.Decimal:
+                    il.Emit(OpCodes.Ldc_I4_0);
+                    il.Emit(OpCodes.Newobj, typeof(Decimal).GetTypeInfo().GetConstructor(new Type[] { typeof(int) }));
+                    break;
+                case TypeCode.DBNull:
+                    il.Emit(OpCodes.Ldsfld, typeof(DBNull).GetField(nameof(DBNull.Value)));
+                    break;
+                default:
+                    throw new InvalidOperationException("Code supposed to be unreachable.");
+            }
+        }
         public static void EmitThis(this ILGenerator il)
         {
             il.EmitLoadArg(0);

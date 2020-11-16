@@ -6,7 +6,7 @@ using System.Reflection.Emit;
 
 namespace Norns.Urd.DynamicProxy
 {
-    public ref struct ProxyGeneratorContext
+    public readonly struct ProxyGeneratorContext
     {
         public ProxyGeneratorContext(ModuleBuilder moduleBuilder, Type serviceType, IInterceptorConfiguration configuration, ProxyTypes proxyType)
         {

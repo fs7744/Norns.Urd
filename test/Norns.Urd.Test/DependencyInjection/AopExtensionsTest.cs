@@ -69,16 +69,6 @@ namespace Norns.Urd.Test.DependencyInjection
         //T F { get; }
     }
 
-    public static class AopTestExtensions
-    {
-        public static IServiceProvider ConfigServiceCollectionWithAop(Func<IServiceCollection, IServiceCollection> config)
-        {
-            return config(new ServiceCollection())
-            .ConfigureAop()
-            .BuildServiceProvider();
-        }
-    }
-
     public class AopExtensionsTest
     {
         [Fact]
@@ -89,7 +79,6 @@ namespace Norns.Urd.Test.DependencyInjection
             var pt = p.GetType();
             Assert.False(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
-            Assert.Null(pt.CreateServiceProviderGetter());
             Assert.Null(pt.CreateServiceProviderGetter());
             Assert.NotNull(p);
             //Assert.NotNull(p as IDisposable);

@@ -601,5 +601,12 @@ namespace Norns.Urd.Reflection
                 il.Emit(OpCodes.Stind_Ref);
             }
         }
+
+        public static object Test(object o) => o;
+
+        public static void EmitTest(this ILGenerator il)
+        {
+            il.Emit(OpCodes.Call, typeof(EmitExtensions).GetMethod(nameof(EmitExtensions.Test)));
+        }
     }
 }

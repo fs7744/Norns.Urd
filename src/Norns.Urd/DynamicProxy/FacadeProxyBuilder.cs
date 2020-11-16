@@ -18,7 +18,7 @@ namespace Norns.Urd.DynamicProxy
 
         protected override FieldBuilder DefineMethodInfoCaller(in ProxyGeneratorContext context, MethodInfo method)
         {
-            return context.AssistType.DefineMethodInfoCaller(method);
+            return context.AssistType.DefineMethodInfoCaller(method, method.GetReflector().DisplayName);
         }
 
         protected override MethodBuilder DefineNonAspectMethod(in ProxyGeneratorContext context, MethodInfo method)

@@ -145,12 +145,8 @@ namespace Norns.Urd.DynamicProxy
             il.EmitThis();
             il.Emit(OpCodes.Ldfld, context.ProxyType.Fields[Constants.ServiceProvider]);
             il.Emit(OpCodes.Newobj, Constants.AspectContextCtor);
-            var call = method.IsAsync() ? Constants.Invoke : Constants.InvokeAsync;
-            if (method.IsVoid())
-            {
-                il.Emit(OpCodes.Call, call);
-            }
-            else if (method.IsTask() || method.IsValueTask())
+            var call = method.IsAsync() ? Constants.InvokeAsync : Constants.Invoke;
+            if (method.IsVoid() || method.IsTask() || method.IsValueTask())
             {
                 il.Emit(OpCodes.Call, call);
             }

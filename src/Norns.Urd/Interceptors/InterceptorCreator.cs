@@ -148,16 +148,16 @@ namespace Norns.Urd.Interceptors
 
         public AspectDelegate GetInterceptor(MethodInfo method)
         {
-            var baseCall = method.IsGenericMethodDefinition
-                ? CreateSyncCaller(method)
-                : c =>
+            AspectDelegate baseCall = method.IsGenericMethodDefinition
+                ? c =>
                 {
                     genericCallers.GetOrAdd(c.Method, serviceMethod =>
                     {
-                        var m = method.MakeGenericMethod(c.Method.GetGenericArguments());
+                        var m = method.MakeGenericMethod(serviceMethod.GetGenericArguments());
                         return CreateSyncCaller(m);
                     })(c);
-                };
+                }
+                : CreateSyncCaller(method);
             return FindInterceptors(method).Select(i =>
             {
                 CallAspectDelegate a = i.Invoke;
@@ -167,16 +167,16 @@ namespace Norns.Urd.Interceptors
 
         public AsyncAspectDelegate GetInterceptorAsync(MethodInfo method)
         {
-            var baseCall = method.IsGenericMethodDefinition
-                ? CreateAsyncCaller(method)
-                : async c =>
+            AsyncAspectDelegate baseCall = method.IsGenericMethodDefinition
+                ? async c =>
                 {
                     await asyncGenericCallers.GetOrAdd(c.Method, serviceMethod =>
                     {
-                        var m = method.MakeGenericMethod(c.Method.GetGenericArguments());
+                        var m = method.MakeGenericMethod(serviceMethod.GetGenericArguments());
                         return CreateAsyncCaller(m);
                     })(c);
-                };
+                }
+                : CreateAsyncCaller(method);
             return FindInterceptors(method).Select(i =>
             {
                 CallAsyncAspectDelegate a = i.InvokeAsync;

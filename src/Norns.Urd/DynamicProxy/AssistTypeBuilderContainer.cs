@@ -48,10 +48,10 @@ namespace Norns.Urd.DynamicProxy
             return field;
         }
 
-        internal FieldBuilder DefineMethodInfoCaller(MethodInfo method)
+        internal FieldBuilder DefineMethodInfoCaller(MethodInfo method, string name)
         {
             var isAsync = method.IsAsync();
-            var cField = TypeBuilder.DefineField($"cm_{method.GetReflector().DisplayName}", isAsync ? typeof(AsyncAspectDelegate) : typeof(AspectDelegate), FieldAttributes.Static | FieldAttributes.Assembly);
+            var cField = TypeBuilder.DefineField($"cm_{name}", isAsync ? typeof(AsyncAspectDelegate) : typeof(AspectDelegate), FieldAttributes.Static | FieldAttributes.Assembly);
             InitMethodIL.EmitLoadArg(0);
             InitMethodIL.Emit(OpCodes.Ldtoken, method);
             InitMethodIL.Emit(OpCodes.Ldtoken, method.DeclaringType);

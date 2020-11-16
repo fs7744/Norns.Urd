@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Norns.Urd
 {
-    public readonly struct AspectContext
+    public class AspectContext
     {
         public AspectContext(MethodInfo method, object service, object[] parameters, IServiceProvider serviceProvider)
         {

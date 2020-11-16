@@ -3,8 +3,5 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
-  <ItemGroup>
-    <Folder Include="Utils\" />
-  </ItemGroup>
 
 </Project>

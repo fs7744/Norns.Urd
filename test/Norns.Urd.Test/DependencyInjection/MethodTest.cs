@@ -22,7 +22,7 @@ namespace Norns.Urd.Test.DependencyInjection
             return 5;
         }
 
-        //void VoidMethod();
+        int IntMethod();
     }
 
     public abstract class MTest
@@ -71,6 +71,8 @@ namespace Norns.Urd.Test.DependencyInjection
 
     public class MMTest : IMTest
     {
+        public int IntMethod() => 6;
+
         [NonAspect]
         public virtual int NonAspectIntMethod() => 3;
 
@@ -333,14 +335,14 @@ namespace Norns.Urd.Test.DependencyInjection
 
         #endregion normal class
 
-        //[Fact]
-        //public void InterfaceWhenVoidMethod()
-        //{
-        //    var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient<IMTest>())
-        //        .GetRequiredService<IMTest>();
-        //    var pt = p.GetType();
-        //    Assert.True(pt.IsProxyType());
-        //    p.VoidMethod();
-        //}
+        [Fact]
+        public void InterfaceWhenVoidMethod()
+        {
+            var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient<IMTest>())
+                .GetRequiredService<IMTest>();
+            var pt = p.GetType();
+            Assert.True(pt.IsProxyType());
+            Assert.Equal(0, p.IntMethod());
+        }
     }
 }

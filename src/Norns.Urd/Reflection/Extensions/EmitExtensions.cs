@@ -468,9 +468,138 @@ namespace Norns.Urd.Reflection
             }
         }
 
-        private static bool ShouldLdtoken(Type t)
+        public static void EmitInt(this ILGenerator il, int value)
         {
-            return t.IsGenericParameter || t.GetTypeInfo().IsVisible;
+            OpCode c;
+            switch (value)
+            {
+                case -1:
+                    c = OpCodes.Ldc_I4_M1;
+                    break;
+                case 0:
+                    c = OpCodes.Ldc_I4_0;
+                    break;
+                case 1:
+                    c = OpCodes.Ldc_I4_1;
+                    break;
+                case 2:
+                    c = OpCodes.Ldc_I4_2;
+                    break;
+                case 3:
+                    c = OpCodes.Ldc_I4_3;
+                    break;
+                case 4:
+                    c = OpCodes.Ldc_I4_4;
+                    break;
+                case 5:
+                    c = OpCodes.Ldc_I4_5;
+                    break;
+                case 6:
+                    c = OpCodes.Ldc_I4_6;
+                    break;
+                case 7:
+                    c = OpCodes.Ldc_I4_7;
+                    break;
+                case 8:
+                    c = OpCodes.Ldc_I4_8;
+                    break;
+                default:
+                    if (value >= -128 && value <= 127)
+                    {
+                        il.Emit(OpCodes.Ldc_I4_S, (sbyte)value);
+                    }
+                    else
+                    {
+                        il.Emit(OpCodes.Ldc_I4, value);
+                    }
+                    return;
+            }
+            il.Emit(c);
+        }
+
+
+        public static void EmitLdRef(this ILGenerator il, Type type)
+        {
+            if (type == typeof(short))
+            {
+                il.Emit(OpCodes.Ldind_I1);
+            }
+            else if (type == typeof(Int16))
+            {
+                il.Emit(OpCodes.Ldind_I2);
+            }
+            else if (type == typeof(Int32))
+            {
+                il.Emit(OpCodes.Ldind_I4);
+            }
+            else if (type == typeof(Int64))
+            {
+                il.Emit(OpCodes.Ldind_I8);
+            }
+            else if (type == typeof(float))
+            {
+                il.Emit(OpCodes.Ldind_R4);
+            }
+            else if (type == typeof(double))
+            {
+                il.Emit(OpCodes.Ldind_R8);
+            }
+            else if (type == typeof(ushort))
+            {
+                il.Emit(OpCodes.Ldind_U1);
+            }
+            else if (type == typeof(UInt16))
+            {
+                il.Emit(OpCodes.Ldind_U2);
+            }
+            else if (type == typeof(UInt32))
+            {
+                il.Emit(OpCodes.Ldind_U4);
+            }
+            else if (type.GetTypeInfo().IsValueType)
+            {
+                il.Emit(OpCodes.Ldobj);
+            }
+            else
+            {
+                il.Emit(OpCodes.Ldind_Ref);
+            }
+        }
+
+        public static void EmitStRef(this ILGenerator il, Type type)
+        {
+            if (type == typeof(short))
+            {
+                il.Emit(OpCodes.Stind_I1);
+            }
+            else if (type == typeof(Int16))
+            {
+                il.Emit(OpCodes.Stind_I2);
+            }
+            else if (type == typeof(Int32))
+            {
+                il.Emit(OpCodes.Stind_I4);
+            }
+            else if (type == typeof(Int64))
+            {
+                il.Emit(OpCodes.Stind_I8);
+            }
+            else if (type == typeof(float))
+            {
+                il.Emit(OpCodes.Stind_R4);
+            }
+            else if (type == typeof(double))
+            {
+                il.Emit(OpCodes.Stind_R8);
+            }
+            else if (type.GetTypeInfo().IsValueType)
+            {
+                il.Emit(OpCodes.Stobj);
+            }
+            else
+            {
+                il.Emit(OpCodes.Stind_Ref);
+            }
         }
     }
 }

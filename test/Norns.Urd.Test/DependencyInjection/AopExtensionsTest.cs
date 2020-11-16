@@ -9,7 +9,6 @@ namespace Norns.Urd.Test.DependencyInjection
     //todo : facade support interfaces
     //todo : method, Property
     //todo : Property inject
-    //todo : Interceptor creator
     //todo ：Interceptor, NonAspectAttribute filter 
     //todo : api start test
     public interface IGenericTest<T, R> //: IDisposable

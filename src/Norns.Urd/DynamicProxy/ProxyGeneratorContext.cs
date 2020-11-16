@@ -8,17 +8,17 @@ namespace Norns.Urd.DynamicProxy
 {
     public readonly struct ProxyGeneratorContext
     {
-        public ProxyGeneratorContext(ModuleBuilder moduleBuilder, Type serviceType, IInterceptorConfiguration configuration, ProxyTypes proxyType)
+        public ProxyGeneratorContext(ModuleBuilder moduleBuilder, Type serviceType, IInterceptorCreator interceptorCreator, ProxyTypes proxyType)
         {
             ServiceType = serviceType.GetTypeInfo();
-            Configuration = configuration;
+            InterceptorCreator = interceptorCreator;
             ProxyType = new TypeBuilderContainer(moduleBuilder, moduleBuilder.DefineProxyType(ServiceType, proxyType));
             AssistType = new AssistTypeBuilderContainer(moduleBuilder, moduleBuilder.DefineProxyAssistType(ProxyType.TypeBuilder));
         }
 
         public TypeInfo ServiceType { get; }
 
-        public IInterceptorConfiguration Configuration { get; }
+        public IInterceptorCreator InterceptorCreator { get; }
 
         public TypeBuilderContainer ProxyType { get; }
 
@@ -27,7 +27,7 @@ namespace Norns.Urd.DynamicProxy
         public Type Complete()
         {
             var type = ProxyType.Complete();
-            AssistType.Complete(Configuration);
+            AssistType.Complete(InterceptorCreator);
             return type;
         }
     }

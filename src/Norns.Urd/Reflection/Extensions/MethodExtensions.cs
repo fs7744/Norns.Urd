@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -26,6 +28,36 @@ namespace Norns.Urd.Reflection
 
         public static bool IsVoid(this MethodInfo methodInfo) => methodInfo.ReturnType == typeof(void);
 
+        public static bool IsAsync(this MethodInfo methodInfo)
+        {
+            var returnType = methodInfo.ReturnType.GetTypeInfo();
+            return returnType.IsTask() || returnType.IsTaskWithResult() || returnType.IsValueTask() || returnType.IsValueTaskWithResult();
+        }
+
+        public static bool IsTask(this MethodInfo methodInfo)
+        {
+            var returnType = methodInfo.ReturnType.GetTypeInfo();
+            return returnType.IsTask();
+        }
+
+        public static bool IsValueTask(this MethodInfo methodInfo)
+        {
+            var returnType = methodInfo.ReturnType.GetTypeInfo();
+            return returnType.IsValueTask();
+        }
+
+        public static bool IsReturnTask(this MethodInfo methodInfo)
+        {
+            var returnType = methodInfo.ReturnType.GetTypeInfo();
+            return returnType.IsTaskWithResult();
+        }
+
+        public static bool IsReturnValueTask(this MethodInfo methodInfo)
+        {
+            var returnType = methodInfo.ReturnType.GetTypeInfo();
+            return returnType.IsValueTaskWithResult();
+        }
+
         public static void DefineGenericParameter(this MethodBuilder methodBuilder, MethodInfo tergetMethod)
         {
             if (!tergetMethod.IsGenericMethod)
@@ -52,5 +84,15 @@ namespace Norns.Urd.Reflection
                 methodBuilder.SetCustomAttribute(customAttributeData.DefineCustomAttribute());
             }
         }
+
+        public static MethodInfo GetMethod<T>(Expression<T> expression)
+        {
+            if (!(expression.Body is MethodCallExpression methodCallExpression))
+            {
+                throw new InvalidCastException("Cannot be converted to MethodCallExpression");
+            }
+            return methodCallExpression.Method;
+        }
+
     }
 }

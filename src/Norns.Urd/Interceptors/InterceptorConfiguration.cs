@@ -1,17 +1,14 @@
-﻿using System;
+﻿using System.Collections.Generic;
 
-namespace Norns.Urd.Interceptors
+namespace Norns.Urd
 {
-    public interface IInterceptorConfiguration
+    public interface IAspectConfiguration
     {
-        bool IsIgnoreType(Type serviceType);
+        List<IInterceptor> GlobalInterceptors { get; }
     }
 
-    public class InterceptorConfiguration : IInterceptorConfiguration
+    public class AspectConfiguration : IAspectConfiguration
     {
-        public bool IsIgnoreType(Type serviceType)
-        {
-            return false;
-        }
+        public List<IInterceptor> GlobalInterceptors { get; } = new List<IInterceptor>();
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Norns.Urd;
-using Norns.Urd.Interceptors;
 using System;
 using System.Linq;
 
@@ -7,7 +6,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class AopExtensions
     {
-        public static IServiceCollection ConfigureAop(this IServiceCollection services, Action<IInterceptorConfiguration> config = null)
+        public static IServiceCollection ConfigureAop(this IServiceCollection services, Action<IAspectConfiguration> config = null)
         {
             var creator = new ProxyServiceDescriptorCreator(config.Init());
             foreach (var item in services.ToArray())

@@ -1,82 +1,25 @@
 ﻿using Norns.Urd.Attributes;
 using Norns.Urd.DynamicProxy;
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace Norns.Urd.Reflection
 {
     public static class TypeExtenions
     {
+        private static readonly ConcurrentDictionary<TypeInfo, bool> isTaskOfTCache = new ConcurrentDictionary<TypeInfo, bool>();
+        private static readonly ConcurrentDictionary<TypeInfo, bool> isValueTaskOfTCache = new ConcurrentDictionary<TypeInfo, bool>();
         private const TypeAttributes ProxyTypeAttributes = TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed;
 
         #region Name
 
-        public static string GetDisplayName(this TypeInfo typeInfo)
-        {
-            var name = new StringBuilder(typeInfo.Name).Replace('+', '.');
-            if (typeInfo.IsGenericParameter)
-            {
-                return name.ToString();
-            }
-            if (typeInfo.IsGenericType)
-            {
-                var arguments = typeInfo.IsGenericTypeDefinition
-                 ? typeInfo.GenericTypeParameters
-                 : typeInfo.GenericTypeArguments;
-                name = name.Replace("`", "").Replace(arguments.Length.ToString(), "");
-                name.Append('<');
-                name.Append(GetDisplayName(arguments[0].GetTypeInfo()));
-                for (var i = 1; i < arguments.Length; i++)
-                {
-                    name.Append(',');
-                    name.Append(GetDisplayName(arguments[i].GetTypeInfo()));
-                }
-                name.Append('>');
-            }
-            if (typeInfo.IsNested)
-            {
-                name.Insert(0, ".");
-                name.Insert(0, GetDisplayName(typeInfo.DeclaringType.GetTypeInfo()));
-            }
-            return name.ToString();
-        }
+        public static string GetDisplayName(this TypeInfo typeInfo) => typeInfo.GetReflector().DisplayName;
 
-        public static string GetFullDisplayName(this TypeInfo typeInfo)
-        {
-            var name = new StringBuilder(typeInfo.Name).Replace('+', '.');
-            if (typeInfo.IsGenericParameter)
-            {
-                return name.ToString();
-            }
-            name.Insert(0, ".");
-            if (typeInfo.IsNested)
-            {
-                name.Insert(0, GetFullDisplayName(typeInfo.DeclaringType.GetTypeInfo()));
-            }
-            else
-            {
-                name.Insert(0, typeInfo.Namespace);
-            }
-            if (typeInfo.IsGenericType)
-            {
-                var arguments = typeInfo.IsGenericTypeDefinition
-                 ? typeInfo.GenericTypeParameters
-                 : typeInfo.GenericTypeArguments;
-                name = name.Replace("`", "").Replace(arguments.Length.ToString(), "");
-                name.Append('<');
-                name.Append(GetFullDisplayName(arguments[0].GetTypeInfo()));
-                for (var i = 1; i < arguments.Length; i++)
-                {
-                    name.Append(',');
-                    name.Append(GetFullDisplayName(arguments[i].GetTypeInfo()));
-                }
-                name.Append('>');
-            }
-            return name.ToString();
-        }
+        public static string GetFullDisplayName(this TypeInfo typeInfo) => typeInfo.GetReflector().FullDisplayName;
 
         public static string GetProxyTypeName(this TypeInfo serviceType, ProxyTypes proxyType) =>
             $"{Constants.GeneratedNamespace}.{serviceType.GetDisplayName()}_Proxy_{proxyType}";
@@ -264,13 +207,13 @@ namespace Norns.Urd.Reflection
             };
         }
 
-        public static MemberReflector<TypeInfo> GetReflector(this TypeInfo type)
+        public static TypeReflector GetReflector(this TypeInfo type)
         {
-            static MemberReflector<TypeInfo> Create(TypeInfo t) => new MemberReflector<TypeInfo>(t);
-            return ReflectorCache<TypeInfo, MemberReflector<TypeInfo>>.GetOrAdd(type, Create);
+            static TypeReflector Create(TypeInfo t) => new TypeReflector(t);
+            return ReflectorCache<TypeInfo, TypeReflector>.GetOrAdd(type, Create);
         }
 
-        public static MemberReflector<TypeInfo> GetReflector(this Type type)
+        public static TypeReflector GetReflector(this Type type)
         {
             return type.GetTypeInfo().GetReflector();
         }
@@ -283,6 +226,26 @@ namespace Norns.Urd.Reflection
         public static bool IsProxyType(this Type type)
         {
             return type.GetTypeInfo().IsProxyType();
+        }
+
+        public static bool IsTask(this TypeInfo typeInfo)
+        {
+            return typeInfo.AsType() == typeof(Task);
+        }
+
+        public static bool IsTaskWithResult(this TypeInfo typeInfo)
+        {
+            return isTaskOfTCache.GetOrAdd(typeInfo, Info => Info.IsGenericType && typeof(Task).GetTypeInfo().IsAssignableFrom(Info));
+        }
+
+        public static bool IsValueTask(this TypeInfo typeInfo)
+        {
+            return typeInfo.AsType() == typeof(ValueTask);
+        }
+
+        public static bool IsValueTaskWithResult(this TypeInfo typeInfo)
+        {
+            return isValueTaskOfTCache.GetOrAdd(typeInfo, Info => Info.IsGenericType && Info.GetGenericTypeDefinition() == typeof(ValueTask<>));
         }
 
         #endregion Type

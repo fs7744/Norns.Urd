@@ -10,29 +10,24 @@ namespace Norns.Urd.DynamicProxy
         Type Create(Type serviceType, ProxyTypes proxyType);
     }
 
-    public interface IProxyBuilder
-    {
-        Type Create(Type serviceType, IInterceptorConfiguration configuration, ModuleBuilder moduleBuilder);
-    }
-
     public class ProxyGenerator : IProxyGenerator
     {
         private readonly ModuleBuilder moduleBuilder;
-        private readonly IInterceptorConfiguration configuration;
+        private readonly IInterceptorCreator interceptorCreator;
         private readonly FacadeProxyBuilder facade = new FacadeProxyBuilder();
         private readonly InheritProxyBuilder inherit = new InheritProxyBuilder();
 
-        public ProxyGenerator(IInterceptorConfiguration configuration)
+        public ProxyGenerator(IAspectConfiguration configuration)
         {
             var asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Constants.GeneratedNamespace), AssemblyBuilderAccess.RunAndCollect);
             moduleBuilder = asmBuilder.DefineDynamicModule("core");
-            this.configuration = configuration;
+            interceptorCreator = new InterceptorCreator(configuration);
         }
 
         public Type Create(Type serviceType, ProxyTypes proxyType) => proxyType switch
         {
-            ProxyTypes.Inherit => inherit.Create(serviceType, configuration, moduleBuilder),
-            ProxyTypes.Facade => facade.Create(serviceType, configuration, moduleBuilder),
+            ProxyTypes.Inherit => inherit.Create(serviceType, interceptorCreator, moduleBuilder),
+            ProxyTypes.Facade => facade.Create(serviceType, interceptorCreator, moduleBuilder),
             _ => null,
         };
     }

@@ -1,5 +1,4 @@
 ﻿using Norns.Urd.DynamicProxy;
-using Norns.Urd.Interceptors;
 using Norns.Urd.Reflection;
 using System;
 using System.Reflection;
@@ -8,9 +7,9 @@ namespace Norns.Urd
 {
     public static class AopInitializer
     {
-        public static IProxyGenerator Init(this Action<IInterceptorConfiguration> config)
+        public static IProxyGenerator Init(this Action<IAspectConfiguration> config)
         {
-            var configuration = new InterceptorConfiguration();
+            var configuration = new AspectConfiguration();
             config?.Invoke(configuration);
             return new ProxyGenerator(configuration);
         }

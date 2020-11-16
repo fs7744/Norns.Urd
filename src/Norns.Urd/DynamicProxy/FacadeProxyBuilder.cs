@@ -27,13 +27,15 @@ namespace Norns.Urd.DynamicProxy
         {
             foreach (var method in context.ServiceType
                 .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.IsNotPropertyBinding() && !Constants.IgnoreMethods.Contains(x.Name)))
+                .Where(x => x.IsNotPropertyBinding() 
+                    && !Constants.IgnoreMethods.Contains(x.Name)
+                    && x.IsVisibleAndVirtual()))
             {
                 if (method.GetReflector().IsDefined<NonAspectAttribute>())
                 {
                     DefineNonAspectMethod(context, method);
                 }
-                else if (method.IsVisibleAndVirtual())
+                else
                 {
                     DefineMethod(context, method);
                 }
@@ -139,7 +141,6 @@ namespace Norns.Urd.DynamicProxy
 
         protected override void DefineNonAspectMethod(in ProxyGeneratorContext context, MethodInfo method)
         {
-            if (!method.IsVisibleAndVirtual()) return;
             var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
             MethodBuilder methodBuilder = context.ProxyType.TypeBuilder.DefineMethod(method.Name, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
             methodBuilder.DefineGenericParameter(method);
@@ -162,7 +163,6 @@ namespace Norns.Urd.DynamicProxy
 
         protected override void DefineNonAspectMethod(in ProxyGeneratorContext context, MethodInfo method)
         {
-            if (!method.IsVisibleAndVirtual()) return;
             var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
             MethodBuilder methodBuilder = context.ProxyType.TypeBuilder.DefineMethod(method.Name, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
             methodBuilder.DefineGenericParameter(method);

@@ -78,7 +78,7 @@ namespace Norns.Urd.Interceptors
                 for (var i = 0; i < parameters.Length; i++)
                 {
                     il.Emit(OpCodes.Ldloc, argsLocal);
-                    il.EmitInt(i + 1);
+                    il.EmitInt(i);
                     il.Emit(OpCodes.Ldelem_Ref);
                     if (parameters[i].IsByRef)
                     {
@@ -131,7 +131,7 @@ namespace Norns.Urd.Interceptors
                 if (parameters[i].IsByRef)
                 {
                     il.Emit(OpCodes.Ldloc, argsLocal);
-                    il.EmitInt(i + 1);
+                    il.EmitInt(i);
                     il.Emit(OpCodes.Ldloc, frefs[i]);
                     il.EmitConvertToObject(frefs[i].LocalType);
                     il.Emit(OpCodes.Stelem_Ref);

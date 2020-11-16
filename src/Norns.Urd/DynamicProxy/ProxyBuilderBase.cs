@@ -122,12 +122,12 @@ namespace Norns.Urd.DynamicProxy
             GetServiceInstance(context, il);
 
             var argsLocal = il.DeclareLocal(typeof(object[]));
-            il.EmitInt(parameters.Length + 1);
+            il.EmitInt(parameters.Length);
             il.Emit(OpCodes.Newarr, typeof(object));
             for (var i = 0; i < parameters.Length; i++)
             {
                 il.Emit(OpCodes.Dup);
-                il.EmitInt(i + 1);
+                il.EmitInt(i);
                 il.EmitLoadArg(i + 1);
                 if (parameters[i].IsByRef)
                 {
@@ -170,7 +170,7 @@ namespace Norns.Urd.DynamicProxy
                 {
                     il.EmitLoadArg(i + 1);
                     il.Emit(OpCodes.Ldloc, argsLocal);
-                    il.EmitInt(i + 1);
+                    il.EmitInt(i);
                     il.Emit(OpCodes.Ldelem_Ref);
                     il.EmitConvertObjectTo(parameters[i].GetElementType());
                     il.EmitStRef(parameters[i]);

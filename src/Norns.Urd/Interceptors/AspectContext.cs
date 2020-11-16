@@ -19,9 +19,7 @@ namespace Norns.Urd
         public IServiceProvider ServiceProvider { get; }
         public MethodInfo Method { get; }
         public object Service { get; }
-        public object[] Parameters { get; }
-
-        public object GetReturnValue() => Parameters[0];
-        public void SetReturnValue(object value) => Parameters[0] = value;
+        public object[] Parameters { get; set; }
+        public object ReturnValue { get; set; }
     }
 }

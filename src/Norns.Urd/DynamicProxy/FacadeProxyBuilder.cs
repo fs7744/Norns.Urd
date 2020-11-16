@@ -27,7 +27,7 @@ namespace Norns.Urd.DynamicProxy
         {
             foreach (var method in context.ServiceType
                 .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.IsNotPropertyBinding() 
+                .Where(x => x.IsNotPropertyBinding()
                     && !Constants.IgnoreMethods.Contains(x.Name)
                     && x.IsVisibleAndVirtual()))
             {
@@ -143,6 +143,7 @@ namespace Norns.Urd.DynamicProxy
         {
             var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
             MethodBuilder methodBuilder = context.ProxyType.TypeBuilder.DefineMethod(method.Name, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
+            methodBuilder.DefineCustomAttributes(method);
             methodBuilder.DefineGenericParameter(method);
             var il = methodBuilder.GetILGenerator();
             il.EmitThis();
@@ -165,6 +166,7 @@ namespace Norns.Urd.DynamicProxy
         {
             var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
             MethodBuilder methodBuilder = context.ProxyType.TypeBuilder.DefineMethod(method.Name, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
+            methodBuilder.DefineCustomAttributes(method);
             methodBuilder.DefineGenericParameter(method);
             var il = methodBuilder.GetILGenerator();
             if (method.IsAbstract)

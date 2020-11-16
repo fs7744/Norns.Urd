@@ -44,5 +44,13 @@ namespace Norns.Urd.Reflection
                 }
             }
         }
+
+        public static void DefineCustomAttributes(this MethodBuilder methodBuilder, MethodInfo method)
+        {
+            foreach (var customAttributeData in method.CustomAttributes)
+            {
+                methodBuilder.SetCustomAttribute(customAttributeData.DefineCustomAttribute());
+            }
+        }
     }
 }

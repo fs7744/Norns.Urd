@@ -134,9 +134,9 @@ namespace Norns.Urd.Test.DependencyInjection
             Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
             p.F = 666;
-            Assert.Equal(666, p.F);
+            Assert.Equal(676, p.F);
             p.F = 777;
-            Assert.Equal(777, p.F);
+            Assert.Equal(787, p.F);
             var p2 = provider.GetRequiredService<IGenericTest<bool, long>>();
             Assert.False(p2.F);
             p2.F = true;

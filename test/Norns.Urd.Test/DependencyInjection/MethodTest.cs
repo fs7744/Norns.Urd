@@ -342,7 +342,7 @@ namespace Norns.Urd.Test.DependencyInjection
                 .GetRequiredService<IMTest>();
             var pt = p.GetType();
             Assert.True(pt.IsProxyType());
-            Assert.Equal(0, p.IntMethod());
+            Assert.Equal(10, p.IntMethod());
         }
     }
 }

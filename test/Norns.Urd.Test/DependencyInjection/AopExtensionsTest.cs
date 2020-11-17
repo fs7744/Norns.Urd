@@ -14,6 +14,10 @@ namespace Norns.Urd.Test.DependencyInjection
     public interface IGenericTest<T, R> //: IDisposable
     {
         T F { get; set; }
+
+        R GetR();
+
+        R GetR(R r);
     }
 
     public interface ISealedGenericTest<T, R> //: IDisposable
@@ -42,6 +46,10 @@ namespace Norns.Urd.Test.DependencyInjection
     public class GenericTest<T, R> : IGenericTest<T, R>
     {
         public virtual T F { get; set; }
+
+        public virtual R GetR() => default;
+
+        public virtual R GetR(R r) => r;
 
         public void Dispose()
         {
@@ -137,10 +145,16 @@ namespace Norns.Urd.Test.DependencyInjection
             Assert.Equal(676, p.F);
             p.F = 777;
             Assert.Equal(787, p.F);
-            var p2 = provider.GetRequiredService<IGenericTest<bool, long>>();
+            Assert.Equal(0L, p.GetR());
+            Assert.Equal(1L, p.GetR(1L));
+
+            var p2 = provider.GetRequiredService<IGenericTest<bool, double>>();
             Assert.False(p2.F);
             p2.F = true;
             Assert.True(p2.F);
+            Assert.Equal(10.0, p2.GetR());
+            Assert.Equal(23.1, p2.GetR(13.1));
+
             //Assert.NotNull(p as IDisposable);
         }
 

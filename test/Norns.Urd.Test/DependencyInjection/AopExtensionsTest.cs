@@ -9,7 +9,7 @@ namespace Norns.Urd.Test.DependencyInjection
     //todo : facade support interfaces
     //todo : method, Property
     //todo : Property inject
-    //todo ：Interceptor, NonAspectAttribute filter 
+    //todo ：Interceptor, NonAspectAttribute filter
     //todo : api start test
     public interface IGenericTest<T, R> //: IDisposable
     {
@@ -29,6 +29,7 @@ namespace Norns.Urd.Test.DependencyInjection
             throw new NotImplementedException();
         }
     }
+
     internal class InternalGenericTest<T, R> : ISealedGenericTest<T, R>
     {
         //public virtual T F { get; set; }
@@ -38,10 +39,10 @@ namespace Norns.Urd.Test.DependencyInjection
         }
     }
 
-
     public class GenericTest<T, R> : IGenericTest<T, R>
     {
         public virtual T F { get; set; }
+
         public void Dispose()
         {
             throw new NotImplementedException();
@@ -125,13 +126,21 @@ namespace Norns.Urd.Test.DependencyInjection
         [Fact]
         public void WhenOpenGenericTest()
         {
-            var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient(typeof(IGenericTest<,>), typeof(GenericTest<,>)))
-                 .GetRequiredService<IGenericTest<int, long>>();
+            var provider = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient(typeof(IGenericTest<,>), typeof(GenericTest<,>)));
+            var p = provider.GetRequiredService<IGenericTest<int, long>>();
             var pt = p.GetType();
             Assert.True(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
             Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
+            p.F = 666;
+            Assert.Equal(666, p.F);
+            p.F = 777;
+            Assert.Equal(777, p.F);
+            var p2 = provider.GetRequiredService<IGenericTest<bool, long>>();
+            Assert.False(p2.F);
+            p2.F = true;
+            Assert.True(p2.F);
             //Assert.NotNull(p as IDisposable);
         }
 

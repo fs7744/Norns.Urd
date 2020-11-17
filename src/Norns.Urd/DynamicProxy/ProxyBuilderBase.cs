@@ -105,19 +105,30 @@ namespace Norns.Urd.DynamicProxy
             methodBuilder.DefineGenericParameter(method);
             var il = methodBuilder.GetILGenerator();
             var caller = DefineMethodInfoCaller(context, method);
-            if (method.IsGenericMethodDefinition)
+            if (method.ContainsGenericParameters && !method.IsGenericMethodDefinition)
             {
                 il.Emit(OpCodes.Ldsfld, caller);
-                var gm = method.MakeGenericMethod(methodBuilder.GetGenericArguments());
-                il.Emit(OpCodes.Ldtoken, gm);
-                il.Emit(OpCodes.Ldtoken, gm.DeclaringType);
+                il.Emit(OpCodes.Ldtoken, method);
+                il.Emit(OpCodes.Ldtoken, method.DeclaringType);
                 il.Emit(OpCodes.Call, Constants.GetMethodFromHandle);
                 il.Emit(OpCodes.Castclass, typeof(MethodInfo));
             }
             else
             {
-                il.Emit(OpCodes.Ldsfld, caller);
-                il.Emit(OpCodes.Ldsfld, context.AssistType.DefineMethodInfoCache(method));
+                if (method.IsGenericMethodDefinition)
+                {
+                    il.Emit(OpCodes.Ldsfld, caller);
+                    var gm = method.MakeGenericMethod(methodBuilder.GetGenericArguments());
+                    il.Emit(OpCodes.Ldtoken, gm);
+                    il.Emit(OpCodes.Ldtoken, gm.DeclaringType);
+                    il.Emit(OpCodes.Call, Constants.GetMethodFromHandle);
+                    il.Emit(OpCodes.Castclass, typeof(MethodInfo));
+                }
+                else
+                {
+                    il.Emit(OpCodes.Ldsfld, caller);
+                    il.Emit(OpCodes.Ldsfld, context.AssistType.DefineMethodInfoCache(method));
+                }
             }
             GetServiceInstance(context, il);
 

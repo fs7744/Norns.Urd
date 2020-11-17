@@ -22,7 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 var i when i.ImplementationFactory is not null => TryCreateFacadeImplementation(i, i.ImplementationFactory, out proxyServiceDescriptor),
                 var i when i.ImplementationInstance is not null => TryCreateFacadeImplementation(i, x => i.ImplementationInstance, out proxyServiceDescriptor),
-                var i when !i.ServiceType.IsGenericTypeDefinition 
+                var i when !i.ServiceType.IsGenericTypeDefinition
                     && (i.ImplementationType.IsSealed
                         || !i.ImplementationType.GetTypeInfo().IsVisible())
                     => TryCreateFacadeImplementation(i, x => ActivatorUtilities.CreateInstance(x, i.ImplementationType), out proxyServiceDescriptor),

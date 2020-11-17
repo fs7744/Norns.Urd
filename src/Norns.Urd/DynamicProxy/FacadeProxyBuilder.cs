@@ -5,7 +5,6 @@ using System.Reflection.Emit;
 
 namespace Norns.Urd.DynamicProxy
 {
-
     public class FacadeProxyBuilder : ProxyBuilderBase
     {
         protected override ProxyTypes ProxyType { get; } = ProxyTypes.Facade;

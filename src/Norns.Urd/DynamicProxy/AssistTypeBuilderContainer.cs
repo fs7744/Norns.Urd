@@ -62,5 +62,17 @@ namespace Norns.Urd.DynamicProxy
             Fields.Add(cField.Name, cField);
             return cField;
         }
+
+        internal FieldBuilder DefineOpenGenericMethodInfoCaller(MethodInfo method, string name)
+        {
+            var isAsync = method.IsAsync();
+            var cField = TypeBuilder.DefineField($"cm_{name}", isAsync ? typeof(AsyncAspectDelegate) : typeof(AspectDelegate), FieldAttributes.Static | FieldAttributes.Assembly);
+            InitMethodIL.EmitLoadArg(0);
+            InitMethodIL.EmitString(name);
+            InitMethodIL.Emit(OpCodes.Callvirt, isAsync ? Constants.GetOpenGenericInterceptorAsync : Constants.GetOpenGenericInterceptor);
+            InitMethodIL.Emit(OpCodes.Stsfld, cField);
+            Fields.Add(cField.Name, cField);
+            return cField;
+        }
     }
 }

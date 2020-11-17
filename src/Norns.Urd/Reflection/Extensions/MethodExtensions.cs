@@ -93,6 +93,5 @@ namespace Norns.Urd.Reflection
             }
             return methodCallExpression.Method;
         }
-
     }
 }

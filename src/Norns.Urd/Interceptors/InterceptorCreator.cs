@@ -17,6 +17,10 @@ namespace Norns.Urd.Interceptors
         AspectDelegate GetInterceptor(MethodInfo method);
 
         AsyncAspectDelegate GetInterceptorAsync(MethodInfo method);
+
+        AspectDelegate GetOpenGenericInterceptor(string methodName);
+
+        AsyncAspectDelegate GetOpenGenericInterceptorAsync(string methodName);
     }
 
     public class InterceptorCreator : IInterceptorCreator
@@ -157,12 +161,8 @@ namespace Norns.Urd.Interceptors
                         return CreateSyncCaller(m);
                     })(c);
                 }
-                : CreateSyncCaller(method);
-            return FindInterceptors(method).Select(i =>
-            {
-                CallAspectDelegate a = i.Invoke;
-                return a;
-            }).Aggregate(baseCall, (i, j) => c => j(c, i));
+            : CreateSyncCaller(method);
+            return CreateAspectDelegate(method, baseCall);
         }
 
         public AsyncAspectDelegate GetInterceptorAsync(MethodInfo method)
@@ -176,8 +176,52 @@ namespace Norns.Urd.Interceptors
                         return CreateAsyncCaller(m);
                     })(c);
                 }
-                : CreateAsyncCaller(method);
-            return FindInterceptors(method).Select(i =>
+            : CreateAsyncCaller(method);
+            return CreateAsyncAspectDelegate(method, baseCall);
+        }
+
+        public AspectDelegate GetOpenGenericInterceptor(string methodName)
+        {
+            Dictionary<Type, MethodInfo> openGenericCallers = new Dictionary<Type, MethodInfo>();
+            return c =>
+            {
+                var t = c.Service.GetType();
+                if (!openGenericCallers.TryGetValue(t, out var m))
+                {
+                    m = t.GetMethod(methodName);
+                    openGenericCallers[t] = m;
+                }
+                genericCallers.GetOrAdd(m, s => CreateAspectDelegate(s, CreateSyncCaller(s)))(c);
+            };
+        }
+
+        private AspectDelegate CreateAspectDelegate(MethodInfo serviceMethod, AspectDelegate baseCall)
+        {
+            return FindInterceptors(serviceMethod).Select(i =>
+            {
+                CallAspectDelegate a = i.Invoke;
+                return a;
+            }).Aggregate(baseCall, (i, j) => c => j(c, i));
+        }
+
+        public AsyncAspectDelegate GetOpenGenericInterceptorAsync(string methodName)
+        {
+            Dictionary<Type, MethodInfo> openGenericCallers = new Dictionary<Type, MethodInfo>();
+            return async c =>
+            {
+                var t = c.Service.GetType();
+                if (!openGenericCallers.TryGetValue(t, out var m))
+                {
+                    m = t.GetMethod(methodName);
+                    openGenericCallers[t] = m;
+                }
+                await asyncGenericCallers.GetOrAdd(m, s => CreateAsyncAspectDelegate(s, CreateAsyncCaller(s)))(c);
+            };
+        }
+
+        private AsyncAspectDelegate CreateAsyncAspectDelegate(MethodInfo serviceMethod, AsyncAspectDelegate baseCall)
+        {
+            return FindInterceptors(serviceMethod).Select(i =>
             {
                 CallAsyncAspectDelegate a = i.InvokeAsync;
                 return a;

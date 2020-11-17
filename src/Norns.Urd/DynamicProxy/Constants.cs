@@ -24,6 +24,8 @@ namespace Norns.Urd.DynamicProxy
         public static readonly MethodInfo InvokeAsync = typeof(AsyncAspectDelegate).GetMethod(nameof(AsyncAspectDelegate.Invoke));
         public static readonly MethodInfo GetInterceptor = typeof(IInterceptorCreator).GetMethod(nameof(IInterceptorCreator.GetInterceptor));
         public static readonly MethodInfo GetInterceptorAsync = typeof(IInterceptorCreator).GetMethod(nameof(IInterceptorCreator.GetInterceptorAsync));
+        public static readonly MethodInfo GetOpenGenericInterceptor = typeof(IInterceptorCreator).GetMethod(nameof(IInterceptorCreator.GetOpenGenericInterceptor));
+        public static readonly MethodInfo GetOpenGenericInterceptorAsync = typeof(IInterceptorCreator).GetMethod(nameof(IInterceptorCreator.GetOpenGenericInterceptorAsync));
         public static readonly MethodInfo GetParameters = typeof(AspectContext).GetProperty(nameof(AspectContext.Parameters)).GetMethod;
         public static readonly MethodInfo GetService = typeof(AspectContext).GetProperty(nameof(AspectContext.Service)).GetMethod;
         public static readonly MethodInfo Await = typeof(InterceptorCreator).GetMethod(nameof(InterceptorCreator.Await));

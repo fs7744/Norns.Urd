@@ -65,13 +65,16 @@ namespace Norns.Urd.Reflection
                     il.Emit(OpCodes.Ldc_I4_0);
                     il.Emit(OpCodes.Newobj, typeof(Decimal).GetTypeInfo().GetConstructor(new Type[] { typeof(int) }));
                     break;
+
                 case TypeCode.DBNull:
                     il.Emit(OpCodes.Ldsfld, typeof(DBNull).GetField(nameof(DBNull.Value)));
                     break;
+
                 default:
                     throw new InvalidOperationException("Code supposed to be unreachable.");
             }
         }
+
         public static void EmitThis(this ILGenerator il)
         {
             il.EmitLoadArg(0);
@@ -476,33 +479,43 @@ namespace Norns.Urd.Reflection
                 case -1:
                     c = OpCodes.Ldc_I4_M1;
                     break;
+
                 case 0:
                     c = OpCodes.Ldc_I4_0;
                     break;
+
                 case 1:
                     c = OpCodes.Ldc_I4_1;
                     break;
+
                 case 2:
                     c = OpCodes.Ldc_I4_2;
                     break;
+
                 case 3:
                     c = OpCodes.Ldc_I4_3;
                     break;
+
                 case 4:
                     c = OpCodes.Ldc_I4_4;
                     break;
+
                 case 5:
                     c = OpCodes.Ldc_I4_5;
                     break;
+
                 case 6:
                     c = OpCodes.Ldc_I4_6;
                     break;
+
                 case 7:
                     c = OpCodes.Ldc_I4_7;
                     break;
+
                 case 8:
                     c = OpCodes.Ldc_I4_8;
                     break;
+
                 default:
                     if (value >= -128 && value <= 127)
                     {
@@ -516,7 +529,6 @@ namespace Norns.Urd.Reflection
             }
             il.Emit(c);
         }
-
 
         public static void EmitLdRef(this ILGenerator il, Type type)
         {
@@ -600,6 +612,11 @@ namespace Norns.Urd.Reflection
             {
                 il.Emit(OpCodes.Stind_Ref);
             }
+        }
+
+        public static void EmitString(this ILGenerator il, string value)
+        {
+            il.Emit(OpCodes.Ldstr, value);
         }
 
         public static object Test(object o) => o;

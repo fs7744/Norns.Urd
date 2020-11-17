@@ -17,7 +17,8 @@ namespace Norns.Urd.Reflection
             il.Emit(OpCodes.Ret);
             return (Action<object, object>)method.CreateDelegate(typeof(Action<object, object>));
         }
-        public static Func<T, R> CreateGetter<T,R>(this FieldInfo field)
+
+        public static Func<T, R> CreateGetter<T, R>(this FieldInfo field)
         {
             var t = typeof(T);
             var r = typeof(R);

@@ -31,7 +31,14 @@ namespace Norns.Urd.DynamicProxy
             }
 
             il.Emit(OpCodes.Ret);
-            return context.AssistType.DefineMethodInfoCaller(methodBaseBuilder, baseMethodName);
+            if (method.ContainsGenericParameters && !method.IsGenericMethodDefinition)
+            {
+                return context.AssistType.DefineOpenGenericMethodInfoCaller(methodBaseBuilder, baseMethodName);
+            }
+            else
+            {
+                return context.AssistType.DefineMethodInfoCaller(methodBaseBuilder, baseMethodName);
+            }
         }
 
         protected override MethodBuilder DefineNonAspectMethod(in ProxyGeneratorContext context, MethodInfo method)

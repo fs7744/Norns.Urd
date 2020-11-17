@@ -7,7 +7,6 @@ using Xunit;
 namespace Norns.Urd.Test.DependencyInjection
 {
     //todo : facade support interfaces
-    //todo : method, Property
     //todo : Property inject
     //todo ：Interceptor, NonAspectAttribute filter
     //todo : api start test
@@ -18,6 +17,10 @@ namespace Norns.Urd.Test.DependencyInjection
         R GetR();
 
         R GetR(R r);
+
+        T GetT();
+
+        T this[R index] { get; set; }
     }
 
     public interface ISealedGenericTest<T, R> //: IDisposable
@@ -47,6 +50,8 @@ namespace Norns.Urd.Test.DependencyInjection
     {
         public virtual T F { get; set; }
 
+        public T this[R index] { get => F; set => F = value; }
+
         public virtual R GetR() => default;
 
         public virtual R GetR(R r) => r;
@@ -55,6 +60,8 @@ namespace Norns.Urd.Test.DependencyInjection
         {
             throw new NotImplementedException();
         }
+
+        public T GetT() => default;
     }
 
     public abstract class AbstractGenericTest<T, R> : IDisposable
@@ -147,15 +154,70 @@ namespace Norns.Urd.Test.DependencyInjection
             Assert.Equal(787, p.F);
             Assert.Equal(0L, p.GetR());
             Assert.Equal(1L, p.GetR(1L));
+            Assert.Equal(0, p.GetT());
+            Assert.Equal(787, p.F);
+            p[3L] = 878;
+            Assert.Equal(888, p[8L]);
+            Assert.Equal(888, p.F);
 
             var p2 = provider.GetRequiredService<IGenericTest<bool, double>>();
+            Assert.False(p2.GetT());
             Assert.False(p2.F);
             p2.F = true;
             Assert.True(p2.F);
             Assert.Equal(10.0, p2.GetR());
             Assert.Equal(23.1, p2.GetR(13.1));
+            p2[3L] = false;
+            Assert.False(p2[4L]);
+            Assert.False(p2.F);
 
             //Assert.NotNull(p as IDisposable);
+        }
+
+        [Fact]
+        public void WhenGenericImplementationFactoryTest()
+        {
+            var provider = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddSingleton<IGenericTest<int, long>>(new GenericTest<int, long>()));
+            var p = provider.GetRequiredService<IGenericTest<int, long>>();
+            var pt = p.GetType();
+            Assert.True(pt.IsProxyType());
+            Assert.NotNull(pt.CreateInstanceGetter()(p));
+            Assert.NotNull(pt.CreateServiceProviderGetter()(p));
+            Assert.NotNull(p);
+            p.F = 666;
+            Assert.Equal(676, p.F);
+            p.F = 777;
+            Assert.Equal(787, p.F);
+            Assert.Equal(0L, p.GetR());
+            Assert.Equal(1L, p.GetR(1L));
+            Assert.Equal(10, p.GetT());
+            Assert.Equal(787, p.F);
+            p[3L] = 878;
+            Assert.Equal(888, p[8L]);
+            Assert.Equal(888, p.F);
+        }
+
+        [Fact]
+        public void WhenGenericImplementationTypeTest()
+        {
+            var provider = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddSingleton<IGenericTest<int, long>, GenericTest<int, long>>());
+            var p = provider.GetRequiredService<IGenericTest<int, long>>();
+            var pt = p.GetType();
+            Assert.True(pt.IsProxyType());
+            Assert.Null(pt.CreateInstanceGetter());
+            Assert.NotNull(pt.CreateServiceProviderGetter()(p));
+            Assert.NotNull(p);
+            p.F = 666;
+            Assert.Equal(676, p.F);
+            p.F = 777;
+            Assert.Equal(787, p.F);
+            Assert.Equal(0L, p.GetR());
+            Assert.Equal(1L, p.GetR(1L));
+            Assert.Equal(0, p.GetT());
+            Assert.Equal(787, p.F);
+            p[3L] = 878;
+            Assert.Equal(888, p[8L]);
+            Assert.Equal(888, p.F);
         }
 
         [Fact]

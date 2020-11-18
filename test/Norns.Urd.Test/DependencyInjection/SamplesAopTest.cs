@@ -3,21 +3,16 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Console;
 using Moq;
+using Norns.Urd.Reflection;
 using System;
 using System.IO;
 using Xunit;
 
 namespace Norns.Urd.Test.DependencyInjection
 {
-    public abstract class TConsoleFormatter
+    public class TConsoleFormatter
     {
-        protected TConsoleFormatter(string name)
-        {
-            Name = name;
-        }
-
-        public string Name { get; }
-       public abstract void Write<TState>(in LogEntry<TState> logEntry, IExternalScopeProvider scopeProvider, TextWriter textWriter);
+        public virtual void Write<TState>(in LogEntry<TState> logEntry, IExternalScopeProvider scopeProvider, TextWriter textWriter) { }
     }
 
     public class A : ConsoleFormatter
@@ -47,8 +42,9 @@ namespace Norns.Urd.Test.DependencyInjection
         [Fact]
         public void ConsoleFormatterAopTest()
         {
-            var provider = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddSingleton<TConsoleFormatter>().AddSingleton("D"));
+            var provider = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddSingleton<TConsoleFormatter>(), true);
             var p = provider.GetRequiredService<TConsoleFormatter>();
+            Assert.False(p.GetType().IsProxyType());
             Assert.NotNull(p);
         }
     }

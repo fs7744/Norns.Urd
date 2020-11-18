@@ -5,10 +5,10 @@ namespace Norns.Urd.Test.DependencyInjection
 {
     public static class AopTestExtensions
     {
-        public static IServiceProvider ConfigServiceCollectionWithAop(Func<IServiceCollection, IServiceCollection> config)
+        public static IServiceProvider ConfigServiceCollectionWithAop(Func<IServiceCollection, IServiceCollection> config, bool isIgnoreError = false)
         {
             return config(new ServiceCollection())
-            .ConfigureAop(i => i.GlobalInterceptors.Add(new AddTenInterceptor()))
+            .ConfigureAop(i => i.GlobalInterceptors.Add(new AddTenInterceptor()), isIgnoreError)
             .BuildServiceProvider();
         }
     }

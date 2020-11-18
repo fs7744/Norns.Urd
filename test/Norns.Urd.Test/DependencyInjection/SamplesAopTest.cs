@@ -1,28 +1,37 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging.Console;
 using Moq;
 using System;
+using System.IO;
 using Xunit;
 
 namespace Norns.Urd.Test.DependencyInjection
 {
-    public abstract class LoggerT<T> : ILogger, ILogger<T>
+    public abstract class TConsoleFormatter
     {
-        public  IDisposable BeginScope<TState>(TState state)
+        protected TConsoleFormatter(string name)
         {
-            throw new NotImplementedException();
+            Name = name;
         }
 
-        public bool IsEnabled(LogLevel logLevel)
+        public string Name { get; }
+       public abstract void Write<TState>(in LogEntry<TState> logEntry, IExternalScopeProvider scopeProvider, TextWriter textWriter);
+    }
+
+    public class A : ConsoleFormatter
+    {
+        public A(string name) : base(name)
         {
-            throw new NotImplementedException();
         }
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public override void Write<TState>(in LogEntry<TState> logEntry, IExternalScopeProvider scopeProvider, TextWriter textWriter)
         {
             throw new NotImplementedException();
         }
     }
+
     public class SamplesAopTest
     {
         [Fact]
@@ -32,6 +41,14 @@ namespace Norns.Urd.Test.DependencyInjection
                 .AddSingleton(new Mock<ILoggerFactory>().Object));
 
             var p = provider.GetRequiredService<ILogger<SamplesAopTest>>();
+            Assert.NotNull(p);
+        }
+
+        [Fact]
+        public void ConsoleFormatterAopTest()
+        {
+            var provider = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddSingleton<TConsoleFormatter>().AddSingleton("D"));
+            var p = provider.GetRequiredService<TConsoleFormatter>();
             Assert.NotNull(p);
         }
     }

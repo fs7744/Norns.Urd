@@ -31,5 +31,6 @@ namespace Norns.Urd.DynamicProxy
         public static readonly MethodInfo Await = typeof(InterceptorCreator).GetMethod(nameof(InterceptorCreator.Await));
         public static readonly MethodInfo AwaitValueTask = typeof(InterceptorCreator).GetMethod(nameof(InterceptorCreator.AwaitValueTask));
         public static readonly MethodInfo AwaitValueTaskReturnValue = typeof(InterceptorCreator).GetMethod(nameof(InterceptorCreator.AwaitValueTaskReturnValue));
+        public static readonly BindingFlags MethodBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
     }
 }

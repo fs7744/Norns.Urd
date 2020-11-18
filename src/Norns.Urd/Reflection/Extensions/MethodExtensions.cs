@@ -77,6 +77,49 @@ namespace Norns.Urd.Reflection
             }
         }
 
+        public static void DefineParameters(this MethodBuilder methodBuilder, MethodInfo targetMethod)
+        {
+            var parameters = targetMethod.GetParameters();
+            if (parameters.Length > 0)
+            {
+                const int paramOffset = 1; // 1
+                foreach (var parameter in parameters)
+                {
+                    var parameterBuilder = methodBuilder.DefineParameter(parameter.Position + paramOffset, parameter.Attributes, parameter.Name);
+                    // if (parameter.HasDefaultValue) // parameter.HasDefaultValue will throw a FormatException when parameter is DateTime type with default value
+                    if (parameter.HasDefaultValueByAttributes())
+                    {
+                        // if (!(parameter.ParameterType.GetTypeInfo().IsValueType && parameter.DefaultValue == null)) 
+                        // we can comment above line safely, and CopyDefaultValueConstant will handle this case.
+                        // parameter.DefaultValue will throw a FormatException when parameter is DateTime type with default value
+                        {
+                            // parameterBuilder.SetConstant(parameter.DefaultValue);
+                            try
+                            {
+                                parameterBuilder.CopyDefaultValueConstant(parameter);
+                            }
+                            catch
+                            {
+                                // Default value replication is a nice-to-have feature but not essential,
+                                // so if it goes wrong for one parameter, just continue.
+                            }
+                        }
+                    }
+                    foreach (var attribute in parameter.CustomAttributes)
+                    {
+                        parameterBuilder.SetCustomAttribute(attribute.DefineCustomAttribute());
+                    }
+                }
+            }
+
+            var returnParamter = targetMethod.ReturnParameter;
+            var returnParameterBuilder = methodBuilder.DefineParameter(0, returnParamter.Attributes, returnParamter.Name);
+            foreach (var attribute in returnParamter.CustomAttributes)
+            {
+                returnParameterBuilder.SetCustomAttribute(attribute.DefineCustomAttribute());
+            }
+        }
+
         public static void DefineCustomAttributes(this MethodBuilder methodBuilder, MethodInfo method)
         {
             foreach (var customAttributeData in method.CustomAttributes)

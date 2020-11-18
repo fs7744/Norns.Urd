@@ -73,10 +73,10 @@ namespace Norns.Urd.DynamicProxy
         {
             if (context.ServiceType.IsInterface)
             {
-                var b = context.ServiceType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                var b = context.ServiceType.GetMethods(Constants.MethodBindingFlags);
                 var methods = b.Select(i => i.GetReflector().DisplayName).Distinct().ToHashSet();
                 var c = context.ServiceType.ImplementedInterfaces
-                    .SelectMany(i => i.GetTypeInfo().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                    .SelectMany(i => i.GetTypeInfo().GetMethods(Constants.MethodBindingFlags))
                     .Where(i => !methods.Contains(i.GetReflector().DisplayName))
                     .ToArray();
                 var d = b.Union(c).Distinct().ToArray();
@@ -84,13 +84,12 @@ namespace Norns.Urd.DynamicProxy
             }
             else
             {
-                return context.ServiceType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                return context.ServiceType.GetMethods(Constants.MethodBindingFlags);
             }
         }
 
         private void DefineMethods(in ProxyGeneratorContext context)
         {
-            
             foreach (var method in GetMethods(context)
                 .Where(x => x.IsNotPropertyBinding()
                     && !Constants.IgnoreMethods.Contains(x.Name)
@@ -120,13 +119,13 @@ namespace Norns.Urd.DynamicProxy
 
         protected MethodBuilder DefineProxyMethod(in ProxyGeneratorContext context, MethodInfo method)
         {
-            var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
-            MethodBuilder methodBuilder = context.ProxyType.TypeBuilder.DefineMethod(method.Name, 
-                method.DeclaringType.IsInterface
-                ? MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual
-                : MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
+            var p = method.GetParameters();
+            var parameters = p.Select(i => i.ParameterType).ToArray();
+            MethodBuilder methodBuilder = context.ProxyType.TypeBuilder.DefineMethod(method.Name,
+                DefineProxyMethodAttributes(method), method.CallingConvention, method.ReturnType, parameters);
             methodBuilder.DefineCustomAttributes(method);
             methodBuilder.DefineGenericParameter(method);
+            methodBuilder.DefineParameters(method);
             var il = methodBuilder.GetILGenerator();
             var caller = DefineMethodInfoCaller(context, method);
             if (method.ContainsGenericParameters && !method.IsGenericMethodDefinition)
@@ -201,7 +200,7 @@ namespace Norns.Urd.DynamicProxy
             }
             for (var i = 0; i < parameters.Length; i++)
             {
-                if (parameters[i].IsByRef)
+                if (parameters[i].IsByRef && !p[i].IsReadOnly())
                 {
                     il.EmitLoadArg(i + 1);
                     il.Emit(OpCodes.Ldloc, argsLocal);
@@ -214,6 +213,32 @@ namespace Norns.Urd.DynamicProxy
             il.Emit(OpCodes.Ret);
             context.ProxyType.TypeBuilder.DefineMethodOverride(methodBuilder, method);
             return methodBuilder;
+        }
+
+        private static MethodAttributes DefineProxyMethodAttributes(MethodInfo method)
+        {
+            if (method.DeclaringType.IsInterface)
+            {
+                return MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
+            }
+            var attributes = MethodAttributes.HideBySig | MethodAttributes.Virtual;
+
+            if (method.Attributes.HasFlag(MethodAttributes.Public))
+            {
+                attributes |= MethodAttributes.Public;
+            }
+
+            if (method.Attributes.HasFlag(MethodAttributes.Family))
+            {
+                attributes |= MethodAttributes.Family;
+            }
+
+            if (method.Attributes.HasFlag(MethodAttributes.FamORAssem))
+            {
+                attributes |= MethodAttributes.FamORAssem;
+            }
+
+            return attributes;
         }
 
         #region Constructor

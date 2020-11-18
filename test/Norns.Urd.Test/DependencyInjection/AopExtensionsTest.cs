@@ -21,6 +21,8 @@ namespace Norns.Urd.Test.DependencyInjection
         T GetT();
 
         T this[R index] { get; set; }
+
+        C GetT<C>();
     }
 
     public interface ISealedGenericTest<T, R> //: IDisposable
@@ -62,6 +64,8 @@ namespace Norns.Urd.Test.DependencyInjection
         }
 
         public T GetT() => default;
+
+        public C GetT<C>() => default;
     }
 
     public abstract class AbstractGenericTest<T, R> : IDisposable
@@ -336,5 +340,7 @@ namespace Norns.Urd.Test.DependencyInjection
             Assert.NotNull(p);
             //Assert.NotNull(p as IDisposable);
         }
+
+        
     }
 }

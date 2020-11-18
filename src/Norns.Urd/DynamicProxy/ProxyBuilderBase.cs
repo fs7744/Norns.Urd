@@ -68,16 +68,24 @@ namespace Norns.Urd.DynamicProxy
             }
         }
 
+        //todo: imporve
         public virtual IEnumerable<MethodInfo> GetMethods(in ProxyGeneratorContext context)
         {
-            var b = context.ServiceType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            var methods = b.Select(i => i.GetReflector().DisplayName).Distinct().ToHashSet();
-            var c = context.ServiceType.ImplementedInterfaces
-                .SelectMany(i => i.GetTypeInfo().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-                .Where(i => !methods.Contains( i.GetReflector().DisplayName))
-                .ToArray();
-            var d = b.Union(c).Distinct().ToArray() ;
-            return d;
+            if (context.ServiceType.IsInterface)
+            {
+                var b = context.ServiceType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                var methods = b.Select(i => i.GetReflector().DisplayName).Distinct().ToHashSet();
+                var c = context.ServiceType.ImplementedInterfaces
+                    .SelectMany(i => i.GetTypeInfo().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                    .Where(i => !methods.Contains(i.GetReflector().DisplayName))
+                    .ToArray();
+                var d = b.Union(c).Distinct().ToArray();
+                return d;
+            }
+            else
+            {
+                return context.ServiceType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            }
         }
 
         private void DefineMethods(in ProxyGeneratorContext context)

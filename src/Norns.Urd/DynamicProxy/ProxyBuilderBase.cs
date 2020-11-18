@@ -3,6 +3,7 @@ using Norns.Urd.Interceptors;
 using Norns.Urd.Reflection;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -39,7 +40,7 @@ namespace Norns.Urd.DynamicProxy
             }
         }
 
-        public virtual void DefineProperty(ProxyGeneratorContext context, PropertyInfo property)
+        public virtual void DefineProperty(in ProxyGeneratorContext context, PropertyInfo property)
         {
             var getMethod = property.CanRead && property.GetMethod.IsVisibleAndVirtual()
                 ? DefineMethod(context, property.GetMethod)
@@ -67,10 +68,22 @@ namespace Norns.Urd.DynamicProxy
             }
         }
 
+        public virtual IEnumerable<MethodInfo> GetMethods(in ProxyGeneratorContext context)
+        {
+            var b = context.ServiceType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            var methods = b.Select(i => i.GetReflector().DisplayName).Distinct().ToHashSet();
+            var c = context.ServiceType.ImplementedInterfaces
+                .SelectMany(i => i.GetTypeInfo().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                .Where(i => !methods.Contains( i.GetReflector().DisplayName))
+                .ToArray();
+            var d = b.Union(c).Distinct().ToArray() ;
+            return d;
+        }
+
         private void DefineMethods(in ProxyGeneratorContext context)
         {
-            foreach (var method in context.ServiceType
-                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+            
+            foreach (var method in GetMethods(context)
                 .Where(x => x.IsNotPropertyBinding()
                     && !Constants.IgnoreMethods.Contains(x.Name)
                     && x.IsVisibleAndVirtual()))
@@ -100,7 +113,10 @@ namespace Norns.Urd.DynamicProxy
         protected MethodBuilder DefineProxyMethod(in ProxyGeneratorContext context, MethodInfo method)
         {
             var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
-            MethodBuilder methodBuilder = context.ProxyType.TypeBuilder.DefineMethod(method.Name, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
+            MethodBuilder methodBuilder = context.ProxyType.TypeBuilder.DefineMethod(method.Name, 
+                method.DeclaringType.IsInterface
+                ? MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual
+                : MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
             methodBuilder.DefineCustomAttributes(method);
             methodBuilder.DefineGenericParameter(method);
             var il = methodBuilder.GetILGenerator();

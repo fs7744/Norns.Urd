@@ -10,7 +10,7 @@ namespace Norns.Urd.Test.DependencyInjection
     //todo : Property inject
     //todo ：Interceptor, NonAspectAttribute filter
     //todo : api start test
-    public interface IGenericTest<T, R> //: IDisposable
+    public interface IGenericTest<T, R> : IDisposable
     {
         T F { get; set; }
 

@@ -7,10 +7,7 @@ using Xunit;
 
 namespace Test.Norns.Urd.DependencyInjection
 {
-    //todo : facade support interfaces
     //todo : Property inject
-    //todo ：Interceptor, NonAspectAttribute filter
-    //todo : api start test
     [AddSixInterceptor]
     public interface IGenericTest<T, R> : IDisposable
     {
@@ -28,14 +25,12 @@ namespace Test.Norns.Urd.DependencyInjection
         C GetT<C>();
     }
 
-    public interface ISealedGenericTest<T, R> //: IDisposable
+    public interface ISealedGenericTest<T, R> 
     {
-        //T F { get; }
     }
 
     public sealed class SealedGenericTest<T, R> : ISealedGenericTest<T, R>
     {
-        //public T F => default;
         public void Dispose()
         {
             throw new NotImplementedException();
@@ -44,7 +39,6 @@ namespace Test.Norns.Urd.DependencyInjection
 
     internal class InternalGenericTest<T, R> : ISealedGenericTest<T, R>
     {
-        //public virtual T F { get; set; }
         public void Dispose()
         {
             throw new NotImplementedException();
@@ -73,7 +67,6 @@ namespace Test.Norns.Urd.DependencyInjection
 
     public abstract class AbstractGenericTest<T, R> : IDisposable
     {
-        //T F { get; }
         public void Dispose()
         {
             throw new NotImplementedException();
@@ -83,12 +76,10 @@ namespace Test.Norns.Urd.DependencyInjection
     [NonAspect]
     public interface INonAspectGenericTest<T, R> //: IDisposable
     {
-        //T F { get; }
     }
 
     public class SubGenericTest<T, R> : AbstractGenericTest<T, R>
     {
-        //T F { get; }
     }
 
     public class AopExtensionsTest
@@ -103,7 +94,6 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.Null(pt.CreateInstanceGetter());
             Assert.Null(pt.CreateServiceProviderGetter());
             Assert.NotNull(p);
-            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -116,7 +106,6 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.Null(pt.CreateInstanceGetter());
             Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
-            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -129,7 +118,6 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.Null(pt.CreateInstanceGetter());
             Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
-            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -142,7 +130,6 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.Null(pt.CreateInstanceGetter());
             Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
-            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -177,8 +164,6 @@ namespace Test.Norns.Urd.DependencyInjection
             p2[3L] = false;
             Assert.False(p2[4L]);
             Assert.False(p2.F);
-
-            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -237,7 +222,6 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.Null(pt.CreateInstanceGetter());
             Assert.Null(pt.CreateServiceProviderGetter());
             Assert.NotNull(p);
-            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -250,7 +234,6 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.NotNull(pt.CreateInstanceGetter()(pt));
             Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
-            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -263,7 +246,6 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.NotNull(pt.CreateInstanceGetter()(pt));
             Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
-            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -276,7 +258,6 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.Null(pt.CreateInstanceGetter());
             Assert.Null(pt.CreateServiceProviderGetter());
             Assert.NotNull(p);
-            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -289,7 +270,6 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.NotNull(pt.CreateInstanceGetter()(pt));
             Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
-            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -302,7 +282,6 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.NotNull(pt.CreateInstanceGetter()(pt));
             Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
-            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -315,7 +294,6 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.Null(pt.CreateInstanceGetter());
             Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
-            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -328,7 +306,6 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.NotNull(pt.CreateInstanceGetter()(pt));
             Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
-            //Assert.NotNull(p as IDisposable);
         }
 
         [Fact]
@@ -341,7 +318,6 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.Null(pt.CreateInstanceGetter());
             Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
-            //Assert.NotNull(p as IDisposable);
         }
 
         

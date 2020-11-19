@@ -123,9 +123,9 @@ namespace Norns.Urd.DynamicProxy
             var parameters = p.Select(i => i.ParameterType).ToArray();
             MethodBuilder methodBuilder = context.ProxyType.TypeBuilder.DefineMethod(method.Name,
                 DefineProxyMethodAttributes(method), method.CallingConvention, method.ReturnType, parameters);
-            methodBuilder.DefineCustomAttributes(method);
             methodBuilder.DefineGenericParameter(method);
             methodBuilder.DefineParameters(method);
+            methodBuilder.DefineCustomAttributes(method);
             var il = methodBuilder.GetILGenerator();
             var caller = DefineMethodInfoCaller(context, method);
             if (method.ContainsGenericParameters && !method.IsGenericMethodDefinition)

@@ -24,9 +24,9 @@ namespace Norns.Urd.DynamicProxy
         {
             var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
             MethodBuilder methodBuilder = context.ProxyType.TypeBuilder.DefineMethod(method.Name, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
-            methodBuilder.DefineCustomAttributes(method);
             methodBuilder.DefineGenericParameter(method);
             methodBuilder.DefineParameters(method);
+            methodBuilder.DefineCustomAttributes(method);
             var il = methodBuilder.GetILGenerator();
             il.EmitThis();
             il.Emit(OpCodes.Ldfld, context.ProxyType.Fields[Constants.Instance]);

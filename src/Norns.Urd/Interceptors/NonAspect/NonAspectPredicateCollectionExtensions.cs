@@ -71,6 +71,7 @@ namespace Norns.Urd
                 .AddNamespace("System.*")
                 .AddNamespace("Microsoft.*")
                 .AddNamespace("Microsoft.Owin.*")
+                .AddMethod("Microsoft.*", "*")
                 .AddDefaultCore();
         }
     }

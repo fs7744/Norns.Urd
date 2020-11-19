@@ -6,24 +6,18 @@ using System.Linq;
 
 namespace Examples.WebApi.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    public interface IAopTest
+    {
+        IEnumerable<WeatherForecast> Get();
+    }
+
+    public class AopTest : IAopTest
     {
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
-
-        private readonly ILogger<WeatherForecastController> _logger;
-
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
-        {
-            _logger = logger;
-        }
-
-        [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        public virtual IEnumerable<WeatherForecast> Get()
         {
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
@@ -34,5 +28,23 @@ namespace Examples.WebApi.Controllers
             })
             .ToArray();
         }
+    }
+
+    [ApiController]
+    [Route("[controller]")]
+    public class WeatherForecastController : ControllerBase
+    {
+
+        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly IAopTest test;
+
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IAopTest test)
+        {
+            _logger = logger;
+            this.test = test;
+        }
+
+        [HttpGet]
+        public IEnumerable<WeatherForecast> Get() => test.Get();
     }
 }

@@ -12,7 +12,8 @@ namespace Norns.Urd.Interceptors
 {
     public interface IInterceptorCreator
     {
-        bool IsIgnoreType(Type serviceType);
+        NonAspectTypePredicate IsNonAspectType { get; }
+        NonAspectMethodPredicate IsNonAspectMethod { get; }
 
         AspectDelegate GetInterceptor(MethodInfo method);
 
@@ -28,9 +29,14 @@ namespace Norns.Urd.Interceptors
         private readonly ConcurrentDictionary<MethodInfo, AspectDelegate> genericCallers = new ConcurrentDictionary<MethodInfo, AspectDelegate>();
         private readonly ConcurrentDictionary<MethodInfo, AsyncAspectDelegate> asyncGenericCallers = new ConcurrentDictionary<MethodInfo, AsyncAspectDelegate>();
         private readonly IAspectConfiguration configuration;
+        public NonAspectTypePredicate IsNonAspectType { get; }
+
+        public NonAspectMethodPredicate IsNonAspectMethod { get; }
 
         public InterceptorCreator(IAspectConfiguration configuration)
         {
+            IsNonAspectType = configuration.NonPredicates.BuildNonAspectTypePredicate();
+            IsNonAspectMethod = configuration.NonPredicates.BuildNonAspectMethodPredicate();
             this.configuration = configuration;
         }
 
@@ -236,11 +242,6 @@ namespace Norns.Urd.Interceptors
         public static AsyncAspectDelegate CreateAsyncCaller(MethodInfo method)
         {
             return (AsyncAspectDelegate)CreateCaller(method).CreateDelegate(typeof(AsyncAspectDelegate));
-        }
-
-        public bool IsIgnoreType(Type serviceType)
-        {
-            return false;
         }
     }
 }

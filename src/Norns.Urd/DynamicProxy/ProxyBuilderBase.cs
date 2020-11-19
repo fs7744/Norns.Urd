@@ -21,7 +21,7 @@ namespace Norns.Urd.DynamicProxy
 
             Type CreateInternal(Type serviceType, IInterceptorCreator interceptorCreator, ModuleBuilder moduleBuilder)
             {
-                if (IsIgnoreType(serviceType, interceptorCreator)) return null;
+                if (IsNonAspectType(serviceType, interceptorCreator)) return null;
                 var context = new ProxyGeneratorContext(moduleBuilder, serviceType, interceptorCreator, ProxyType);
                 DefineFields(context);
                 DefineCustomAttributes(context);
@@ -101,7 +101,7 @@ namespace Norns.Urd.DynamicProxy
 
         private MethodBuilder DefineMethod(in ProxyGeneratorContext context, MethodInfo method)
         {
-            if (method.GetReflector().IsDefined<NonAspectAttribute>())
+            if (context.InterceptorCreator.IsNonAspectMethod(method))
             {
                 return DefineNonAspectMethod(context, method);
             }
@@ -300,14 +300,13 @@ namespace Norns.Urd.DynamicProxy
 
         #endregion Constructor
 
-        private bool IsIgnoreType(Type serviceType, IInterceptorCreator interceptorCreator) => serviceType switch
+        private bool IsNonAspectType(Type serviceType, IInterceptorCreator interceptorCreator) => serviceType switch
         {
             { IsSealed: true }
             or { IsValueType: true }
             or { IsEnum: true }
                     => true,
-            _ when !serviceType.GetTypeInfo().IsVisible() || serviceType.GetReflector().IsDefined<NonAspectAttribute>() => true,
-            _ => interceptorCreator.IsIgnoreType(serviceType)
+            _ => interceptorCreator.IsNonAspectType(serviceType)
         };
 
         private void DefineCustomAttributes(in ProxyGeneratorContext context)

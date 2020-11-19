@@ -45,6 +45,6 @@ namespace Examples.WebApi.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get() => test.Get();
+        public virtual IEnumerable<WeatherForecast> Get() => test.Get();
     }
 }

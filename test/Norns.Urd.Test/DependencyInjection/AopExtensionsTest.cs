@@ -7,7 +7,6 @@ using Xunit;
 
 namespace Test.Norns.Urd.DependencyInjection
 {
-    //todo : Property inject
     [AddSixInterceptor]
     public interface IGenericTest<T, R> : IDisposable
     {

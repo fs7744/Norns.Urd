@@ -8,11 +8,13 @@ namespace Norns.Urd.Reflection
     {
         public string DisplayName { get; }
         public PropertyInfo BindingProperty { get; }
+        public ParameterReflector[] Parameters { get; }
 
         public MethodReflector(MethodInfo methodInfo) : base(methodInfo)
         {
             BindingProperty = GetBindingProperty(methodInfo);
             DisplayName = GetDisplayName(methodInfo);
+            Parameters = methodInfo.GetParameters().Select(i => new ParameterReflector(i)).ToArray();
         }
 
         private static PropertyInfo GetBindingProperty(MethodInfo method)
@@ -58,5 +60,6 @@ namespace Norns.Urd.Reflection
             name.Append(')');
             return name.ToString();
         }
+
     }
 }

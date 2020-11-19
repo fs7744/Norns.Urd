@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Norns.Urd
@@ -6,6 +7,8 @@ namespace Norns.Urd
     public abstract class AbstractInterceptorAttribute : Attribute, IInterceptor
     {
         public virtual int Order => 0;
+
+        public virtual bool CanAspect(MethodInfo method) => true;
 
         public virtual void Invoke(AspectContext context, AspectDelegate next)
         {

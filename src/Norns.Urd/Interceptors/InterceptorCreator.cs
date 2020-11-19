@@ -156,6 +156,7 @@ namespace Norns.Urd.Interceptors
             return configuration.GlobalInterceptors
                 .Union(method.GetCustomAttributes<AbstractInterceptorAttribute>())
                 .Union(method.DeclaringType.GetCustomAttributes<AbstractInterceptorAttribute>())
+                .Where(i => i.CanAspect(method))
                 .OrderBy(i => i.Order);
         }
 

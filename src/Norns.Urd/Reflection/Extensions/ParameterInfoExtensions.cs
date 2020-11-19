@@ -186,5 +186,11 @@ namespace Norns.Urd.Reflection
                 throw;
             }
         }
+
+        public static ParameterReflector GetReflector(this ParameterInfo parameter)
+        {
+            static ParameterReflector Create(ParameterInfo p) => new ParameterReflector(p);
+            return ReflectorCache<ParameterInfo, ParameterReflector>.GetOrAdd(parameter, Create);
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Norns.Urd.DynamicProxy;
+using Norns.Urd.Interceptors.Features;
 using Norns.Urd.Reflection;
 using System;
 using System.Reflection;
@@ -10,6 +11,7 @@ namespace Norns.Urd
         public static IProxyGenerator Init(this Action<IAspectConfiguration> config)
         {
             var configuration = new AspectConfiguration();
+            configuration.AddParameterInject();
             config?.Invoke(configuration);
             return new ProxyGenerator(configuration);
         }

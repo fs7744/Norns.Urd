@@ -1,23 +1,31 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using Norns.Urd.Interceptors;
+using System.Collections.Generic;
 
-namespace Norns.Urd.Interceptors
+namespace Norns.Urd
 {
     public class NonAspectPredicateCollection
     {
         public List<NonAspectTypePredicate> TypePredicates { get; } = new List<NonAspectTypePredicate>();
         public List<NonAspectMethodPredicate> MethodPredicates { get; } = new List<NonAspectMethodPredicate>();
 
-        public NonAspectTypePredicate BuildNonAspectTypePredicate()
+        public NonAspectTypePredicate BuildNonAspectTypePredicate() => t =>
         {
-            var predicates = TypePredicates;
-            return predicates.Skip(1).Aggregate(predicates.First(), (i, j) => x => i(x) || j(x));
-        }
+            foreach (var item in TypePredicates)
+            {
+                if (item(t))
+                    return true;
+            }
+            return false;
+        };
 
-        public NonAspectMethodPredicate BuildNonAspectMethodPredicate()
+        public NonAspectMethodPredicate BuildNonAspectMethodPredicate() => m =>
         {
-            var predicates = MethodPredicates;
-            return predicates.Skip(1).Aggregate(predicates.First(), (i, j) => x => i(x) || j(x));
-        }
+            foreach (var item in MethodPredicates)
+            {
+                if (item(m))
+                    return true;
+            }
+            return false;
+        };
     }
 }

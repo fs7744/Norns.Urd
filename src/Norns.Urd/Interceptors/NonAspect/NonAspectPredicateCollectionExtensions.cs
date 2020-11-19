@@ -1,7 +1,8 @@
-﻿using Norns.Urd.Reflection;
+﻿using Norns.Urd.Interceptors;
+using Norns.Urd.Reflection;
 using System.Reflection;
 
-namespace Norns.Urd.Interceptors
+namespace Norns.Urd
 {
     public static class NonAspectPredicateCollectionExtensions
     {

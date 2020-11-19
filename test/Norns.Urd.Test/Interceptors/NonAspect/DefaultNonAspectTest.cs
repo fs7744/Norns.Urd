@@ -1,17 +1,14 @@
-﻿using Norns.Urd.Interceptors;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Norns.Urd;
+using Norns.Urd.Interceptors;
 using Xunit;
 
-namespace Norns.Urd.Test.Interceptors.NonAspect
+namespace Test.Norns.Urd.Interceptors.NonAspect
 {
     public class DefaultNonAspectTest
     {
-        NonAspectTypePredicate defaultTypePredicate;
-        NonAspectMethodPredicate defaultMethodPredicate;
+        private NonAspectTypePredicate defaultTypePredicate;
+        private NonAspectMethodPredicate defaultMethodPredicate;
+
         public DefaultNonAspectTest()
         {
             var c = new AspectConfiguration();

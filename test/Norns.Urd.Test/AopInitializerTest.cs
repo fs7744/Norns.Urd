@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Norns.Urd;
+using System;
 using Xunit;
 
-namespace Norns.Urd.Test
+namespace Test.Norns.Urd
 {
     public class AopInitializerTest
     {

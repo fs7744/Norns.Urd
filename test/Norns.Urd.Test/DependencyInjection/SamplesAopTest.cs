@@ -12,7 +12,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Norns.Urd.Test.DependencyInjection
+namespace Test.Norns.Urd.DependencyInjection
 {
     public class TConsoleFormatter
     {

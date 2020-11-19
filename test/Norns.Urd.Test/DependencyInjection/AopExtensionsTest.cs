@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using Norns.Urd;
 using Norns.Urd.Reflection;
 using System;
 using Xunit;
 
-namespace Norns.Urd.Test.DependencyInjection
+namespace Test.Norns.Urd.DependencyInjection
 {
     //todo : facade support interfaces
     //todo : Property inject

@@ -46,7 +46,7 @@ namespace Norns.Urd
         {
             collection.TypePredicates.Clear();
             collection.MethodPredicates.Clear();
-            collection.AddDefaultCore();
+            collection.AddDefault();
             return collection;
         }
 

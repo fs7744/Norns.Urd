@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Xunit;
 
-namespace Norns.Urd.Test.Reflection.TypeExtenionsTest
+namespace Test.Norns.Urd.Reflection.TypeExtenionsTest
 {
     public class ProxyTypeNameTest
     {
@@ -29,7 +29,7 @@ namespace Norns.Urd.Test.Reflection.TypeExtenionsTest
 
         public ProxyTypeNameTest()
         {
-            var asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("Norns.Urd.Test.Reflection.TypeExtenionsTest.Generated"), AssemblyBuilderAccess.RunAndCollect);
+            var asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("Test.Norns.Urd.Reflection.TypeExtenionsTest.Generated"), AssemblyBuilderAccess.RunAndCollect);
             moduleBuilder = asmBuilder.DefineDynamicModule("core");
         }
 

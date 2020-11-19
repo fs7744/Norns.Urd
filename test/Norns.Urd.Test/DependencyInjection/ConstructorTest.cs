@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Norns.Urd;
 using Norns.Urd.Reflection;
 using System;
 using System.Reflection;
 using Xunit;
 
-namespace Norns.Urd.Test.DependencyInjection
+namespace Test.Norns.Urd.DependencyInjection
 {
     public class TestDataAttribute : Attribute
     {

@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using Norns.Urd;
+using System.Threading.Tasks;
 
-namespace Norns.Urd.Test.DependencyInjection
+namespace Test.Norns.Urd.DependencyInjection
 {
     public class AddTenInterceptor : IInterceptor
     {

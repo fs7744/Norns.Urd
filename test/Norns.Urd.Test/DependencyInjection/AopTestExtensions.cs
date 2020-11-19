@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Norns.Urd;
 using System;
 
-namespace Norns.Urd.Test.DependencyInjection
+namespace Test.Norns.Urd.DependencyInjection
 {
     public static class AopTestExtensions
     {

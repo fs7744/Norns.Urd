@@ -86,23 +86,16 @@ namespace Norns.Urd.Reflection
                 foreach (var parameter in parameters)
                 {
                     var parameterBuilder = methodBuilder.DefineParameter(parameter.Position + paramOffset, parameter.Attributes, parameter.Name);
-                    // if (parameter.HasDefaultValue) // parameter.HasDefaultValue will throw a FormatException when parameter is DateTime type with default value
                     if (parameter.HasDefaultValueByAttributes())
                     {
-                        // if (!(parameter.ParameterType.GetTypeInfo().IsValueType && parameter.DefaultValue == null)) 
-                        // we can comment above line safely, and CopyDefaultValueConstant will handle this case.
-                        // parameter.DefaultValue will throw a FormatException when parameter is DateTime type with default value
+                        try
                         {
-                            // parameterBuilder.SetConstant(parameter.DefaultValue);
-                            try
-                            {
-                                parameterBuilder.CopyDefaultValueConstant(parameter);
-                            }
-                            catch
-                            {
-                                // Default value replication is a nice-to-have feature but not essential,
-                                // so if it goes wrong for one parameter, just continue.
-                            }
+                            parameterBuilder.CopyDefaultValueConstant(parameter);
+                        }
+                        catch
+                        {
+                            // Default value replication is a nice-to-have feature but not essential,
+                            // so if it goes wrong for one parameter, just continue.
                         }
                     }
                     foreach (var attribute in parameter.CustomAttributes)

@@ -11,6 +11,7 @@ namespace Test.Norns.Urd.DependencyInjection
     //todo : Property inject
     //todo ：Interceptor, NonAspectAttribute filter
     //todo : api start test
+    [AddSixInterceptor]
     public interface IGenericTest<T, R> : IDisposable
     {
         T F { get; set; }
@@ -19,6 +20,7 @@ namespace Test.Norns.Urd.DependencyInjection
 
         R GetR(R r);
 
+        [AddSixInterceptor]
         T GetT();
 
         T this[R index] { get; set; }
@@ -190,16 +192,16 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.NotNull(pt.CreateServiceProviderGetter()(p));
             Assert.NotNull(p);
             p.F = 666;
-            Assert.Equal(676, p.F);
+            Assert.Equal(682, p.F);
             p.F = 777;
-            Assert.Equal(787, p.F);
+            Assert.Equal(793, p.F);
             Assert.Equal(0L, p.GetR());
             Assert.Equal(1L, p.GetR(1L));
-            Assert.Equal(10, p.GetT());
-            Assert.Equal(787, p.F);
+            Assert.Equal(16, p.GetT());
+            Assert.Equal(793, p.F);
             p[3L] = 878;
-            Assert.Equal(888, p[8L]);
-            Assert.Equal(888, p.F);
+            Assert.Equal(894, p[8L]);
+            Assert.Equal(894, p.F);
         }
 
         [Fact]

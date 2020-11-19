@@ -153,7 +153,10 @@ namespace Norns.Urd.Interceptors
 
         public IEnumerable<IInterceptor> FindInterceptors(MethodInfo method)
         {
-            return configuration.GlobalInterceptors ?? new List<IInterceptor>();
+            return configuration.GlobalInterceptors
+                .Union(method.GetCustomAttributes<AbstractInterceptorAttribute>())
+                .Union(method.DeclaringType.GetCustomAttributes<AbstractInterceptorAttribute>())
+                .OrderBy(i => i.Order);
         }
 
         public AspectDelegate GetInterceptor(MethodInfo method)

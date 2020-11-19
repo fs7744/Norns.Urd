@@ -39,10 +39,7 @@ namespace Norns.Urd.DynamicProxy
         internal FieldBuilder DefineMethodInfoCache(MethodInfo method)
         {
             var field = TypeBuilder.DefineField($"{method.GetReflector().DisplayName}_cache", typeof(MethodInfo), FieldAttributes.Static | FieldAttributes.Assembly);
-            InitMethodIL.Emit(OpCodes.Ldtoken, method);
-            InitMethodIL.Emit(OpCodes.Ldtoken, method.DeclaringType);
-            InitMethodIL.Emit(OpCodes.Call, Constants.GetMethodFromHandle);
-            InitMethodIL.Emit(OpCodes.Castclass, typeof(MethodInfo));
+            InitMethodIL.EmitMethod(method);
             InitMethodIL.Emit(OpCodes.Stsfld, field);
             Fields.Add(field.Name, field);
             return field;
@@ -53,10 +50,7 @@ namespace Norns.Urd.DynamicProxy
             var isAsync = method.IsAsync();
             var cField = TypeBuilder.DefineField($"cm_{name}", isAsync ? typeof(AsyncAspectDelegate) : typeof(AspectDelegate), FieldAttributes.Static | FieldAttributes.Assembly);
             InitMethodIL.EmitLoadArg(0);
-            InitMethodIL.Emit(OpCodes.Ldtoken, method);
-            InitMethodIL.Emit(OpCodes.Ldtoken, method.DeclaringType);
-            InitMethodIL.Emit(OpCodes.Call, Constants.GetMethodFromHandle);
-            InitMethodIL.Emit(OpCodes.Castclass, typeof(MethodInfo));
+            InitMethodIL.EmitMethod(method);
             InitMethodIL.Emit(OpCodes.Callvirt, isAsync ? Constants.GetInterceptorAsync : Constants.GetInterceptor);
             InitMethodIL.Emit(OpCodes.Stsfld, cField);
             Fields.Add(cField.Name, cField);

@@ -2,6 +2,7 @@
 using Norns.Urd.DynamicProxy;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -27,6 +28,15 @@ namespace Norns.Urd.Reflection
         #endregion Name
 
         #region Type
+
+        public static Type UnWrapArrayType(this TypeInfo typeInfo)
+        {
+            if (!typeInfo.IsArray)
+            {
+                return typeInfo.AsType();
+            }
+            return typeInfo.ImplementedInterfaces.First(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(IEnumerable<>)).GenericTypeArguments[0];
+        }
 
         public static bool AreEquivalent(TypeInfo t1, TypeInfo t2) => t1 == t2
             || t1.IsEquivalentTo(t2.AsType());

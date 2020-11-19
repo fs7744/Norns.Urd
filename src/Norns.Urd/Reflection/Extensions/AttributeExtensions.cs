@@ -105,6 +105,16 @@ namespace Norns.Urd.Reflection
             }
         }
 
+        public static IEnumerable<Attribute> GetCustomAttributes(this ICustomAttributeReflectorProvider provider, Type attributeType)
+        {
+            return provider.GetCustomAttributeReflectors(attributeType).Select(i => i.Invoke());
+        }
+
+        public static IEnumerable<Attribute> GetCustomAttributes<T>(this ICustomAttributeReflectorProvider provider) where T : Attribute
+        {
+            return provider.GetCustomAttributes(typeof(T)).Select(i => i as T);
+        }
+
         public static bool IsDefined(this ICustomAttributeReflectorProvider provider, Type attributeType)
         {
             return provider.GetCustomAttributeReflectors(attributeType).FirstOrDefault() != null;

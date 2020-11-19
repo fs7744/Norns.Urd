@@ -19,6 +19,7 @@ namespace Norns.Urd.DynamicProxy
         public static readonly MethodInfo GetReturnValue = typeof(AspectContext).GetProperty(nameof(AspectContext.ReturnValue)).GetMethod;
         public static readonly MethodInfo SetReturnValue = typeof(AspectContext).GetProperty(nameof(AspectContext.ReturnValue)).SetMethod;
         public static readonly ConstructorInfo AspectContextCtor = typeof(AspectContext).GetConstructors().First();
+        public static readonly MethodInfo GetTypeFromHandle = MethodExtensions.GetMethod<Func<RuntimeTypeHandle, Type>>(handle => Type.GetTypeFromHandle(handle));
         public static readonly MethodInfo GetMethodFromHandle = MethodExtensions.GetMethod<Func<RuntimeMethodHandle, RuntimeTypeHandle, MethodBase>>((h1, h2) => MethodBase.GetMethodFromHandle(h1, h2));
         public static readonly MethodInfo Invoke = typeof(AspectDelegate).GetMethod(nameof(AspectDelegate.Invoke));
         public static readonly MethodInfo InvokeAsync = typeof(AsyncAspectDelegate).GetMethod(nameof(AsyncAspectDelegate.Invoke));

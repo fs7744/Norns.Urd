@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Norns.Urd.DynamicProxy;
+using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -619,11 +620,308 @@ namespace Norns.Urd.Reflection
             il.Emit(OpCodes.Ldstr, value);
         }
 
-        public static object Test(object o) => o;
-
-        public static void EmitTest(this ILGenerator il)
+        public static void EmitArray(this ILGenerator il, Array items, Type elementType)
         {
-            il.Emit(OpCodes.Call, typeof(EmitExtensions).GetMethod(nameof(EmitExtensions.Test)));
+            il.EmitInt(items.Length);
+            il.Emit(OpCodes.Newarr, elementType);
+            for (int i = 0; i < items.Length; i++)
+            {
+                il.Emit(OpCodes.Dup);
+                il.EmitInt(i);
+                il.EmitConstant(items.GetValue(i), elementType);
+                il.EmitStoreElement(elementType);
+            }
+        }
+
+        public static void EmitStoreElement(this ILGenerator il, Type type)
+        {
+            if (type.GetTypeInfo().IsEnum)
+            {
+                il.Emit(OpCodes.Stelem, type);
+                return;
+            }
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Boolean:
+                case TypeCode.SByte:
+                case TypeCode.Byte:
+                    il.Emit(OpCodes.Stelem_I1);
+                    break;
+
+                case TypeCode.Char:
+                case TypeCode.Int16:
+                case TypeCode.UInt16:
+                    il.Emit(OpCodes.Stelem_I2);
+                    break;
+
+                case TypeCode.Int32:
+                case TypeCode.UInt32:
+                    il.Emit(OpCodes.Stelem_I4);
+                    break;
+
+                case TypeCode.Int64:
+                case TypeCode.UInt64:
+                    il.Emit(OpCodes.Stelem_I8);
+                    break;
+
+                case TypeCode.Single:
+                    il.Emit(OpCodes.Stelem_R4);
+                    break;
+
+                case TypeCode.Double:
+                    il.Emit(OpCodes.Stelem_R8);
+                    break;
+
+                default:
+                    if (type.GetTypeInfo().IsValueType)
+                    {
+                        il.Emit(OpCodes.Stelem, type);
+                    }
+                    else
+                    {
+                        il.Emit(OpCodes.Stelem_Ref);
+                    }
+                    break;
+            }
+        }
+
+        public static void EmitConstant(this ILGenerator il, object value, Type valueType)
+        {
+            if (value == null)
+            {
+                EmitDefault(il, valueType);
+                return;
+            }
+
+            if (il.TryEmitILConstant(value, valueType))
+            {
+                return;
+            }
+
+            var t = value as Type;
+            if (t != null)
+            {
+                il.EmitType(t);
+                if (valueType != typeof(Type))
+                {
+                    il.Emit(OpCodes.Castclass, valueType);
+                }
+                return;
+            }
+
+            var mb = value as MethodBase;
+            if (mb != null)
+            {
+                il.EmitMethod((MethodInfo)mb);
+                return;
+            }
+
+            if (valueType.GetTypeInfo().IsArray)
+            {
+                var array = (Array)value;
+                il.EmitArray(array, valueType.GetElementType());
+            }
+
+            throw new InvalidOperationException("Code supposed to be unreachable.");
+        }
+
+        public static void EmitType(this ILGenerator il, Type type)
+        {
+            il.Emit(OpCodes.Ldtoken, type);
+            il.Emit(OpCodes.Call, Constants.GetTypeFromHandle);
+        }
+
+        public static void EmitMethod(this ILGenerator il, MethodInfo method)
+        {
+            EmitMethod(il, method, method.DeclaringType);
+        }
+
+        public static void EmitMethod(this ILGenerator il, MethodInfo method, Type declaringType)
+        {
+            il.Emit(OpCodes.Ldtoken, method);
+            il.Emit(OpCodes.Ldtoken, method.DeclaringType);
+            il.Emit(OpCodes.Call, Constants.GetMethodFromHandle);
+            il.EmitConvertTo(typeof(MethodBase), typeof(MethodInfo));
+        }
+
+        private static bool TryEmitILConstant(this ILGenerator il, object value, Type type)
+        {
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Boolean:
+                    il.EmitBoolean((bool)value);
+                    return true;
+
+                case TypeCode.SByte:
+                    il.EmitSByte((sbyte)value);
+                    return true;
+
+                case TypeCode.Int16:
+                    il.EmitShort((short)value);
+                    return true;
+
+                case TypeCode.Int32:
+                    il.EmitInt((int)value);
+                    return true;
+
+                case TypeCode.Int64:
+                    il.EmitLong((long)value);
+                    return true;
+
+                case TypeCode.Single:
+                    il.EmitSingle((float)value);
+                    return true;
+
+                case TypeCode.Double:
+                    il.EmitDouble((double)value);
+                    return true;
+
+                case TypeCode.Char:
+                    il.EmitChar((char)value);
+                    return true;
+
+                case TypeCode.Byte:
+                    il.EmitByte((byte)value);
+                    return true;
+
+                case TypeCode.UInt16:
+                    il.EmitUShort((ushort)value);
+                    return true;
+
+                case TypeCode.UInt32:
+                    il.EmitUInt((uint)value);
+                    return true;
+
+                case TypeCode.UInt64:
+                    il.EmitULong((ulong)value);
+                    return true;
+
+                case TypeCode.Decimal:
+                    il.EmitDecimal((decimal)value);
+                    return true;
+
+                case TypeCode.String:
+                    il.EmitString((string)value);
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+
+        public static void EmitBoolean(this ILGenerator il, bool value)
+        {
+            if (value)
+            {
+                il.Emit(OpCodes.Ldc_I4_1);
+            }
+            else
+            {
+                il.Emit(OpCodes.Ldc_I4_0);
+            }
+        }
+
+        public static void EmitChar(this ILGenerator il, char value)
+        {
+            il.EmitInt(value);
+            il.Emit(OpCodes.Conv_U2);
+        }
+
+        public static void EmitByte(this ILGenerator il, byte value)
+        {
+            il.EmitInt(value);
+            il.Emit(OpCodes.Conv_U1);
+        }
+
+        public static void EmitSByte(this ILGenerator il, sbyte value)
+        {
+            il.EmitInt(value);
+            il.Emit(OpCodes.Conv_I1);
+        }
+
+        public static void EmitShort(this ILGenerator il, short value)
+        {
+            il.EmitInt(value);
+            il.Emit(OpCodes.Conv_I2);
+        }
+
+        public static void EmitUShort(this ILGenerator il, ushort value)
+        {
+            il.EmitInt(value);
+            il.Emit(OpCodes.Conv_U2);
+        }
+
+        public static void EmitUInt(this ILGenerator il, uint value)
+        {
+            il.EmitInt((int)value);
+            il.Emit(OpCodes.Conv_U4);
+        }
+
+        public static void EmitLong(this ILGenerator il, long value)
+        {
+            il.Emit(OpCodes.Ldc_I8, value);
+
+            //
+            // Now, emit convert to give the constant type information.
+            //
+            // Otherwise, it is treated as unsigned and overflow is not
+            // detected if it's used in checked ops.
+            //
+            il.Emit(OpCodes.Conv_I8);
+        }
+
+        public static void EmitULong(this ILGenerator il, ulong value)
+        {
+            il.Emit(OpCodes.Ldc_I8, (long)value);
+            il.Emit(OpCodes.Conv_U8);
+        }
+
+        public static void EmitDouble(this ILGenerator il, double value)
+        {
+            il.Emit(OpCodes.Ldc_R8, value);
+        }
+
+        public static void EmitSingle(this ILGenerator il, float value)
+        {
+            il.Emit(OpCodes.Ldc_R4, value);
+        }
+
+        public static void EmitDecimal(this ILGenerator il, decimal value)
+        {
+            if (Decimal.Truncate(value) == value)
+            {
+                if (Int32.MinValue <= value && value <= Int32.MaxValue)
+                {
+                    int intValue = Decimal.ToInt32(value);
+                    il.EmitInt(intValue);
+                    il.Emit(OpCodes.Newobj, typeof(Decimal).GetTypeInfo().GetConstructor(new Type[] { typeof(int) }));
+                }
+                else if (Int64.MinValue <= value && value <= Int64.MaxValue)
+                {
+                    long longValue = Decimal.ToInt64(value);
+                    il.EmitLong(longValue);
+                    il.Emit(OpCodes.Newobj, typeof(Decimal).GetTypeInfo().GetConstructor(new Type[] { typeof(long) }));
+                }
+                else
+                {
+                    il.EmitDecimalBits(value);
+                }
+            }
+            else
+            {
+                il.EmitDecimalBits(value);
+            }
+        }
+
+        private static void EmitDecimalBits(this ILGenerator il, decimal value)
+        {
+            int[] bits = Decimal.GetBits(value);
+            il.EmitInt(bits[0]);
+            il.EmitInt(bits[1]);
+            il.EmitInt(bits[2]);
+            il.EmitBoolean((bits[3] & 0x80000000) != 0);
+            il.EmitByte((byte)(bits[3] >> 16));
+            il.Emit(OpCodes.Newobj, typeof(decimal).GetTypeInfo().GetConstructor(new Type[] { typeof(int), typeof(int), typeof(int), typeof(bool), typeof(byte) }));
         }
     }
 }

@@ -68,7 +68,6 @@ namespace Norns.Urd.DynamicProxy
             }
         }
 
-        //todo: imporve
         public virtual IEnumerable<MethodInfo> GetMethods(in ProxyGeneratorContext context)
         {
             if (context.ServiceType.IsInterface)
@@ -77,10 +76,8 @@ namespace Norns.Urd.DynamicProxy
                 var methods = b.Select(i => i.GetReflector().DisplayName).Distinct().ToHashSet();
                 var c = context.ServiceType.ImplementedInterfaces
                     .SelectMany(i => i.GetTypeInfo().GetMethods(Constants.MethodBindingFlags))
-                    .Where(i => !methods.Contains(i.GetReflector().DisplayName))
-                    .ToArray();
-                var d = b.Union(c).Distinct().ToArray();
-                return d;
+                    .Where(i => !methods.Contains(i.GetReflector().DisplayName));
+                return b.Union(c).Distinct();
             }
             else
             {

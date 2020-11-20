@@ -9,6 +9,14 @@ namespace Norns.Urd.DynamicProxy
     {
         protected override ProxyTypes ProxyType { get; } = ProxyTypes.Inherit;
 
+        protected override void CallPropertyInjectInConstructor(in ProxyGeneratorContext context, ILGenerator il)
+        {
+            il.EmitThis();
+            il.EmitThis();
+            il.Emit(OpCodes.Ldfld, context.ProxyType.Fields[Constants.ServiceProvider]);
+            il.Emit(OpCodes.Call, context.ProxyType.PropertyInject.setter);
+        }
+
         protected override FieldBuilder DefineMethodInfoCaller(in ProxyGeneratorContext context, MethodInfo method)
         {
             var baseMethodName = $"{method.GetReflector().DisplayName}_Base";

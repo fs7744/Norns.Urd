@@ -13,6 +13,7 @@ namespace Norns.Urd.DynamicProxy
         public const string Init = "Init";
         public const string Instance = "instanceGenerated";
         public const string ServiceProvider = "serviceProviderGenerated";
+        public const string ServiceProviderProperty = "ServiceProviderGenerated";
         public static readonly Type[] DefaultConstructorParameters = new Type[] { typeof(IServiceProvider) };
         public static readonly ConstructorInfo ObjectCtor = typeof(object).GetTypeInfo().DeclaredConstructors.Single();
         public static readonly HashSet<string> IgnoreMethods = new HashSet<string> { "Finalize", "ToString", "Equals", "GetHashCode" };
@@ -33,5 +34,6 @@ namespace Norns.Urd.DynamicProxy
         public static readonly MethodInfo AwaitValueTask = typeof(InterceptorCreator).GetMethod(nameof(InterceptorCreator.AwaitValueTask));
         public static readonly MethodInfo AwaitValueTaskReturnValue = typeof(InterceptorCreator).GetMethod(nameof(InterceptorCreator.AwaitValueTaskReturnValue));
         public static readonly BindingFlags MethodBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+        public static readonly MethodInfo GetServiceFromDI = typeof(IServiceProvider).GetMethod(nameof(IServiceProvider.GetService));
     }
 }

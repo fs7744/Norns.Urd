@@ -34,14 +34,27 @@ namespace Norns.Urd.DynamicProxy
 
         protected void DefineProperties(in ProxyGeneratorContext context)
         {
-            foreach (var property in context.ServiceType.GetTypeInfo().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            var (il,_) = context.ProxyType.PropertyInject;
+            foreach (var property in context.ServiceType.GetTypeInfo().GetProperties(Constants.MethodBindingFlags))
             {
-                DefineProperty(context, property);
+                var p = DefineProperty(context, property);
+                if (property.CanWrite 
+                    && property.GetReflector().IsDefined<InjectAttribute>()
+                    && p?.SetMethod != null)
+                {
+                    GetServiceInstance(context, il);
+                    il.EmitLoadArg(1);
+                    il.EmitType(property.PropertyType);
+                    il.Emit(OpCodes.Callvirt, Constants.GetServiceFromDI);
+                    il.EmitConvertObjectTo(property.PropertyType);
+                    il.Emit(OpCodes.Callvirt, p.SetMethod);
+                }
             }
         }
 
-        public virtual void DefineProperty(in ProxyGeneratorContext context, PropertyInfo property)
+        public virtual PropertyBuilder DefineProperty(in ProxyGeneratorContext context, PropertyInfo property)
         {
+            PropertyBuilder propertyBuilder = null;
             var getMethod = property.CanRead && property.GetMethod.IsVisibleAndVirtual()
                 ? DefineMethod(context, property.GetMethod)
                 : null;
@@ -52,7 +65,7 @@ namespace Norns.Urd.DynamicProxy
 
             if (getMethod != null || setMethod != null)
             {
-                var propertyBuilder = context.AssistType.TypeBuilder.DefineProperty(property.Name, property.Attributes, property.PropertyType, Type.EmptyTypes);
+                propertyBuilder = context.AssistType.TypeBuilder.DefineProperty(property.Name, property.Attributes, property.PropertyType, Type.EmptyTypes);
                 if (getMethod != null)
                 {
                     propertyBuilder.SetGetMethod(getMethod);
@@ -66,6 +79,7 @@ namespace Norns.Urd.DynamicProxy
                     propertyBuilder.SetCustomAttribute(customAttributeData.DefineCustomAttribute());
                 }
             }
+            return propertyBuilder;
         }
 
         public virtual IEnumerable<MethodInfo> GetMethods(in ProxyGeneratorContext context)
@@ -113,6 +127,8 @@ namespace Norns.Urd.DynamicProxy
         protected abstract void GetServiceInstance(in ProxyGeneratorContext context, ILGenerator il);
 
         protected abstract FieldBuilder DefineMethodInfoCaller(in ProxyGeneratorContext context, MethodInfo method);
+
+        protected abstract void CallPropertyInjectInConstructor(in ProxyGeneratorContext context, ILGenerator il);
 
         protected MethodBuilder DefineProxyMethod(in ProxyGeneratorContext context, MethodInfo method)
         {
@@ -252,7 +268,7 @@ namespace Norns.Urd.DynamicProxy
             }
         }
 
-        private static void DefineConstructor(in ProxyGeneratorContext context, ConstructorInfo constructor)
+        private void DefineConstructor(in ProxyGeneratorContext context, ConstructorInfo constructor)
         {
             Type[] parameterTypes = constructor.GetParameters().Select(i => i.ParameterType).Concat(Constants.DefaultConstructorParameters).ToArray();
             var constructorBuilder = context.ProxyType.TypeBuilder.DefineConstructor(context.ServiceType.IsAbstract ? constructor.Attributes | MethodAttributes.Public : constructor.Attributes, constructor.CallingConvention, parameterTypes);
@@ -273,10 +289,11 @@ namespace Norns.Urd.DynamicProxy
             il.EmitThis();
             il.EmitLoadArg(parameterTypes.Length);
             il.Emit(OpCodes.Stfld, context.ProxyType.Fields[Constants.ServiceProvider]);
+            CallPropertyInjectInConstructor(context, il);
             il.Emit(OpCodes.Ret);
         }
 
-        private static void DefineDefaultConstructor(in ProxyGeneratorContext context)
+        private void DefineDefaultConstructor(in ProxyGeneratorContext context)
         {
             var constructorBuilder = context.ProxyType.TypeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, Constants.DefaultConstructorParameters);
 
@@ -286,6 +303,7 @@ namespace Norns.Urd.DynamicProxy
             il.EmitThis();
             il.EmitLoadArg(1);
             il.Emit(OpCodes.Stfld, context.ProxyType.Fields[Constants.ServiceProvider]);
+            CallPropertyInjectInConstructor(context, il);
             il.Emit(OpCodes.Ret);
         }
 

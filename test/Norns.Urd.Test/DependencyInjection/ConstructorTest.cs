@@ -19,6 +19,11 @@ namespace Test.Norns.Urd.DependencyInjection
 
     public interface INoConstructorsInterface
     {
+        [Inject]
+        OneConstructorNoArgs A { get; set; }
+
+        [Inject]
+        OneConstructorNoArgs B { get; }
     }
 
     public class OneConstructorNoArgs
@@ -39,6 +44,18 @@ namespace Test.Norns.Urd.DependencyInjection
     public class TwoConstructorOneArgs
     {
         public readonly ConstructorTest A;
+
+        [Inject]
+        OneConstructorNoArgs AA { get; set; }
+
+        [Inject]
+        OneConstructorNoArgs B { get; }
+
+        [Inject]
+        public virtual ConstructorTest AAa { get; set; }
+
+        [Inject]
+        public virtual ConstructorTest Ba { get; }
 
         [TestData(99)]
         public TwoConstructorOneArgs([TestData(4)] ConstructorTest a)
@@ -71,12 +88,15 @@ namespace Test.Norns.Urd.DependencyInjection
         [Fact]
         public void WhenNoConstructorsInterface()
         {
-            var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient<INoConstructorsInterface>())
+            var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient<INoConstructorsInterface>()
+                    .AddTransient<OneConstructorNoArgs>())
                 .GetRequiredService<INoConstructorsInterface>();
             var pt = p.GetType();
             Assert.True(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
             Assert.NotNull(pt.CreateServiceProviderGetter()(p));
+            Assert.Null(p.B);
+            Assert.Null(p.A);
         }
 
         [Fact]
@@ -115,6 +135,8 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.Equal(2, pt.GetCustomAttribute<TestDataAttribute>().V);
             Assert.Equal(99, pt.GetConstructors()[0].GetCustomAttribute<TestDataAttribute>().V);
             Assert.Equal(4, pt.GetConstructors()[0].GetParameters()[0].GetCustomAttribute<TestDataAttribute>().V);
+            Assert.NotNull(v.AAa);
+            Assert.Null(v.Ba);
         }
 
         [Fact]

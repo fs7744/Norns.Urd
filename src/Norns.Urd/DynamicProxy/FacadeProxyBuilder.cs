@@ -15,6 +15,11 @@ namespace Norns.Urd.DynamicProxy
             context.ProxyType.Fields.Add(Constants.Instance, context.ProxyType.TypeBuilder.DefineField(Constants.Instance, context.ServiceType, FieldAttributes.Private));
         }
 
+        protected override void CallPropertyInjectInConstructor(in ProxyGeneratorContext context, ILGenerator il)
+        {
+            // no call PropertyInject In Constructor
+        }
+
         protected override FieldBuilder DefineMethodInfoCaller(in ProxyGeneratorContext context, MethodInfo method)
         {
             return context.AssistType.DefineMethodInfoCaller(method, method.GetReflector().DisplayName);

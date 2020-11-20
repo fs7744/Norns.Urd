@@ -25,6 +25,8 @@ namespace Test.Norns.Urd.Interceptors.Features
             Assert.True(pt.IsProxyType());
             Assert.NotNull(p.T(null));
             Assert.NotNull(await p.T(3, 4, null, null));
+            var a = new ParameterInjectTest();
+            Assert.Same(a, p.T(a));
         }
     }
 }

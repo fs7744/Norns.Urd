@@ -44,7 +44,10 @@ namespace Norns.Urd.Interceptors.Features
             {
                 foreach (var p in ps)
                 {
-                    c.Parameters[p.Position] = c.ServiceProvider.GetService(p.ParameterType);
+                    if (c.Parameters[p.Position] == null)
+                    {
+                        c.Parameters[p.Position] = c.ServiceProvider.GetService(p.ParameterType);
+                    }
                 }
             };
         }

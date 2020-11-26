@@ -1,14 +1,14 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
-		<TargetFramework>netcoreapp3.1</TargetFramework>
+		<TargetFramework>net5.0</TargetFramework>
 		<IsPackable>true</IsPackable>
 		<VersionSuffix>$(VersionSuffix)</VersionSuffix>
-		<Version>0.0.0.4</Version>
-		<Version Condition=" '$(VersionSuffix)' != '' ">$(Version)$(VersionSuffix)</Version>
-		<AssemblyVersion>0.0.0.4</AssemblyVersion>
-		<FileVersion>0.0.0.4</FileVersion>
+		<Version>0.0.0.1</Version>
+		<AssemblyVersion>0.0.0.1</AssemblyVersion>
+		<FileVersion>0.0.0.1</FileVersion>
+		<Version Condition=" '$(VersionSuffix)' != '' ">$(Version)-$(VersionSuffix)</Version>
 		<!--Common information-->
-		<Authors>Victor</Authors>
+		<Authors>Victor.X.Qu</Authors>
 		<Company>Norns.Urd</Company>
 		<Copyright>@2020 Norns.Urd</Copyright>
 	</PropertyGroup>

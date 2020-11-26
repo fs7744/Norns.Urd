@@ -27,4 +27,4 @@ jobs:
     - name: push
       env: 
         nugetkey: ${{ secrets.nugetkey }}
-      run: for x in  $(find . -name "*.nupkg" -print); do dotnet nuget push -k $nugetkey $x; done
+      run: for x in  $(find . -name "*.nupkg" -print); do dotnet nuget push -k $nugetkey -s https://api.nuget.org/v3/index.json $x; done

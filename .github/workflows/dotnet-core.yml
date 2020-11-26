@@ -20,6 +20,12 @@ jobs:
     - name: Install dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --configuration Release --no-restore --version-suffix beta
     - name: Test
       run: dotnet test --no-restore --verbosity normal
+    - name: package
+      run: dotnet pack -c Release --version-suffix beta
+    - name: push
+      env: 
+        nugetkey: ${{ secrets.nugetkey }}
+      run: for x in  $(find . -name "*.nupkg" -print); do echo $x; dotnet nuget push -k $nugetkey $x; done

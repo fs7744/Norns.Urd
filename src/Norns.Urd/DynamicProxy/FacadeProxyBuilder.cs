@@ -1,4 +1,5 @@
 ﻿using Norns.Urd.Reflection;
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -49,6 +50,27 @@ namespace Norns.Urd.DynamicProxy
         {
             il.EmitThis();
             il.Emit(OpCodes.Ldfld, context.ProxyType.Fields[Constants.Instance]);
+        }
+
+        protected override void DefineConstructors(in ProxyGeneratorContext context)
+        {
+            var constructorInfos = context.ServiceType.DeclaredConstructors
+                .Where(c => !c.IsStatic && c.IsVisible()).ToArray();
+            var hasNoDefaultConstructor = true;
+            foreach (var constructor in constructorInfos)
+            {
+                var ps = DefineConstructor(context, constructor);
+                if (hasNoDefaultConstructor 
+                    && ps.Length == 1 
+                    && ps.Single().ParameterType == typeof(IServiceProvider))
+                {
+                    hasNoDefaultConstructor = false;
+                }
+            }
+            if (hasNoDefaultConstructor)
+            {
+                DefineDefaultConstructor(context);
+            }
         }
     }
 }

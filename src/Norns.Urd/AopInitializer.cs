@@ -1,7 +1,9 @@
-﻿using Norns.Urd.DynamicProxy;
+﻿using Norns.Urd.Attributes;
+using Norns.Urd.DynamicProxy;
 using Norns.Urd.Interceptors.Features;
 using Norns.Urd.Reflection;
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -44,6 +46,18 @@ namespace Norns.Urd
             }
             il.Emit(OpCodes.Ret);
             return (Action<object, object>)method.CreateDelegate(typeof(Action<object, object>));
+        }
+
+        public static Func<IServiceProvider, object> CreateFacadeInstanceCreator(this Type type)
+        {
+            var constructor = type.GetConstructors().FirstOrDefault(i => i.IsPublic && i.IsDefined(typeof(DynamicProxyAttribute), false));
+            if (constructor == null) return null;
+            var method = new DynamicMethod(Guid.NewGuid().ToString("N"), typeof(object), Constants.DefaultConstructorParameters);
+            var il = method.GetILGenerator();
+            il.EmitLoadArg(0);
+            il.Emit(OpCodes.Newobj, constructor);
+            il.Emit(OpCodes.Ret);
+            return (Func<IServiceProvider, object>)method.CreateDelegate(typeof(Func<IServiceProvider, object>));
         }
 
         public static Func<object, IServiceProvider> CreateServiceProviderGetter(this Type type)

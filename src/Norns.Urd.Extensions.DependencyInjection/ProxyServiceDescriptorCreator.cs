@@ -35,9 +35,10 @@ namespace Microsoft.Extensions.DependencyInjection
             ServiceDescriptor createServiceDescriptor(ServiceDescriptor x, Type type)
             {
                 var setInstance = type.CreateInstanceSetter();
+                var factory = type.CreateFacadeInstanceCreator();
                 return ServiceDescriptor.Describe(x.ServiceType, i =>
                 {
-                    var proxy = ActivatorUtilities.CreateInstance(i, type);
+                    var proxy = factory(i);
                     setInstance(proxy, implementationFactory(i));
                     return proxy;
                 }, x.Lifetime);

@@ -82,6 +82,16 @@ namespace Test.Norns.Urd.DependencyInjection
         }
     }
 
+    public class OneConstructorOneStringArgs
+    {
+        public virtual string A { get; set; }
+
+        public OneConstructorOneStringArgs(string a)
+        {
+            A = a;
+        }
+    }
+
     [NonAspect]
     public class ConstructorTest
     {
@@ -150,6 +160,20 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.NotNull(pt.CreateServiceProviderGetter()(v));
             Assert.NotNull(v);
             Assert.NotNull(v.A);
+        }
+
+        [Fact]
+        public void WhenOneConstructorOneStringArgs()
+        {
+            var v = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddSingleton(i => new OneConstructorOneStringArgs("a")))
+                .GetRequiredService<OneConstructorOneStringArgs>();
+            var pt = v.GetType();
+            Assert.True(pt.IsProxyType());
+            Assert.NotNull(pt.CreateInstanceGetter()(v));
+            Assert.NotNull(pt.CreateServiceProviderGetter()(v));
+            Assert.NotNull(v);
+            Assert.NotNull(v.A);
+            Assert.Equal("a", v.A);
         }
     }
 }

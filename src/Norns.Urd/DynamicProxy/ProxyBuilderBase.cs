@@ -250,7 +250,7 @@ namespace Norns.Urd.DynamicProxy
 
         #region Constructor
 
-        private void DefineConstructors(in ProxyGeneratorContext context)
+        protected virtual void DefineConstructors(in ProxyGeneratorContext context)
         {
             var constructorInfos = context.ServiceType.DeclaredConstructors
                 .Where(c => !c.IsStatic && c.IsVisible())
@@ -268,9 +268,10 @@ namespace Norns.Urd.DynamicProxy
             }
         }
 
-        private void DefineConstructor(in ProxyGeneratorContext context, ConstructorInfo constructor)
+        protected ParameterInfo[] DefineConstructor(in ProxyGeneratorContext context, ConstructorInfo constructor)
         {
-            Type[] parameterTypes = constructor.GetParameters().Select(i => i.ParameterType).Concat(Constants.DefaultConstructorParameters).ToArray();
+            var oldParameters = constructor.GetParameters();
+            Type[] parameterTypes = oldParameters.Select(i => i.ParameterType).Concat(Constants.DefaultConstructorParameters).ToArray();
             var constructorBuilder = context.ProxyType.TypeBuilder.DefineConstructor(context.ServiceType.IsAbstract ? constructor.Attributes | MethodAttributes.Public : constructor.Attributes, constructor.CallingConvention, parameterTypes);
             foreach (var customAttributeData in constructor.CustomAttributes)
             {
@@ -291,12 +292,13 @@ namespace Norns.Urd.DynamicProxy
             il.Emit(OpCodes.Stfld, context.ProxyType.Fields[Constants.ServiceProvider]);
             CallPropertyInjectInConstructor(context, il);
             il.Emit(OpCodes.Ret);
+            return oldParameters;
         }
 
-        private void DefineDefaultConstructor(in ProxyGeneratorContext context)
+        protected void DefineDefaultConstructor(in ProxyGeneratorContext context)
         {
             var constructorBuilder = context.ProxyType.TypeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, Constants.DefaultConstructorParameters);
-
+            constructorBuilder.SetCustomAttribute(AttributeExtensions.DefineCustomAttribute<DynamicProxyAttribute>());
             var il = constructorBuilder.GetILGenerator();
             il.EmitThis();
             il.Emit(OpCodes.Call, Constants.ObjectCtor);

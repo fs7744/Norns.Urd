@@ -2,4 +2,4 @@
 
 ## Docs
 
-[ÖÐÎÄ](https://fs7744.github.io/Norns.Urd/zh-cn/index.html) |  [English](https://fs7744.github.io/Norns.Urd/index.html)
+[ä¸­æ–‡](https://fs7744.github.io/Norns.Urd/zh-cn/index.html) |  [English](https://fs7744.github.io/Norns.Urd/index.html)

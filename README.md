@@ -1,6 +1,6 @@
 # Norns.Urd
 
-![build](https://github.com/fs7744/Norns.Urd/workflows/.NET%20Core/badge.svg)
+![build](https://github.com/fs7744/Norns.Urd/workflows/build/badge.svg)
 
 ## Docs
 

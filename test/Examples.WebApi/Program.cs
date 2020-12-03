@@ -16,7 +16,7 @@ namespace Examples.WebApi
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                })
-                .ConfigureServices(i => i.ConfigureAop(i => i.GlobalInterceptors.Add(new ConsoleInterceptor())));
+                });
+                //.ConfigureServices(i => i.ConfigureAop(i => i.GlobalInterceptors.Add(new ConsoleInterceptor())));
     }
 }

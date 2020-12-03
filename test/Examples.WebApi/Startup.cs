@@ -21,6 +21,7 @@ namespace Examples.WebApi
         {
             services.AddControllers().AddControllersAsServices();
             services.AddTransient<IAopTest, AopTest>();
+            services.ConfigureAop(i => i.GlobalInterceptors.Add(new ConsoleInterceptor()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

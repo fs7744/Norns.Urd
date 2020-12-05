@@ -137,39 +137,39 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.Equal(10, p.GetT<int>());
         }
 
-        //[Fact]
-        //public void WhenOpenGenericTest()
-        //{
-        //    var provider = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient(typeof(IGenericTest<,>), typeof(GenericTest<,>)));
-        //    var p = provider.GetRequiredService<IGenericTest<int, long>>();
-        //    var pt = p.GetType();
-        //    Assert.True(pt.IsProxyType());
-        //    Assert.Null(pt.CreateInstanceGetter());
-        //    Assert.NotNull(pt.CreateServiceProviderGetter()(p));
-        //    Assert.NotNull(p);
-        //    p.F = 666;
-        //    Assert.Equal(676, p.F);
-        //    p.F = 777;
-        //    Assert.Equal(787, p.F);
-        //    Assert.Equal(0L, p.GetR());
-        //    Assert.Equal(1L, p.GetR(1L));
-        //    Assert.Equal(0, p.GetT());
-        //    Assert.Equal(787, p.F);
-        //    p[3L] = 878;
-        //    Assert.Equal(888, p[8L]);
-        //    Assert.Equal(888, p.F);
+        [Fact]
+        public void WhenOpenGenericTest()
+        {
+            var provider = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient(typeof(IGenericTest<,>), typeof(GenericTest<,>)));
+            var p = provider.GetRequiredService<IGenericTest<int, long>>();
+            var pt = p.GetType();
+            Assert.True(pt.IsProxyType());
+            Assert.Null(pt.CreateInstanceGetter());
+            Assert.NotNull(pt.CreateServiceProviderGetter()(p));
+            Assert.NotNull(p);
+            p.F = 666;
+            Assert.Equal(676, p.F);
+            p.F = 777;
+            Assert.Equal(787, p.F);
+            Assert.Equal(0L, p.GetR());
+            Assert.Equal(1L, p.GetR(1L));
+            Assert.Equal(10, p.GetT());
+            Assert.Equal(787, p.F);
+            p[3L] = 878;
+            Assert.Equal(898, p[8L]);
+            Assert.Equal(888, p.F);
 
-        //    var p2 = provider.GetRequiredService<IGenericTest<bool, double>>();
-        //    Assert.False(p2.GetT());
-        //    Assert.False(p2.F);
-        //    p2.F = true;
-        //    Assert.True(p2.F);
-        //    Assert.Equal(10.0, p2.GetR());
-        //    Assert.Equal(23.1, p2.GetR(13.1));
-        //    p2[3L] = false;
-        //    Assert.False(p2[4L]);
-        //    Assert.False(p2.F);
-        //}
+            var p2 = provider.GetRequiredService<IGenericTest<bool, double>>();
+            Assert.False(p2.GetT());
+            Assert.False(p2.F);
+            p2.F = true;
+            Assert.True(p2.F);
+            Assert.Equal(10.0, p2.GetR());
+            Assert.Equal(23.1, p2.GetR(13.1));
+            p2[3L] = false;
+            Assert.False(p2[4L]);
+            Assert.False(p2.F);
+        }
 
         [Fact]
         public void WhenGenericImplementationFactoryTest()
@@ -363,38 +363,38 @@ namespace Test.Norns.Urd.DependencyInjection
             public C GetT<C>() => default;
         }
 
-        //[Fact]
-        //public void WhenOpenGenericTest2()
-        //{
-        //    var provider = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient(typeof(IGenericTest2<,>), typeof(GenericTest2<,>)));
-        //    var p = provider.GetRequiredService<IGenericTest2<int, long>>();
-        //    var pt = p.GetType();
-        //    Assert.True(pt.IsProxyType());
-        //    Assert.Null(pt.CreateInstanceGetter());
-        //    Assert.NotNull(pt.CreateServiceProviderGetter()(p));
-        //    Assert.NotNull(p);
-        //    //p.F = 666;
-        //    //Assert.Equal(676, p.F);
-        //    //p.F = 777;
-        //    //Assert.Equal(787, p.F);
-        //    //Assert.Equal(0L, p.GetR());
-        //    //Assert.Equal(1L, p.GetR(1L));
-        //    //Assert.Equal(0, p.GetT());
-        //    //Assert.Equal(787, p.F);
-        //    //p[3L] = 878;
-        //    //Assert.Equal(888, p[8L]);
-        //    //Assert.Equal(888, p.F);
+        [Fact]
+        public void WhenOpenGenericTest2()
+        {
+            var provider = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient(typeof(IGenericTest2<,>), typeof(GenericTest2<,>)));
+            var p = provider.GetRequiredService<IGenericTest2<int, long>>();
+            var pt = p.GetType();
+            Assert.True(pt.IsProxyType());
+            Assert.Null(pt.CreateInstanceGetter());
+            Assert.NotNull(pt.CreateServiceProviderGetter()(p));
+            Assert.NotNull(p);
+            //p.F = 666;
+            //Assert.Equal(676, p.F);
+            //p.F = 777;
+            //Assert.Equal(787, p.F);
+            //Assert.Equal(0L, p.GetR());
+            //Assert.Equal(1L, p.GetR(1L));
+            //Assert.Equal(0, p.GetT());
+            //Assert.Equal(787, p.F);
+            //p[3L] = 878;
+            //Assert.Equal(888, p[8L]);
+            //Assert.Equal(888, p.F);
 
-        //    var p2 = provider.GetRequiredService<IGenericTest2<bool, double>>();
-        //    //Assert.False(p2.GetT());
-        //    //Assert.False(p2.F);
-        //    //p2.F = true;
-        //    //Assert.True(p2.F);
-        //    //Assert.Equal(10.0, p2.GetR());
-        //    //Assert.Equal(23.1, p2.GetR(13.1));
-        //    //p2[3L] = false;
-        //    //Assert.False(p2[4L]);
-        //    //Assert.False(p2.F);
-        //}
+            var p2 = provider.GetRequiredService<IGenericTest2<bool, double>>();
+            //Assert.False(p2.GetT());
+            //Assert.False(p2.F);
+            //p2.F = true;
+            //Assert.True(p2.F);
+            //Assert.Equal(10.0, p2.GetR());
+            //Assert.Equal(23.1, p2.GetR(13.1));
+            //p2[3L] = false;
+            //Assert.False(p2[4L]);
+            //Assert.False(p2.F);
+        }
     }
 }

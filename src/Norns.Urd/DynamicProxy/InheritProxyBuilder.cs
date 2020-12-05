@@ -45,7 +45,7 @@ namespace Norns.Urd.DynamicProxy
                 il.Emit(OpCodes.Ret);
             }
             
-            if (method.ContainsGenericParameters && !method.IsGenericMethodDefinition)
+            if (method.ContainsGenericParameters && (!method.IsGenericMethodDefinition || method.DeclaringType.IsGenericTypeDefinition))
             {
                 return context.AssistType.DefineOpenGenericMethodInfoCaller(methodBaseBuilder, baseMethodName);
             }

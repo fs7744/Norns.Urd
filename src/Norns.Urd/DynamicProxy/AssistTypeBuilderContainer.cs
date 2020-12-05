@@ -38,34 +38,47 @@ namespace Norns.Urd.DynamicProxy
 
         internal FieldBuilder DefineMethodInfoCache(MethodInfo method)
         {
-            var field = TypeBuilder.DefineField($"{method.GetReflector().DisplayName}_cache", typeof(MethodInfo), FieldAttributes.Static | FieldAttributes.Assembly);
-            InitMethodIL.EmitMethod(method);
-            InitMethodIL.Emit(OpCodes.Stsfld, field);
-            Fields.Add(field.Name, field);
+            var fName = $"{method.GetReflector().DisplayName}_cache";
+            if (!Fields.TryGetValue(fName, out var field))
+            {
+                field = TypeBuilder.DefineField(fName, typeof(MethodInfo), FieldAttributes.Static | FieldAttributes.Assembly);
+                InitMethodIL.EmitMethod(method);
+                InitMethodIL.Emit(OpCodes.Stsfld, field);
+                Fields.Add(field.Name, field);
+            }
             return field;
         }
 
         internal FieldBuilder DefineMethodInfoCaller(MethodInfo method, string name)
         {
-            var isAsync = method.IsAsync();
-            var cField = TypeBuilder.DefineField($"cm_{name}", isAsync ? typeof(AsyncAspectDelegate) : typeof(AspectDelegate), FieldAttributes.Static | FieldAttributes.Assembly);
-            InitMethodIL.EmitLoadArg(0);
-            InitMethodIL.EmitMethod(method);
-            InitMethodIL.Emit(OpCodes.Callvirt, isAsync ? Constants.GetInterceptorAsync : Constants.GetInterceptor);
-            InitMethodIL.Emit(OpCodes.Stsfld, cField);
-            Fields.Add(cField.Name, cField);
+            var fName = $"cm_{name}";
+            if (!Fields.TryGetValue(fName, out var cField))
+            {
+                var isAsync = method.IsAsync();
+                cField = TypeBuilder.DefineField(fName, isAsync ? typeof(AsyncAspectDelegate) : typeof(AspectDelegate), FieldAttributes.Static | FieldAttributes.Assembly);
+                InitMethodIL.EmitLoadArg(0);
+                InitMethodIL.EmitMethod(method);
+                InitMethodIL.Emit(OpCodes.Callvirt, isAsync ? Constants.GetInterceptorAsync : Constants.GetInterceptor);
+                InitMethodIL.Emit(OpCodes.Stsfld, cField);
+                Fields.Add(cField.Name, cField);
+            }
+
             return cField;
         }
 
         internal FieldBuilder DefineOpenGenericMethodInfoCaller(MethodInfo method, string name)
         {
-            var isAsync = method.IsAsync();
-            var cField = TypeBuilder.DefineField($"cm_{name}", isAsync ? typeof(AsyncAspectDelegate) : typeof(AspectDelegate), FieldAttributes.Static | FieldAttributes.Assembly);
-            InitMethodIL.EmitLoadArg(0);
-            InitMethodIL.EmitString(name);
-            InitMethodIL.Emit(OpCodes.Callvirt, isAsync ? Constants.GetOpenGenericInterceptorAsync : Constants.GetOpenGenericInterceptor);
-            InitMethodIL.Emit(OpCodes.Stsfld, cField);
-            Fields.Add(cField.Name, cField);
+            var fName = $"cm_{name}";
+            if (!Fields.TryGetValue(fName, out var cField))
+            {
+                var isAsync = method.IsAsync();
+                cField = TypeBuilder.DefineField(fName, isAsync ? typeof(AsyncAspectDelegate) : typeof(AspectDelegate), FieldAttributes.Static | FieldAttributes.Assembly);
+                InitMethodIL.EmitLoadArg(0);
+                InitMethodIL.EmitString(name);
+                InitMethodIL.Emit(OpCodes.Callvirt, isAsync ? Constants.GetOpenGenericInterceptorAsync : Constants.GetOpenGenericInterceptor);
+                InitMethodIL.Emit(OpCodes.Stsfld, cField);
+                Fields.Add(cField.Name, cField);
+            }
             return cField;
         }
     }

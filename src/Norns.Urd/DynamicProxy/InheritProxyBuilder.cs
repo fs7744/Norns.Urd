@@ -20,26 +20,31 @@ namespace Norns.Urd.DynamicProxy
         protected override FieldBuilder DefineMethodInfoCaller(in ProxyGeneratorContext context, MethodInfo method)
         {
             var baseMethodName = $"{method.GetReflector().DisplayName}_Base";
-            var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
-            MethodBuilder methodBaseBuilder = context.ProxyType.TypeBuilder.DefineMethod(baseMethodName, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
-            methodBaseBuilder.DefineGenericParameter(method);
-            methodBaseBuilder.DefineParameters(method);
-            var il = methodBaseBuilder.GetILGenerator();
-            if (method.IsAbstract)
+            if(!context.ProxyType.Methods.TryGetValue(baseMethodName, out var methodBaseBuilder))
             {
-                il.EmitDefault(method.ReturnType);
-            }
-            else
-            {
-                il.EmitThis();
-                for (var i = 1; i <= parameters.Length; i++)
+                var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
+                methodBaseBuilder = context.ProxyType.TypeBuilder.DefineMethod(baseMethodName, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
+                context.ProxyType.Methods.Add(baseMethodName, methodBaseBuilder);
+                methodBaseBuilder.DefineGenericParameter(method);
+                methodBaseBuilder.DefineParameters(method);
+                methodBaseBuilder.DefineCustomAttributes(method);
+                var il = methodBaseBuilder.GetILGenerator();
+                if (method.IsAbstract)
                 {
-                    il.EmitLoadArg(i);
+                    il.EmitDefault(method.ReturnType);
                 }
-                il.Emit(OpCodes.Call, method);
+                else 
+                {
+                    il.EmitThis();
+                    for (var i = 1; i <= parameters.Length; i++)
+                    {
+                        il.EmitLoadArg(i);
+                    }
+                    il.Emit(OpCodes.Call, method);
+                }
+                il.Emit(OpCodes.Ret);
             }
-
-            il.Emit(OpCodes.Ret);
+            
             if (method.ContainsGenericParameters && !method.IsGenericMethodDefinition)
             {
                 return context.AssistType.DefineOpenGenericMethodInfoCaller(methodBaseBuilder, baseMethodName);

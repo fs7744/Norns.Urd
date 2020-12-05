@@ -12,6 +12,7 @@ namespace Norns.Urd.DynamicProxy
             ModuleBuilder = moduleBuilder;
             TypeBuilder = typeBuilder;
             Fields = new Dictionary<string, FieldBuilder>();
+            Methods = new Dictionary<string, MethodBuilder>();
             PropertyInject = InitPropertyInject(typeBuilder);
         }
 
@@ -20,6 +21,7 @@ namespace Norns.Urd.DynamicProxy
         public TypeBuilder TypeBuilder { get; }
 
         public Dictionary<string, FieldBuilder> Fields { get; }
+        public Dictionary<string, MethodBuilder> Methods { get; }
 
         public (ILGenerator il, MethodBuilder setter) PropertyInject { get; }
 

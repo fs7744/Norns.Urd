@@ -5,6 +5,16 @@ using Xunit;
 
 namespace Test.Norns.Urd.DependencyInjection
 {
+    public interface INonVirtualMethod
+    {
+        int IntMethod();
+    }
+
+    public class NonVirtualMethod : INonVirtualMethod
+    {
+        public int IntMethod() => 77;
+    }
+
     public interface IMTest
     {
         [NonAspect]
@@ -345,5 +355,17 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.True(pt.IsProxyType());
             Assert.Equal(10, p.IntMethod());
         }
+
+        [Fact]
+        public void InterfaceWhenNonVirtualMethod()
+        {
+            var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient<INonVirtualMethod, NonVirtualMethod>())
+                .GetRequiredService<INonVirtualMethod>();
+            var pt = p.GetType();
+            Assert.True(pt.IsProxyType());
+            Assert.Equal(87, p.IntMethod());
+        }
+
+        
     }
 }

@@ -34,11 +34,12 @@ namespace Norns.Urd.DynamicProxy
 
         protected void DefineProperties(in ProxyGeneratorContext context)
         {
-            var (il,_) = context.ProxyType.PropertyInject;
+            var (il, _) = context.ProxyType.PropertyInject;
+            var properties = context.ServiceType.GetTypeInfo().GetProperties(Constants.MethodBindingFlags);
             foreach (var property in context.ServiceType.GetTypeInfo().GetProperties(Constants.MethodBindingFlags))
             {
                 var p = DefineProperty(context, property);
-                if (property.CanWrite 
+                if (property.CanWrite
                     && property.GetReflector().IsDefined<InjectAttribute>()
                     && p?.SetMethod != null)
                 {
@@ -50,22 +51,31 @@ namespace Norns.Urd.DynamicProxy
                     il.Emit(OpCodes.Callvirt, p.SetMethod);
                 }
             }
+
+            var dicts = properties.ToDictionary(i => i.Name, i => i);
+            foreach (var item in context.ServiceType.ImplementedInterfaces)
+            {
+                foreach (var property in item.GetTypeInfo().DeclaredProperties)
+                {
+                    DefineImplementedInterfaceProperty(context, property, dicts.TryGetValue(property.Name, out var p) ? p : property);
+                }
+            }
         }
 
-        public virtual PropertyBuilder DefineProperty(in ProxyGeneratorContext context, PropertyInfo property)
+        public virtual PropertyBuilder DefineImplementedInterfaceProperty(in ProxyGeneratorContext context, PropertyInfo property, PropertyInfo implementedProperty)
         {
             PropertyBuilder propertyBuilder = null;
-            var getMethod = property.CanRead && property.GetMethod.IsVisibleAndVirtual()
-                ? DefineMethod(context, property.GetMethod)
+            var getMethod = property.CanRead 
+                ? DefineMethod(context, property.GetMethod, implementedProperty.GetMethod)
                 : null;
 
-            var setMethod = property.CanWrite && property.SetMethod.IsVisibleAndVirtual()
-                ? DefineMethod(context, property.SetMethod)
+            var setMethod = property.CanWrite 
+                ? DefineMethod(context, property.SetMethod, implementedProperty.SetMethod)
                 : null;
 
             if (getMethod != null || setMethod != null)
             {
-                propertyBuilder = context.AssistType.TypeBuilder.DefineProperty(property.Name, property.Attributes, property.PropertyType, Type.EmptyTypes);
+                propertyBuilder = context.ProxyType.TypeBuilder.DefineProperty($"{property.DeclaringType.GetReflector().FullDisplayName}.{property.Name}", property.Attributes, property.PropertyType, Type.EmptyTypes);
                 if (getMethod != null)
                 {
                     propertyBuilder.SetGetMethod(getMethod);
@@ -82,35 +92,56 @@ namespace Norns.Urd.DynamicProxy
             return propertyBuilder;
         }
 
-        public virtual IEnumerable<MethodInfo> GetMethods(in ProxyGeneratorContext context)
+        public virtual PropertyBuilder DefineProperty(in ProxyGeneratorContext context, PropertyInfo property)
         {
-            if (context.ServiceType.IsInterface)
+            PropertyBuilder propertyBuilder = null;
+            var getMethod = property.CanRead && property.GetMethod.IsVisibleAndVirtual()
+                ? DefineMethod(context, property.GetMethod, property.GetMethod)
+                : null;
+
+            var setMethod = property.CanWrite && property.SetMethod.IsVisibleAndVirtual()
+                ? DefineMethod(context, property.SetMethod, property.SetMethod)
+                : null;
+
+            if (getMethod != null || setMethod != null)
             {
-                var b = context.ServiceType.GetMethods(Constants.MethodBindingFlags);
-                var methods = b.Select(i => i.GetReflector().DisplayName).Distinct().ToHashSet();
-                var c = context.ServiceType.ImplementedInterfaces
-                    .SelectMany(i => i.GetTypeInfo().GetMethods(Constants.MethodBindingFlags))
-                    .Where(i => !methods.Contains(i.GetReflector().DisplayName));
-                return b.Union(c).Distinct();
+                propertyBuilder = context.ProxyType.TypeBuilder.DefineProperty(property.Name, property.Attributes, property.PropertyType, Type.EmptyTypes);
+                if (getMethod != null)
+                {
+                    propertyBuilder.SetGetMethod(getMethod);
+                }
+                if (setMethod != null)
+                {
+                    propertyBuilder.SetSetMethod(setMethod);
+                }
+                foreach (var customAttributeData in property.CustomAttributes)
+                {
+                    propertyBuilder.SetCustomAttribute(customAttributeData.DefineCustomAttribute());
+                }
             }
-            else
-            {
-                return context.ServiceType.GetMethods(Constants.MethodBindingFlags);
-            }
+            return propertyBuilder;
         }
 
         private void DefineMethods(in ProxyGeneratorContext context)
         {
-            foreach (var method in GetMethods(context)
+            var methods = context.ServiceType.GetMethods(Constants.MethodBindingFlags);
+            foreach (var method in methods
                 .Where(x => x.IsNotPropertyBinding()
                     && !Constants.IgnoreMethods.Contains(x.Name)
                     && x.IsVisibleAndVirtual()))
             {
-                DefineMethod(context, method);
+                DefineMethod(context, method, method);
+            }
+            var dicts = methods.ToDictionary(i => i.GetReflector().DisplayName, i => i);
+            foreach (var method in context.ServiceType.ImplementedInterfaces
+                .SelectMany(i => i.GetTypeInfo().GetMethods(Constants.MethodBindingFlags))
+                .Where(x => x.IsNotPropertyBinding()))
+            {
+                DefineMethod(context, method, dicts.TryGetValue(method.GetReflector().DisplayName, out var im) ? im : method);
             }
         }
 
-        private MethodBuilder DefineMethod(in ProxyGeneratorContext context, MethodInfo method)
+        private MethodBuilder DefineMethod(in ProxyGeneratorContext context, MethodInfo method, MethodInfo implementationMethod)
         {
             if (context.InterceptorCreator.IsNonAspectMethod(method))
             {
@@ -118,7 +149,7 @@ namespace Norns.Urd.DynamicProxy
             }
             else
             {
-                return DefineProxyMethod(context, method);
+                return DefineProxyMethod(context, method, implementationMethod);
             }
         }
 
@@ -130,35 +161,32 @@ namespace Norns.Urd.DynamicProxy
 
         protected abstract void CallPropertyInjectInConstructor(in ProxyGeneratorContext context, ILGenerator il);
 
-        protected MethodBuilder DefineProxyMethod(in ProxyGeneratorContext context, MethodInfo method)
+        protected MethodBuilder DefineProxyMethod(in ProxyGeneratorContext context, MethodInfo method, MethodInfo implementationMethod)
         {
             var p = method.GetParameters();
             var parameters = p.Select(i => i.ParameterType).ToArray();
-            MethodBuilder methodBuilder = context.ProxyType.TypeBuilder.DefineMethod(method.Name,
+            MethodBuilder methodBuilder = context.ProxyType.TypeBuilder.DefineMethod($"{method.DeclaringType.GetReflector().FullDisplayName}.{method.Name}",
                 DefineProxyMethodAttributes(method), method.CallingConvention, method.ReturnType, parameters);
             methodBuilder.DefineGenericParameter(method);
             methodBuilder.DefineParameters(method);
             methodBuilder.DefineCustomAttributes(method);
             var il = methodBuilder.GetILGenerator();
-            var caller = DefineMethodInfoCaller(context, method);
+            var caller = DefineMethodInfoCaller(context, implementationMethod);
             if (method.ContainsGenericParameters && !method.IsGenericMethodDefinition)
             {
                 il.Emit(OpCodes.Ldsfld, caller);
                 il.EmitMethod(method);
             }
+            else if (method.IsGenericMethodDefinition)
+            {
+                il.Emit(OpCodes.Ldsfld, caller);
+                var gm = method.MakeGenericMethod(methodBuilder.GetGenericArguments());
+                il.EmitMethod(gm);
+            }
             else
             {
-                if (method.IsGenericMethodDefinition)
-                {
-                    il.Emit(OpCodes.Ldsfld, caller);
-                    var gm = method.MakeGenericMethod(methodBuilder.GetGenericArguments());
-                    il.EmitMethod(gm);
-                }
-                else
-                {
-                    il.Emit(OpCodes.Ldsfld, caller);
-                    il.Emit(OpCodes.Ldsfld, context.AssistType.DefineMethodInfoCache(method));
-                }
+                il.Emit(OpCodes.Ldsfld, caller);
+                il.Emit(OpCodes.Ldsfld, context.AssistType.DefineMethodInfoCache(method));
             }
             GetServiceInstance(context, il);
 

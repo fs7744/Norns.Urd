@@ -41,11 +41,10 @@ namespace Norns.Urd.Reflection
         public static bool AreEquivalent(TypeInfo t1, TypeInfo t2) => t1 == t2
             || t1.IsEquivalentTo(t2.AsType());
 
-        public static Type GetNonNullableType(this TypeInfo type) => type switch
+        public static Type GetNonNullableType(this TypeInfo type)
         {
-            _ when type.IsNullableType() => type.GetGenericArguments()[0],
-            _ => type.AsType()
-        };
+            return type.IsNullableType() ? type.GetGenericArguments()[0] : type.AsType();
+        }
 
         public static bool IsNullableType(this Type type) => type.GetTypeInfo().IsGenericType &&
                    type.GetGenericTypeDefinition() == typeof(Nullable<>);
@@ -107,33 +106,35 @@ namespace Norns.Urd.Reflection
 
         public static bool IsContravariant(this TypeInfo t) => 0 != (t.GenericParameterAttributes & GenericParameterAttributes.Contravariant);
 
+        private static bool CheckNonNullableType(TypeInfo s, TypeInfo d)
+        {
+            var nnSourceType = s.GetNonNullableType().GetTypeInfo();
+            var nnDestType = d.GetNonNullableType().GetTypeInfo();
+            return nnSourceType.IsAssignableFrom(nnDestType)
+                    || nnDestType.IsAssignableFrom(nnSourceType);
+        }
+
         public static bool HasReferenceConversion(this TypeInfo source, TypeInfo dest)
         {
-            static bool CheckNonNullableType(TypeInfo s, TypeInfo d)
-            {
-                var nnSourceType = s.GetNonNullableType().GetTypeInfo();
-                var nnDestType = d.GetNonNullableType().GetTypeInfo();
-                return nnSourceType switch
-                {
-                    _ when nnSourceType.IsAssignableFrom(nnDestType)
-                        || nnDestType.IsAssignableFrom(nnSourceType) => true,
-                    _ => false
-                };
-            }
-
             var sourceTyppe = source.AsType();
             var destTyppe = dest.AsType();
-            return source switch
+            if (sourceTyppe == typeof(void) || destTyppe == typeof(void))
             {
-                _ when sourceTyppe == typeof(void) || destTyppe == typeof(void) => false,
-                _ when CheckNonNullableType(source, dest)
+                return false;
+            }
+            else if (CheckNonNullableType(source, dest)
                     || source.IsInterface
                     || dest.IsInterface
                     || IsLegalExplicitVariantDelegateConversion(source, dest)
                     || sourceTyppe == typeof(object)
-                    || destTyppe == typeof(object) => true,
-                _ => false,
-            };
+                    || destTyppe == typeof(object))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public static bool IsConvertible(this TypeInfo typeInfo)
@@ -142,23 +143,19 @@ namespace Norns.Urd.Reflection
             {
                 return true;
             }
-            return Type.GetTypeCode(GetNonNullableType(typeInfo)) switch
-            {
-                TypeCode.Boolean
-                or TypeCode.Byte
-                or TypeCode.SByte
-                or TypeCode.Int16
-                or TypeCode.Int32
-                or TypeCode.Int64
-                or TypeCode.UInt16
-                or TypeCode.UInt32
-                or TypeCode.UInt64
-                or TypeCode.Single
-                or TypeCode.Double
-                or TypeCode.Char
-                => true,
-                _ => false,
-            };
+            var typeCode = Type.GetTypeCode(GetNonNullableType(typeInfo));
+            return typeCode == TypeCode.Boolean
+                || typeCode == TypeCode.Byte
+                || typeCode == TypeCode.SByte
+                || typeCode == TypeCode.Int16
+                || typeCode == TypeCode.Int32
+                || typeCode == TypeCode.Int64
+                || typeCode == TypeCode.UInt16
+                || typeCode == TypeCode.UInt32
+                || typeCode == TypeCode.UInt64
+                || typeCode == TypeCode.Single
+                || typeCode == TypeCode.Double
+                || typeCode == TypeCode.Char;
         }
 
         public static bool IsVisible(this TypeInfo typeInfo)
@@ -196,30 +193,24 @@ namespace Norns.Urd.Reflection
 
         public static bool IsUnsigned(this TypeInfo typeInfo)
         {
-            return Type.GetTypeCode(GetNonNullableType(typeInfo)) switch
-            {
-                TypeCode.Byte
-                or TypeCode.UInt16
-                or TypeCode.Char
-                or TypeCode.UInt32
-                or TypeCode.UInt64
-                => true,
-                _ => false,
-            };
+            var typeCode = Type.GetTypeCode(GetNonNullableType(typeInfo));
+            return typeCode == TypeCode.Byte
+                || typeCode == TypeCode.UInt16
+                || typeCode == TypeCode.Char
+                || typeCode == TypeCode.UInt32
+                || typeCode == TypeCode.UInt64;
         }
 
         public static bool IsFloatingPoint(this TypeInfo typeInfo)
         {
-            return Type.GetTypeCode(GetNonNullableType(typeInfo)) switch
-            {
-                TypeCode.Single or TypeCode.Double => true,
-                _ => false,
-            };
+            var typeCode = Type.GetTypeCode(GetNonNullableType(typeInfo));
+            return typeCode == TypeCode.Single || typeCode == TypeCode.Double;
         }
+
+        private static TypeReflector Create(TypeInfo t) => new TypeReflector(t);
 
         public static TypeReflector GetReflector(this TypeInfo type)
         {
-            static TypeReflector Create(TypeInfo t) => new TypeReflector(t);
             return ReflectorCache<TypeInfo, TypeReflector>.GetOrAdd(type, Create);
         }
 

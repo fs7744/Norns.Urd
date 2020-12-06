@@ -12,7 +12,9 @@
 [![GitHub](https://img.shields.io/github/license/fs7744/Norns.Urd)](https://github.com/fs7744/Norns.Urd/blob/main/LICENSE)
 [![GitHub Repo stars](https://img.shields.io/github/stars/fs7744/Norns.Urd?style=social)](https://github.com/fs7744/Norns.Urd)
 
-Norns.urd is a lightweight AOP framework based on emit which do dynamic proxy
+Norns.urd is a lightweight AOP framework based on emit which do dynamic proxy.
+
+It base on netstandard2.0.
 
 The purpose of completing this framework mainly comes from the following personal wishes:
 

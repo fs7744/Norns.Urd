@@ -28,7 +28,7 @@ namespace Norns.Urd.DynamicProxy
         public Type Complete()
         {
             PropertyInject.il.Emit(OpCodes.Ret);
-            return TypeBuilder.CreateType();
+            return TypeBuilder.CreateTypeInfo().AsType();
         }
 
         private static (ILGenerator il, MethodBuilder setter) InitPropertyInject(TypeBuilder typeBuilder)

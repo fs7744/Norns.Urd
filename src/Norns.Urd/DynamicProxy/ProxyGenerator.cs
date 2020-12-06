@@ -24,11 +24,19 @@ namespace Norns.Urd.DynamicProxy
             interceptorCreator = new InterceptorCreator(configuration);
         }
 
-        public Type Create(Type serviceType, ProxyTypes proxyType) => proxyType switch
+        public Type Create(Type serviceType, ProxyTypes proxyType)
         {
-            ProxyTypes.Inherit => inherit.Create(serviceType, interceptorCreator, moduleBuilder),
-            ProxyTypes.Facade => facade.Create(serviceType, interceptorCreator, moduleBuilder),
-            _ => null,
-        };
+            switch (proxyType)
+            {
+                case ProxyTypes.Inherit:
+                    return inherit.Create(serviceType, interceptorCreator, moduleBuilder);
+
+                case ProxyTypes.Facade:
+                    return facade.Create(serviceType, interceptorCreator, moduleBuilder);
+
+                default:
+                    return null;
+            }
+        }
     }
 }

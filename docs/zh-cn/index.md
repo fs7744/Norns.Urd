@@ -12,7 +12,9 @@
 [![GitHub](https://img.shields.io/github/license/fs7744/Norns.Urd)](https://github.com/fs7744/Norns.Urd/blob/main/LICENSE)
 [![GitHub Repo stars](https://img.shields.io/github/stars/fs7744/Norns.Urd?style=social)](https://github.com/fs7744/Norns.Urd)
 
-Norns.Urd 是一个基于emit实现动态代理的轻量级AOP框架
+Norns.Urd 是一个基于emit实现动态代理的轻量级AOP框架.
+
+版本基于 netstandard2.0. 所以哪些.net 版本能用你懂的。
 
 完成这个框架的目的主要出自于个人以下意愿：
 

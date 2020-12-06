@@ -8,9 +8,10 @@ namespace Norns.Urd.Reflection
 {
     public static class MethodExtensions
     {
+        private static MethodReflector Create(MethodInfo t) => new MethodReflector(t);
+
         public static MethodReflector GetReflector(this MethodInfo method)
         {
-            static MethodReflector Create(MethodInfo t) => new MethodReflector(t);
             return ReflectorCache<MethodInfo, MethodReflector>.GetOrAdd(method, Create);
         }
 

@@ -18,18 +18,18 @@ namespace Norns.Urd.DynamicProxy
         public Type Create(Type serviceType, IInterceptorCreator interceptorCreator, ModuleBuilder moduleBuilder)
         {
             return cache.GetOrAdd(serviceType, t => CreateInternal(t, interceptorCreator, moduleBuilder));
+        }
 
-            Type CreateInternal(Type serviceType, IInterceptorCreator interceptorCreator, ModuleBuilder moduleBuilder)
-            {
-                if (IsNonAspectType(serviceType, interceptorCreator)) return null;
-                var context = new ProxyGeneratorContext(moduleBuilder, serviceType, interceptorCreator, ProxyType);
-                DefineFields(context);
-                DefineCustomAttributes(context);
-                DefineConstructors(context);
-                DefineMethods(context);
-                DefineProperties(context);
-                return context.Complete();
-            }
+        private Type CreateInternal(Type serviceType, IInterceptorCreator interceptorCreator, ModuleBuilder moduleBuilder)
+        {
+            if (IsNonAspectType(serviceType, interceptorCreator)) return null;
+            var context = new ProxyGeneratorContext(moduleBuilder, serviceType, interceptorCreator, ProxyType);
+            DefineFields(context);
+            DefineCustomAttributes(context);
+            DefineConstructors(context);
+            DefineMethods(context);
+            DefineProperties(context);
+            return context.Complete();
         }
 
         protected void DefineProperties(in ProxyGeneratorContext context)
@@ -339,14 +339,10 @@ namespace Norns.Urd.DynamicProxy
 
         #endregion Constructor
 
-        private bool IsNonAspectType(Type serviceType, IInterceptorCreator interceptorCreator) => serviceType switch
+        private bool IsNonAspectType(Type serviceType, IInterceptorCreator interceptorCreator)
         {
-            { IsSealed: true }
-            or { IsValueType: true }
-            or { IsEnum: true }
-                    => true,
-            _ => interceptorCreator.IsNonAspectType(serviceType)
-        };
+            return serviceType.IsSealed || serviceType.IsValueType || serviceType.IsEnum || interceptorCreator.IsNonAspectType(serviceType);
+        }
 
         private void DefineCustomAttributes(in ProxyGeneratorContext context)
         {

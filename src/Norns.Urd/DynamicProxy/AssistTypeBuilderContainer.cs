@@ -31,7 +31,7 @@ namespace Norns.Urd.DynamicProxy
         public Type Complete(IInterceptorCreator interceptorCreator)
         {
             InitMethodIL.Emit(OpCodes.Ret);
-            var type = TypeBuilder.CreateType();
+            var type = TypeBuilder.CreateTypeInfo().AsType();
             type.GetMethod(InitMethod.Name).Invoke(null, new object[] { interceptorCreator });
             return type;
         }

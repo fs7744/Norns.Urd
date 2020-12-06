@@ -17,17 +17,26 @@ namespace Microsoft.Extensions.DependencyInjection
 
         internal bool TryCreate(ServiceDescriptor descriptor, out ServiceDescriptor proxyServiceDescriptor)
         {
-            proxyServiceDescriptor = null;
-            return descriptor switch
+            if (descriptor.ImplementationFactory != null)
             {
-                var i when i.ImplementationFactory is not null => TryCreateFacadeImplementation(i, i.ImplementationFactory, out proxyServiceDescriptor),
-                var i when i.ImplementationInstance is not null => TryCreateFacadeImplementation(i, x => i.ImplementationInstance, out proxyServiceDescriptor),
-                var i when !i.ServiceType.IsGenericTypeDefinition
-                    && (i.ImplementationType.IsSealed
-                        || !i.ImplementationType.GetTypeInfo().IsVisible())
-                    => TryCreateFacadeImplementation(i, x => ActivatorUtilities.CreateInstance(x, i.ImplementationType), out proxyServiceDescriptor),
-                _ => TryCreateInheritImplementation(descriptor, out proxyServiceDescriptor)
-            };
+                return TryCreateFacadeImplementation(descriptor, descriptor.ImplementationFactory, out proxyServiceDescriptor);
+            }
+            else if (descriptor.ImplementationInstance != null)
+            {
+                var instance = descriptor.ImplementationInstance;
+                return TryCreateFacadeImplementation(descriptor, x => instance, out proxyServiceDescriptor);
+            }
+            else if (!descriptor.ServiceType.IsGenericTypeDefinition
+                    && (descriptor.ImplementationType.IsSealed
+                        || !descriptor.ImplementationType.GetTypeInfo().IsVisible()))
+            {
+                var type = descriptor.ImplementationType;
+                return TryCreateFacadeImplementation(descriptor, x => ActivatorUtilities.CreateInstance(x, type), out proxyServiceDescriptor);
+            }
+            else
+            {
+                return TryCreateInheritImplementation(descriptor, out proxyServiceDescriptor);
+            }
         }
 
         internal bool TryCreateFacadeImplementation(ServiceDescriptor descriptor, Func<IServiceProvider, object> implementationFactory, out ServiceDescriptor proxyServiceDescriptor)
@@ -54,10 +63,10 @@ namespace Microsoft.Extensions.DependencyInjection
             return proxyServiceDescriptor != null;
         }
 
+        private static ServiceDescriptor createServiceDescriptor(ServiceDescriptor x, Type type) => ServiceDescriptor.Describe(x.ServiceType, type, x.Lifetime);
+
         internal bool TryCreateInheritImplementation(ServiceDescriptor descriptor, out ServiceDescriptor proxyServiceDescriptor)
         {
-            static ServiceDescriptor createServiceDescriptor(ServiceDescriptor x, Type type) => ServiceDescriptor.Describe(x.ServiceType, type, x.Lifetime);
-
             return TryCreateImplementation(ProxyTypes.Inherit, descriptor.ImplementationType, descriptor, createServiceDescriptor, out proxyServiceDescriptor);
         }
     }

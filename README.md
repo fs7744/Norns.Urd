@@ -1,6 +1,14 @@
 # Norns.Urd
 
 ![build](https://github.com/fs7744/Norns.Urd/workflows/build/badge.svg)
+[![GitHub](https://img.shields.io/github/license/fs7744/Norns.Urd)](https://github.com/fs7744/Norns.Urd/blob/main/LICENSE)
+
+## Nuget Packages
+
+| Package Name |  NuGet | Downloads  |
+|--------------|  ------- |  ----  |
+| Norns.Urd | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd)](https://www.nuget.org/packages/Norns.Urd/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd) |
+| Norns.Urd.Extensions.DependencyInjection | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd.Extensions.DependencyInjection)](https://www.nuget.org/packages/Norns.Urd.Extensions.DependencyInjection/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd.Extensions.DependencyInjection) |
 
 ## Welcome to Norns.Urd
 
@@ -17,3 +25,8 @@ Hopefully, this library will be of some useful to you
 ## How to use
 
 [中文](https://fs7744.github.io/Norns.Urd/zh-cn/index.html) |  [English](https://fs7744.github.io/Norns.Urd/index.html)
+
+
+
+## License
+[MIT](https://github.com/fs7744/Norns.Urd/blob/main/LICENSE)

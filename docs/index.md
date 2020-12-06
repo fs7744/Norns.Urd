@@ -2,6 +2,9 @@
 
 # Welcome to Norns.Urd
 
+![build](https://github.com/fs7744/Norns.Urd/workflows/build/badge.svg)
+[![GitHub](https://img.shields.io/github/license/fs7744/Norns.Urd)](https://github.com/fs7744/Norns.Urd/blob/main/LICENSE)
+
 Norns.urd is a lightweight AOP framework based on emit which do dynamic proxy
 
 The purpose of completing this framework mainly comes from the following personal wishes:
@@ -215,3 +218,10 @@ class GenericTestProxy<T,R> : GenericTest<T,R>
 }
 
 ```
+
+# Nuget Packages
+
+| Package Name |  NuGet | Downloads  |
+|--------------|  ------- |  ----  |
+| Norns.Urd | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd)](https://www.nuget.org/packages/Norns.Urd/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd) |
+| Norns.Urd.Extensions.DependencyInjection | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd.Extensions.DependencyInjection)](https://www.nuget.org/packages/Norns.Urd.Extensions.DependencyInjection/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd.Extensions.DependencyInjection) |

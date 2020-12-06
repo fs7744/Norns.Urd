@@ -2,6 +2,9 @@
 
 # 欢迎了解 Norns.Urd
 
+![build](https://github.com/fs7744/Norns.Urd/workflows/build/badge.svg)
+[![GitHub](https://img.shields.io/github/license/fs7744/Norns.Urd)](https://github.com/fs7744/Norns.Urd/blob/main/LICENSE)
+
 Norns.Urd 是一个基于emit实现动态代理的轻量级AOP框架
 
 完成这个框架的目的主要出自于个人以下意愿：
@@ -216,3 +219,10 @@ class GenericTestProxy<T,R> : GenericTest<T,R>
 }
 
 ```
+
+# Nuget Packages
+
+| Package Name |  NuGet | Downloads  |
+|--------------|  ------- |  ----  |
+| Norns.Urd | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd)](https://www.nuget.org/packages/Norns.Urd/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd) |
+| Norns.Urd.Extensions.DependencyInjection | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd.Extensions.DependencyInjection)](https://www.nuget.org/packages/Norns.Urd.Extensions.DependencyInjection/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd.Extensions.DependencyInjection) |

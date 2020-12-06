@@ -2,6 +2,7 @@
 
 ![build](https://github.com/fs7744/Norns.Urd/workflows/build/badge.svg)
 [![GitHub](https://img.shields.io/github/license/fs7744/Norns.Urd)](https://github.com/fs7744/Norns.Urd/blob/main/LICENSE)
+![GitHub Repo stars](https://img.shields.io/github/stars/fs7744/Norns.Urd?style=social)
 
 ## Nuget Packages
 

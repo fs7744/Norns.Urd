@@ -8,7 +8,10 @@
         - [拦截器结类型](#拦截器结类型)
         - [全局拦截器 vs 显示拦截器](#全局拦截器-vs-显示拦截器)
         - [拦截器的过滤方式](#拦截器的过滤方式)
+        - [AOP限制](#aop限制)
     - [Interface和Abstract Class的默认实现](#interface和abstract-class的默认实现)
+        - [默认实现限制](#默认实现限制)
+    - [InjectAttribute](#injectattribute)
 - [Norns.Urd 中的一些设计](#nornsurd-中的一些设计)
 - [Nuget Packages](#nuget-packages)
 
@@ -292,6 +295,11 @@ public class ParameterInjectInterceptor : AbstractInterceptor
 }
 ```
 
+### AOP限制
+
+- 当 service type 为 class 时， 只有 virtual 且 子类能有访问的 方法才能代理拦截
+- 有方法参数为 in readonly struct 的类型无法代理
+
 ## Interface和Abstract Class的默认实现
 
 如果你向DI框架注册没有真正有具体实现的 `Interface`和`Abstract Class`, Norns.Urd 会实现默认的子类型。
@@ -299,6 +307,13 @@ public class ParameterInjectInterceptor : AbstractInterceptor
 为什么提供这样的功能呢？
 
 这是为声明式编码思想提供一些底层实现支持，这样有更多的同学可以自定义自己的一些声明式库，简化代码，比如实现一个 声明式HttpClient 
+
+### 默认实现限制
+
+- 不支持属性注入
+- Norns.Urd 生成的默认实现皆为返回类型的默认值
+
+### demo
 
 后面会完成一个简单的httpclient作为示例，这里先做个简单demo
 
@@ -356,19 +371,64 @@ services.ConfigureAop();
 4. 使用
 
 ``` csharp 
-    [ApiController]
-    [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+[ApiController]
+[Route("[controller]")]
+public class WeatherForecastController : ControllerBase
+{
+    IAddTest a;
+    public WeatherForecastController(IAddTest b)
     {
-        IAddTest a;
-        public WeatherForecastController(IAddTest b)
-        {
-            a = b;
-        }
-
-        [HttpGet]
-        public int GetAddTen() => a.AddTen();
+        a = b;
     }
+
+    [HttpGet]
+    public int GetAddTen() => a.AddTen();
+}
+```
+
+## InjectAttribute
+
+`InjectAttribute` 是对 Interface和Abstract Class的默认实现的功能补充，
+
+特别是在做声明式client之类，提供自定义设置，比如interface 默认接口实现时，
+
+用户可能需要从DI中获取实例，所以这里提供两种方式做一些补充。
+
+### ParameterInject
+
+方法参数可以设置`InjectAttribute`：
+- 当参数为null时，就会从 DI 中尝试获取实例
+- 当参数不为null时，不会覆盖传值，依然时传参值
+
+示例：
+
+``` csharp
+public interface IInjectTest
+{
+    public ParameterInjectTest T([Inject] ParameterInjectTest t = null) => t;
+}
+```
+
+### PropertyInject
+
+``` csharp
+public interface IInjectTest
+{
+    [Inject]
+    ParameterInjectInterceptorTest PT { get; set; }
+}
+```
+
+### FieldInject
+
+按照业界编码习惯， field 不推荐没有赋值就是使用，所以该功能会导致代码检查出现需要修复的问题
+
+``` csharp
+public class ParameterInjectTest : IInjectTest
+{
+    [Inject]
+    ParameterInjectInterceptorTest ft;
+}
 ```
 
 # Norns.Urd 中的一些设计

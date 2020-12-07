@@ -2,7 +2,7 @@
 
 namespace Norns.Urd
 {
-    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
     public class InjectAttribute : Attribute
     {
     }

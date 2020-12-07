@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 
 namespace Norns.Urd.Reflection
 {
@@ -29,6 +30,15 @@ namespace Norns.Urd.Reflection
             il.EmitConvertToObject(field.FieldType);
             il.Emit(OpCodes.Ret);
             return (Func<T, R>)method.CreateDelegate(typeof(Func<T, R>));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static FieldReflector Create(FieldInfo field) => new FieldReflector(field);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static FieldReflector GetReflector(this FieldInfo field)
+        {
+            return ReflectorCache<FieldInfo, FieldReflector>.GetOrAdd(field, Create);
         }
     }
 }

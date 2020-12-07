@@ -3,13 +3,16 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 
 namespace Norns.Urd.Reflection
 {
     public static class MethodExtensions
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static MethodReflector Create(MethodInfo t) => new MethodReflector(t);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MethodReflector GetReflector(this MethodInfo method)
         {
             return ReflectorCache<MethodInfo, MethodReflector>.GetOrAdd(method, Create);

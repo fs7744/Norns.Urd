@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Norns.Urd.Reflection
@@ -207,13 +208,16 @@ namespace Norns.Urd.Reflection
             return typeCode == TypeCode.Single || typeCode == TypeCode.Double;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TypeReflector Create(TypeInfo t) => new TypeReflector(t);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TypeReflector GetReflector(this TypeInfo type)
         {
             return ReflectorCache<TypeInfo, TypeReflector>.GetOrAdd(type, Create);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TypeReflector GetReflector(this Type type)
         {
             return type.GetTypeInfo().GetReflector();

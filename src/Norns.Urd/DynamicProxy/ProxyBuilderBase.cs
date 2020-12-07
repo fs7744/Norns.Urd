@@ -35,21 +35,14 @@ namespace Norns.Urd.DynamicProxy
         protected void DefineProperties(in ProxyGeneratorContext context)
         {
             var (il, _) = context.ProxyType.PropertyInject;
+            GetServiceInstance(context, il);
+            il.EmitLoadArg(1);
+            il.Emit(OpCodes.Call, Constants.PropertyInject);
+
             var properties = context.ServiceType.GetTypeInfo().GetProperties(Constants.MethodBindingFlags);
             foreach (var property in context.ServiceType.GetTypeInfo().GetProperties(Constants.MethodBindingFlags))
             {
-                var p = DefineProperty(context, property);
-                if (property.CanWrite
-                    && property.GetReflector().IsDefined<InjectAttribute>()
-                    && p?.SetMethod != null)
-                {
-                    GetServiceInstance(context, il);
-                    il.EmitLoadArg(1);
-                    il.EmitType(property.PropertyType);
-                    il.Emit(OpCodes.Callvirt, Constants.GetServiceFromDI);
-                    il.EmitConvertObjectTo(property.PropertyType);
-                    il.Emit(OpCodes.Callvirt, p.SetMethod);
-                }
+                DefineProperty(context, property);
             }
 
             var dicts = properties.ToDictionary(i => i.Name, i => i);

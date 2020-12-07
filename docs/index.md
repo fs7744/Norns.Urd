@@ -8,6 +8,7 @@
         - [Interceptor junction type](#interceptor-junction-type)
         - [Global interceptors vs. display interceptors](#global-interceptors-vs-display-interceptors)
         - [Interceptor filter mode](#interceptor-filter-mode)
+    - [The default implementation of Interface and Abstract Class](#The-default-implementation-of-Interface-and-Abstract-Class)
 - [Some design of Norns.Urd](#some-design-of-nornsurd)
 - [Nuget Packages](#nuget-packages)
 
@@ -287,6 +288,85 @@ public class ParameterInjectInterceptor : AbstractInterceptor
         return method.GetReflector().Parameters.Any(i => i.IsDefined<InjectAttribute>());
     }
 }
+```
+
+## The default implementation of Interface and Abstract Class
+
+Norns.urd implements the default subtype if you register with the DI framework no actual implementation of 'Interface' and 'Abstract Class'.
+
+Why is this feature available?
+
+This is to provide some low-level implementation support for the idea of declarative coding, so that more students can customize some of their own declarative libraries and simplify the code, such as implementing a declarative HttpClient
+
+We will complete a simple httpClient as an example. Here is a brief demo
+
+1. If adding 10 was our logic like an HTTP call, we could put all the add 10 logic in the interceptor
+
+``` csharp 
+public class AddTenAttribute : AbstractInterceptorAttribute
+{
+    public override void Invoke(AspectContext context, AspectDelegate next)
+    {
+        next(context);
+        AddTen(context);
+    }
+
+    private static void AddTen(AspectContext context)
+    {
+        if (context.ReturnValue is int i)
+        {
+            context.ReturnValue = i + 10;
+        }
+        else if(context.ReturnValue is double d)
+        {
+            context.ReturnValue = d + 10.0;
+        }
+    }
+
+    public override async Task InvokeAsync(AspectContext context, AsyncAspectDelegate next)
+    {
+        await next(context);
+        AddTen(context);
+    }
+}
+```
+
+2. Define declarate client
+
+``` csharp 
+[AddTen]
+public interface IAddTest
+{
+    int AddTen();
+
+    // The default implementation in the interface is not replaced by norns.urd, which provides some scenarios where users can customize the implementation logic
+    public int NoAdd() => 3;
+}
+```
+
+3. Registered client
+
+``` csharp 
+services.AddTransient<IAddTest>();
+services.ConfigureAop();
+```
+
+4. Use it
+
+``` csharp 
+    [ApiController]
+    [Route("[controller]")]
+    public class WeatherForecastController : ControllerBase
+    {
+        IAddTest a;
+        public WeatherForecastController(IAddTest b)
+        {
+            a = b;
+        }
+
+        [HttpGet]
+        public int GetAddTen() => a.AddTen();
+    }
 ```
 
 # Some design of Norns.Urd

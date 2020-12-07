@@ -8,6 +8,7 @@
         - [拦截器结类型](#拦截器结类型)
         - [全局拦截器 vs 显示拦截器](#全局拦截器-vs-显示拦截器)
         - [拦截器的过滤方式](#拦截器的过滤方式)
+    - [Interface和Abstract Class的默认实现](#interface和abstract-class的默认实现)
 - [Norns.Urd 中的一些设计](#nornsurd-中的一些设计)
 - [Nuget Packages](#nuget-packages)
 
@@ -289,6 +290,85 @@ public class ParameterInjectInterceptor : AbstractInterceptor
         return method.GetReflector().Parameters.Any(i => i.IsDefined<InjectAttribute>());
     }
 }
+```
+
+## Interface和Abstract Class的默认实现
+
+如果你向DI框架注册没有真正有具体实现的 `Interface`和`Abstract Class`, Norns.Urd 会实现默认的子类型。
+
+为什么提供这样的功能呢？
+
+这是为声明式编码思想提供一些底层实现支持，这样有更多的同学可以自定义自己的一些声明式库，简化代码，比如实现一个 声明式HttpClient 
+
+后面会完成一个简单的httpclient作为示例，这里先做个简单demo
+
+1. 假如要加 10 就是我们类似http调用的逻辑，我们就可以讲全部的加10逻辑放在拦截器中
+
+``` csharp 
+public class AddTenAttribute : AbstractInterceptorAttribute
+{
+    public override void Invoke(AspectContext context, AspectDelegate next)
+    {
+        next(context);
+        AddTen(context);
+    }
+
+    private static void AddTen(AspectContext context)
+    {
+        if (context.ReturnValue is int i)
+        {
+            context.ReturnValue = i + 10;
+        }
+        else if(context.ReturnValue is double d)
+        {
+            context.ReturnValue = d + 10.0;
+        }
+    }
+
+    public override async Task InvokeAsync(AspectContext context, AsyncAspectDelegate next)
+    {
+        await next(context);
+        AddTen(context);
+    }
+}
+```
+
+2. 定义声明式client
+
+``` csharp 
+[AddTen]
+public interface IAddTest
+{
+    int AddTen();
+
+    // 对于接口中的默认实现，并不会被Norns.Urd替代,这样可以提供某些场景用户可以自定义实现逻辑
+    public int NoAdd() => 3;
+}
+```
+
+3. 注册client
+
+``` csharp 
+services.AddTransient<IAddTest>();
+services.ConfigureAop();
+```
+
+4. 使用
+
+``` csharp 
+    [ApiController]
+    [Route("[controller]")]
+    public class WeatherForecastController : ControllerBase
+    {
+        IAddTest a;
+        public WeatherForecastController(IAddTest b)
+        {
+            a = b;
+        }
+
+        [HttpGet]
+        public int GetAddTen() => a.AddTen();
+    }
 ```
 
 # Norns.Urd 中的一些设计

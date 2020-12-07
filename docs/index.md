@@ -8,7 +8,7 @@
         - [Interceptor junction type](#interceptor-junction-type)
         - [Global interceptors vs. display interceptors](#global-interceptors-vs-display-interceptors)
         - [Interceptor filter mode](#interceptor-filter-mode)
-    - [The default implementation of Interface and Abstract Class](#The-default-implementation-of-Interface-and-Abstract-Class)
+    - [The default implementation of Interface and Abstract Class](#the-default-implementation-of-interface-and-abstract-class)
 - [Some design of Norns.Urd](#some-design-of-nornsurd)
 - [Nuget Packages](#nuget-packages)
 

@@ -1,22 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Logging.Console;
 using Moq;
 using Norns.Urd.Reflection;
-using System;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Test.Norns.Urd.DependencyInjection
 {
     public class TConsoleFormatter
     {
-        public virtual void Write<TState>(in LogEntry<TState> logEntry, IExternalScopeProvider scopeProvider, TextWriter textWriter) { }
+        public virtual void Write<TState>(in LogEntry<TState> logEntry, IExternalScopeProvider scopeProvider, TextWriter textWriter)
+        {
+        }
     }
 
     public class TestController : ControllerBase

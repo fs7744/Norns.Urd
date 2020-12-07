@@ -18,7 +18,7 @@
 
                 while (*str != 0)
                 {
-                    if (*wild == '*') { if (0 == (*++wild)) return (matched = true); mp = wild; cp = str + 1; }
+                    if (*wild == '*') { if (0 == (*++wild)) return true; mp = wild; cp = str + 1; }
                     else if ((*wild == *str) || (*wild == '?')) { wild++; str++; } else { wild = mp; str = cp++; }
                 }
 

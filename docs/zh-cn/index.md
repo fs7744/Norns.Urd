@@ -3,6 +3,11 @@
 - [欢迎了解 Norns.Urd](#欢迎了解-nornsurd)
 - [快速入门指南](#快速入门指南)
 - [功能说明](#功能说明)
+    - [Interceptor 拦截器](#Interceptor-拦截器)
+        - [拦截器结构定义](#拦截器结构定义)
+        - [拦截器结类型](#拦截器结类型)
+        - [全局拦截器 vs 显示拦截器](#全局拦截器-vs-显示拦截器)
+        - [拦截器的过滤方式](#拦截器的过滤方式)
 - [Norns.Urd 中的一些设计](#nornsurd-中的一些设计)
 - [Nuget Packages](#nuget-packages)
 
@@ -97,7 +102,194 @@ Norns.Urd 是一个基于emit实现动态代理的轻量级AOP框架.
     ``` shell
     Norns.Urd.DynamicProxy.Generated.WeatherForecastController_Proxy_Inherit.IEnumerable<WeatherForecast> Get()
     ```
+
 # 功能说明
+
+## Interceptor 拦截器
+
+在Norns.Urd中，Interceptor 拦截器是用户可以在方法插入自己的逻辑的核心。
+
+### 拦截器结构定义
+
+拦截器定义了标准结构为`IInterceptor`
+
+``` csharp
+public interface IInterceptor
+{
+    // 用户可以通过Order自定义拦截器顺序，排序方式为ASC，全局拦截器和显示拦截器都会列入排序中
+    int Order { get; }
+
+    // 同步拦截方法
+    void Invoke(AspectContext context, AspectDelegate next);
+
+    // 异步拦截方法
+    Task InvokeAsync(AspectContext context, AsyncAspectDelegate next);
+
+    // 可以设置拦截器如何选择过滤是否拦截方法，除了这里还有NonAspectAttribute 和全局的NonPredicates可以影响过滤
+    bool CanAspect(MethodInfo method);
+}
+```
+
+### 拦截器结类型
+
+拦截器实际从设计上只有`IInterceptor`这一个统一的定义，不过由于csharp的单继承和`Attribute`的语言限制，所以有`AbstractInterceptorAttribute` 和 `AbstractInterceptor`两个类。
+
+#### AbstractInterceptorAttribute （显示拦截器）
+
+``` csharp 
+public abstract class AbstractInterceptorAttribute : Attribute, IInterceptor
+{
+    public virtual int Order { get; set; }
+
+    public virtual bool CanAspect(MethodInfo method) => true;
+
+    // 默认提供在同步拦截器方法中转换异步方法为同步方式调用，存在一些性能损失，如果用户想要减少这方面的损耗，可以选择重载实现。
+    public virtual void Invoke(AspectContext context, AspectDelegate next)
+    {
+        InvokeAsync(context, c =>
+        {
+            next(c);
+            return Task.CompletedTask;
+        }).ConfigureAwait(false)
+                    .GetAwaiter()
+                    .GetResult();
+    }
+
+    // 默认只需要实现异步拦截器方法
+    public abstract Task InvokeAsync(AspectContext context, AsyncAspectDelegate next);
+}
+```
+
+一个拦截器实现举例：
+
+``` csharp 
+public class AddTenInterceptorAttribute : AbstractInterceptorAttribute
+{
+    public override void Invoke(AspectContext context, AspectDelegate next)
+    {
+        next(context);
+        AddTen(context);
+    }
+
+    private static void AddTen(AspectContext context)
+    {
+        if (context.ReturnValue is int i)
+        {
+            context.ReturnValue = i + 10;
+        }
+        else if(context.ReturnValue is double d)
+        {
+            context.ReturnValue = d + 10.0;
+        }
+    }
+
+    public override async Task InvokeAsync(AspectContext context, AsyncAspectDelegate next)
+    {
+        await next(context);
+        AddTen(context);
+    }
+}
+```
+
+##### `InterceptorAttribute`拦截器使用方式
+
+- interface / class / method 可以设置 `Attribute`，如
+
+``` csharp 
+[AddTenInterceptor]
+public interface IGenericTest<T, R> : IDisposable
+{
+    // or
+    //[AddTenInterceptor]
+    T GetT();
+}
+```
+
+- 全局拦截器中也可以设置
+
+``` csharp 
+public void ConfigureServices(IServiceCollection services)
+{
+    services.ConfigureAop(i => i.GlobalInterceptors.Add(new AddTenInterceptorAttribute()));
+}
+```
+
+#### AbstractInterceptor
+
+和 `AbstractInterceptorAttribute` 几乎一模一样，不过不是`Attribute`，不能用于对应场景，只能在全局拦截器中使用。其实本身就是提供给用户用于不想`Attribute`场景简化Interceptor创建。
+
+##### `Interceptor`拦截器使用方式
+
+只能在全局拦截器中设置
+
+``` csharp 
+public void ConfigureServices(IServiceCollection services)
+{
+    services.ConfigureAop(i => i.GlobalInterceptors.Add(new AddSixInterceptor()));
+}
+```
+
+### 全局拦截器 vs 显示拦截器
+
+- 全局拦截器，是针对所有可以代理的方法都会做拦截，只需一次声明，全局有效
+
+``` csharp 
+public void ConfigureServices(IServiceCollection services)
+{
+    services.ConfigureAop(i => i.GlobalInterceptors.Add(new AddSixInterceptor()));
+}
+```
+
+- 显示拦截器必须使用`AbstractInterceptorAttribute`在所有需要的地方都显示声明
+
+``` csharp 
+[AddTenInterceptor]
+public interface IGenericTest<T, R> : IDisposable
+{
+    // or
+    //[AddTenInterceptor]
+    T GetT();
+}
+```
+
+所以用户觉得怎么样方便就怎么用就好了
+
+### 拦截器的过滤方式
+
+Norns.Urd 提供如下三种过滤方式
+
+- 全局过滤
+
+``` csharp 
+services.ConfigureAop(i => i.NonPredicates.AddNamespace("Norns")
+    .AddNamespace("Norns.*")
+    .AddNamespace("System")
+    .AddNamespace("System.*")
+    .AddNamespace("Microsoft.*")
+    .AddNamespace("Microsoft.Owin.*")
+    .AddMethod("Microsoft.*", "*"));
+```
+
+- 显示过滤
+
+``` csharp 
+[NonAspect]
+public interface IGenericTest<T, R> : IDisposable
+{
+}
+```
+
+- 拦截器本身的过滤
+
+``` csharp 
+public class ParameterInjectInterceptor : AbstractInterceptor
+{
+    public override bool CanAspect(MethodInfo method)
+    {
+        return method.GetReflector().Parameters.Any(i => i.IsDefined<InjectAttribute>());
+    }
+}
+```
 
 # Norns.Urd 中的一些设计
 

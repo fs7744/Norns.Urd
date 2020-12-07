@@ -6,7 +6,7 @@ namespace Norns.Urd
     [NonAspect]
     public abstract class AbstractInterceptor : IInterceptor
     {
-        public virtual int Order => 0;
+        public virtual int Order { get; set; }
 
         public virtual bool CanAspect(MethodInfo method) => true;
 

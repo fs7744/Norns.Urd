@@ -3,6 +3,11 @@
 - [Welcome to Norns.Urd](#welcome-to-nornsurd)
 - [Quick start](#quick-start)
 - [Fundamentals](#fundamentals)
+    - [Interceptor](#interceptor)
+        - [Interceptor structure definition](#interceptor-structure-definition)
+        - [Interceptor junction type](#interceptor-junction-type)
+        - [Global interceptors vs. display interceptors](#global-interceptors-vs-display-interceptors)
+        - [Interceptor filter mode](#interceptor-filter-mode)
 - [Some design of Norns.Urd](#some-design-of-nornsurd)
 - [Nuget Packages](#nuget-packages)
 
@@ -97,6 +102,192 @@ This is simple demo whch to do global interceptor, full code fot the demo you ca
 # Fundamentals
 
 This article provides an overview of key topics for understanding how to develop Norns.Urd.Interceptors
+
+## Interceptor 
+
+In Norns.urd, Interceptor Interceptor is the core of the logic that a user can insert into a method.
+
+### Interceptor structure definition
+
+The interceptor defines the standard structure as `IInterceptor`
+
+``` csharp
+public interface IInterceptor
+{
+    // Users can customize the interceptor Order with Order, sorted by ASC, in which both the global interceptor and the display interceptor are included
+    int Order { get; }
+
+    // Synchronous interception method
+    void Invoke(AspectContext context, AspectDelegate next);
+
+    // Asynchronous interception method
+    Task InvokeAsync(AspectContext context, AsyncAspectDelegate next);
+
+    // You can set how the interceptor chooses whether to filter or not to intercept a method, in addition to the NonAspectAttribute and global NonPredicates that can influence filtering
+    bool CanAspect(MethodInfo method);
+}
+```
+
+### Interceptor junction type
+
+Interceptors from actual design only ` IInterceptor ` that a unified definition, but due to the single inheritance and ` csharp Attribute ` language limitation, so have a ` AbstractInterceptorAttribute ` and ` AbstractInterceptor ` two classes.
+
+#### AbstractInterceptorAttribute （Display interceptor）
+
+``` csharp 
+public abstract class AbstractInterceptorAttribute : Attribute, IInterceptor
+{
+    public virtual int Order { get; set; }
+
+    public virtual bool CanAspect(MethodInfo method) => true;
+
+    // If the user wants to reduce the performance penalty of converting an asynchronous method to a synchronous call in a synchronous interceptor method by default, he can choose to overload the implementation.
+    public virtual void Invoke(AspectContext context, AspectDelegate next)
+    {
+        InvokeAsync(context, c =>
+        {
+            next(c);
+            return Task.CompletedTask;
+        }).ConfigureAwait(false)
+                    .GetAwaiter()
+                    .GetResult();
+    }
+
+    // The default is to implement only the asynchronous interceptor method
+    public abstract Task InvokeAsync(AspectContext context, AsyncAspectDelegate next);
+}
+```
+
+An example of an interceptor implementation：
+
+``` csharp 
+public class AddTenInterceptorAttribute : AbstractInterceptorAttribute
+{
+    public override void Invoke(AspectContext context, AspectDelegate next)
+    {
+        next(context);
+        AddTen(context);
+    }
+
+    private static void AddTen(AspectContext context)
+    {
+        if (context.ReturnValue is int i)
+        {
+            context.ReturnValue = i + 10;
+        }
+        else if(context.ReturnValue is double d)
+        {
+            context.ReturnValue = d + 10.0;
+        }
+    }
+
+    public override async Task InvokeAsync(AspectContext context, AsyncAspectDelegate next)
+    {
+        await next(context);
+        AddTen(context);
+    }
+}
+```
+
+##### `InterceptorAttribute` Interceptor usage
+
+- interface / class / method You can set the`Attribute`，like
+
+``` csharp 
+[AddTenInterceptor]
+public interface IGenericTest<T, R> : IDisposable
+{
+    // or
+    //[AddTenInterceptor]
+    T GetT();
+}
+```
+
+- It can also be set in the global interceptor
+
+``` csharp 
+public void ConfigureServices(IServiceCollection services)
+{
+    services.ConfigureAop(i => i.GlobalInterceptors.Add(new AddTenInterceptorAttribute()));
+}
+```
+
+#### AbstractInterceptor
+
+And ` AbstractInterceptorAttribute ` almost identical, but not a ` Attribute `, cannot be used for corresponding scene, only in the use of the interceptor. In itself, it is provided for a user to create an Interceptor that does not want to simplify the 'Attribute' scenario.
+
+##### `Interceptor`Interceptor usage
+
+Can only be set in a global interceptor
+
+``` csharp 
+public void ConfigureServices(IServiceCollection services)
+{
+    services.ConfigureAop(i => i.GlobalInterceptors.Add(new AddSixInterceptor()));
+}
+```
+
+### Global interceptors vs. display interceptors
+
+- A global interceptor is a method that intercepts all proxying methods. It only needs to be declared once and is valid globally
+
+``` csharp 
+public void ConfigureServices(IServiceCollection services)
+{
+    services.ConfigureAop(i => i.GlobalInterceptors.Add(new AddSixInterceptor()));
+}
+```
+
+- Display interceptor must use ` AbstractInterceptorAttribute ` in all places need to display statement
+
+``` csharp 
+[AddTenInterceptor]
+public interface IGenericTest<T, R> : IDisposable
+{
+    // or
+    //[AddTenInterceptor]
+    T GetT();
+}
+```
+
+So just use what the user thinks is convenient
+
+### Interceptor filter mode
+
+Norns.Urd Provide the following three filtering methods
+
+- Global filtering
+
+``` csharp 
+services.ConfigureAop(i => i.NonPredicates.AddNamespace("Norns")
+    .AddNamespace("Norns.*")
+    .AddNamespace("System")
+    .AddNamespace("System.*")
+    .AddNamespace("Microsoft.*")
+    .AddNamespace("Microsoft.Owin.*")
+    .AddMethod("Microsoft.*", "*"));
+```
+
+- According to filter
+
+``` csharp 
+[NonAspect]
+public interface IGenericTest<T, R> : IDisposable
+{
+}
+```
+
+- The interceptor itself filters
+
+``` csharp 
+public class ParameterInjectInterceptor : AbstractInterceptor
+{
+    public override bool CanAspect(MethodInfo method)
+    {
+        return method.GetReflector().Parameters.Any(i => i.IsDefined<InjectAttribute>());
+    }
+}
+```
 
 # Some design of Norns.Urd
 

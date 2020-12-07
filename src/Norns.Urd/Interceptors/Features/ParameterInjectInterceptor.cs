@@ -7,23 +7,23 @@ using System.Collections.Concurrent;
 
 namespace Norns.Urd.Interceptors.Features
 {
-    public class ParameterInjectInterceptor : IInterceptor
+    public class ParameterInjectInterceptor : AbstractInterceptor
     {
-        private static ConcurrentDictionary<MethodInfo, Action<AspectContext>> cache = new ConcurrentDictionary<MethodInfo, Action<AspectContext>>();
-        public int Order => int.MinValue;
+        private static readonly ConcurrentDictionary<MethodInfo, Action<AspectContext>> cache = new ConcurrentDictionary<MethodInfo, Action<AspectContext>>();
+        public override int Order => int.MinValue;
 
-        public bool CanAspect(MethodInfo method)
+        public override bool CanAspect(MethodInfo method)
         {
             return method.GetReflector().Parameters.Any(i => i.IsDefined<InjectAttribute>());
         }
 
-        public void Invoke(AspectContext context, AspectDelegate next)
+        public override void Invoke(AspectContext context, AspectDelegate next)
         {
             InjectParameters(context);
             next(context);
         }
 
-        public async Task InvokeAsync(AspectContext context, AsyncAspectDelegate next)
+        public override async Task InvokeAsync(AspectContext context, AsyncAspectDelegate next)
         {
             InjectParameters(context);
             await next(context);

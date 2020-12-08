@@ -1,6 +1,7 @@
 #### [See English](https://fs7744.github.io/Norns.Urd/index.html)
 # 目录
 - [欢迎了解 Norns.Urd](#欢迎了解-nornsurd)
+- [Simple Benchmark](#simple-benchmark)
 - [快速入门指南](#快速入门指南)
 - [功能说明](#功能说明)
     - [Interceptor 拦截器](#Interceptor-拦截器)
@@ -40,6 +41,35 @@ Norns.Urd 是一个基于emit实现动态代理的轻量级AOP框架.
 [什么是面向切面编程AOP？](https://www.zhihu.com/question/24863332)
     
 [AOP 有几种实现方式？](https://xie.infoq.cn/article/6f65df715a020c0b77f4cd266)
+
+# Simple Benchmark
+
+只是一个简单性能测试，不代表全部场景，也没有故意对比，
+
+Castle 和 AspectCore 都是非常优秀的库，
+
+Norns.Urd 很多实现都是参考了Castle 和 AspectCore的源码的。
+
+``` ini
+
+BenchmarkDotNet=v0.12.1, OS=Windows 10.0.18363.1198 (1909/November2018Update/19H2)
+Intel Core i7-9750H CPU 2.60GHz, 1 CPU, 12 logical and 6 physical cores
+.NET Core SDK=5.0.100
+  [Host]     : .NET Core 5.0.0 (CoreCLR 5.0.20.51904, CoreFX 5.0.20.51904), X64 RyuJIT
+  DefaultJob : .NET Core 5.0.0 (CoreCLR 5.0.20.51904, CoreFX 5.0.20.51904), X64 RyuJIT
+
+
+```
+|                                         Method |      Mean |    Error |    StdDev |    Median |  Gen 0 | Allocated |
+|----------------------------------------------- |----------:|---------:|----------:|----------:|-------:|----------:|
+|       TransientInstanceCallSyncMethodWhenNoAop |  69.10 ns | 1.393 ns |  2.512 ns |  69.70 ns | 0.0178 |     112 B |
+|    TransientInstanceCallSyncMethodWhenNornsUrd | 148.38 ns | 2.975 ns |  5.588 ns | 145.76 ns | 0.0534 |     336 B |
+|      TransientInstanceCallSyncMethodWhenCastle | 222.48 ns | 0.399 ns |  0.312 ns | 222.50 ns | 0.0815 |     512 B |
+|  TransientInstanceCallSyncMethodWhenAspectCore | 576.04 ns | 7.132 ns | 10.229 ns | 573.46 ns | 0.1030 |     648 B |
+|      TransientInstanceCallAsyncMethodWhenNoAop | 114.61 ns | 0.597 ns |  0.499 ns | 114.58 ns | 0.0408 |     256 B |
+|   TransientInstanceCallAsyncMethodWhenNornsUrd | 206.36 ns | 0.937 ns |  0.830 ns | 206.18 ns | 0.0763 |     480 B |
+|     TransientInstanceCallAsyncMethodWhenCastle | 250.98 ns | 3.315 ns |  3.101 ns | 252.16 ns | 0.1044 |     656 B |
+| TransientInstanceCallAsyncMethodWhenAspectCore | 576.00 ns | 4.160 ns |  3.891 ns | 574.99 ns | 0.1373 |     864 B |
 
 # 快速入门指南
 

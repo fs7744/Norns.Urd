@@ -70,6 +70,7 @@ Intel Core i7-9750H CPU 2.60GHz, 1 CPU, 12 logical and 6 physical cores
 |   TransientInstanceCallAsyncMethodWhenNornsUrd | 206.36 ns | 0.937 ns |  0.830 ns | 206.18 ns | 0.0763 |     480 B |
 |     TransientInstanceCallAsyncMethodWhenCastle | 250.98 ns | 3.315 ns |  3.101 ns | 252.16 ns | 0.1044 |     656 B |
 | TransientInstanceCallAsyncMethodWhenAspectCore | 576.00 ns | 4.160 ns |  3.891 ns | 574.99 ns | 0.1373 |     864 B |
+{: .tablelines}
 
 # 快速入门指南
 

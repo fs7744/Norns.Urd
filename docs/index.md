@@ -481,7 +481,7 @@ new ServiceCollection()
 ### TimeoutAttribute
 
 ``` csharp
-[Timeout(1)]  // timeout 1 milliseconds, when timeout will throw TimeoutRejectedException
+[Timeout(1)]  // timeout 1 seconds, when timeout will throw TimeoutRejectedException
 double Wait(double seconds);
 
 [Timeout("00:00:00.100")]  // timeout 100 milliseconds, only work on async method when no CancellationToken

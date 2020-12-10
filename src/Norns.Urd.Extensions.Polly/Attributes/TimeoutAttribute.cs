@@ -9,9 +9,9 @@ namespace Norns.Urd.Extensions.Polly
     {
         private readonly TimeSpan timeSpan;
 
-        public TimeoutAttribute(int milliseconds)
+        public TimeoutAttribute(int seconds)
         {
-            timeSpan = TimeSpan.FromMilliseconds(milliseconds);
+            timeSpan = TimeSpan.FromSeconds(seconds);
         }
 
         public TimeoutAttribute(string timeSpan)

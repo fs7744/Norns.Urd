@@ -11,11 +11,11 @@ namespace Test.Norns.Urd.Polly
     {
         public class DoTimeoutTest
         {
-            [Timeout(10)]
-            public virtual int Wait(int milliseconds)
+            [Timeout(2)]
+            public virtual int Wait(int seconds)
             {
-                Thread.Sleep(milliseconds);
-                return milliseconds;
+                Thread.Sleep(seconds * 1000);
+                return seconds;
             }
 
             [Timeout("00:00:00.100")]
@@ -46,8 +46,8 @@ namespace Test.Norns.Urd.Polly
         public void TimeoutWhenSync()
         {
             var sut = Mock();
-            Assert.Equal(2, sut.Wait(2));
-            Assert.Throws<TimeoutRejectedException>(() => sut.Wait(200));
+            Assert.Equal(1, sut.Wait(1));
+            Assert.Throws<TimeoutRejectedException>(() => sut.Wait(3));
         }
 
         [Fact]

@@ -23,7 +23,7 @@ namespace Test.Norns.Urd.Polly
                 }
             }
 
-            [Retry(2)]
+            [Retry(2, ExceptionType = typeof(FieldAccessException))]
             public virtual Task DoAsync()
             {
                 if (Count < 50)
@@ -33,6 +33,16 @@ namespace Test.Norns.Urd.Polly
                 }
 
                 return Task.CompletedTask;
+            }
+
+            [Retry(2, ExceptionType = typeof(AccessViolationException))]
+            public virtual void Do2()
+            {
+                if (Count < 50)
+                {
+                    Count++;
+                    throw new FieldAccessException();
+                }
             }
         }
 
@@ -59,6 +69,14 @@ namespace Test.Norns.Urd.Polly
             var sut = Mock();
             await Assert.ThrowsAsync<FieldAccessException>(() => sut.DoAsync());
             Assert.Equal(3, sut.Count);
+        }
+
+        [Fact]
+        public void RetryWhenNoMatchException()
+        {
+            var sut = Mock();
+            Assert.Throws<FieldAccessException>(() => sut.Do2());
+            Assert.Equal(1, sut.Count);
         }
     }
 }

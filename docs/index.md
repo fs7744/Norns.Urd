@@ -495,7 +495,7 @@ async Task<double> NoCancellationTokenWaitAsync(double seconds);
 ## RetryAttribute
 
 ``` csharp
-[Retry(2)]  // retry 2 times when if throw Exception
+[Retry(2, ExceptionType = typeof(AccessViolationException))]  // retry 2 times when if throw Exception
 void Do()
 ```
 

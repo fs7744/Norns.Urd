@@ -29,5 +29,4 @@ namespace Norns.Urd.Extensions.Polly
                 .CircuitBreakerAsync(exceptionsAllowedBeforeBreaking, durationOfBreak);
         }
     }
-
 }

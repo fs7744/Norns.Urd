@@ -17,6 +17,7 @@
         - [TimeoutAttribute](#timeoutattribute)
         - [RetryAttribute](#retryattribute)
         - [CircuitBreakerAttribute](#circuitbreakerattribute)
+        - [BulkheadAttribute](#bulkheadattribute)
 - [Norns.Urd 中的一些设计](#nornsurd-中的一些设计)
 - [Nuget Packages](#nuget-packages)
 
@@ -485,29 +486,36 @@ new ServiceCollection()
 ### TimeoutAttribute
 
 ``` csharp
-[Timeout(1)]  // timeout 1 seconds, when timeout will throw TimeoutRejectedException
+[Timeout(seconds: 1)]  // timeout 1 seconds, when timeout will throw TimeoutRejectedException
 double Wait(double seconds);
 
-[Timeout("00:00:00.100")]  // timeout 100 milliseconds, only work on async method when no CancellationToken
+[Timeout(timeSpan: "00:00:00.100")]  // timeout 100 milliseconds, only work on async method when no CancellationToken
 async Task<double> WaitAsync(double seconds, CancellationToken cancellationToken = default);
 
-[Timeout("00:00:01")]  // timeout 1 seconds, but no work on async method when no CancellationToken
+[Timeout(timeSpan: "00:00:01")]  // timeout 1 seconds, but no work on async method when no CancellationToken
 async Task<double> NoCancellationTokenWaitAsync(double seconds);
 ```
 
 ### RetryAttribute
 
 ``` csharp
-[Retry(2, ExceptionType = typeof(AccessViolationException))]  // retry 2 times when if throw Exception
+[Retry(retryCount: 2, ExceptionType = typeof(AccessViolationException))]  // retry 2 times when if throw Exception
 void Do()
 ```
 
 ### CircuitBreakerAttribute
 
 ``` csharp
-[CircuitBreaker(3, "00:00:01")]  
+[CircuitBreaker(exceptionsAllowedBeforeBreaking: 3, durationOfBreak: "00:00:01")]  
 //or
-[AdvancedCircuitBreaker(0.1, "00:00:01", 3, "00:00:01")]
+[AdvancedCircuitBreaker(failureThreshold: 0.1, samplingDuration: "00:00:01", minimumThroughput: 3, durationOfBreak: "00:00:01")]
+void Do()
+```
+
+### BulkheadAttribute
+
+``` csharp
+[Bulkhead(maxParallelization: 5, maxQueuingActions: 10)]
 void Do()
 ```
 

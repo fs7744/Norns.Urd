@@ -8,7 +8,7 @@ namespace Test.Norns.Urd.Polly
 {
     public class CircuitBreakerTest
     {
-        private readonly MethodReflector MR = Constants.GetTypeFromHandle.GetReflector();
+        public static readonly MethodReflector MR = Constants.GetTypeFromHandle.GetReflector();
 
         [Fact]
         public void WhenCircuitBreaker()

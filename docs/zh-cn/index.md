@@ -15,6 +15,7 @@
     - [InjectAttribute](#injectattribute)
     - [Polly](#polly)
         - [TimeoutAttribute](#timeoutattribute)
+        - [RetryAttribute](#retryattribute)
 - [Norns.Urd 中的一些设计](#nornsurd-中的一些设计)
 - [Nuget Packages](#nuget-packages)
 
@@ -491,6 +492,13 @@ async Task<double> WaitAsync(double seconds, CancellationToken cancellationToken
 
 [Timeout("00:00:01")]  // timeout 1 seconds, but no work on async method when no CancellationToken
 async Task<double> NoCancellationTokenWaitAsync(double seconds);
+```
+
+## RetryAttribute
+
+``` csharp
+[Retry(2)]  // retry 2 times when if throw Exception
+void Do()
 ```
 
 # Norns.Urd 中的一些设计

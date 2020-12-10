@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Norns.Urd.Extensions.Polly;
-using Norns.Urd.Extensions.Polly.Attributes;
 using System;
 using System.Threading.Tasks;
 using Xunit;

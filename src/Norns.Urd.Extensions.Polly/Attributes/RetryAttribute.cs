@@ -1,15 +1,14 @@
 ﻿using Norns.Urd.Reflection;
 using Polly;
 using System;
-using System.Reflection;
 
-namespace Norns.Urd.Extensions.Polly.Attributes
+namespace Norns.Urd.Extensions.Polly
 {
     public class RetryAttribute : AbstractPolicyAttribute
     {
-        private static MethodInfo HandleException = typeof(Policy).GetMethod(nameof(Policy.Handle), Type.EmptyTypes);
         private readonly int retryCount;
         public Type ExceptionType { get; set; } = typeof(Exception);
+
         public RetryAttribute(int retryCount)
         {
             this.retryCount = retryCount;
@@ -17,17 +16,12 @@ namespace Norns.Urd.Extensions.Polly.Attributes
 
         public override ISyncPolicy Build(MethodReflector method)
         {
-            return CreatePolicy().Retry(retryCount);
-        }
-
-        private PolicyBuilder CreatePolicy()
-        {
-            return ((PolicyBuilder)HandleException.MakeGenericMethod(ExceptionType).Invoke(null, null));
+            return PolicyExtensions.CreatePolicyBuilder(ExceptionType).Retry(retryCount);
         }
 
         public override IAsyncPolicy BuildAsync(MethodReflector method)
         {
-            return CreatePolicy().RetryAsync(retryCount);
+            return PolicyExtensions.CreatePolicyBuilder(ExceptionType).RetryAsync(retryCount);
         }
     }
 }

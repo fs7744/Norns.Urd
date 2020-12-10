@@ -16,6 +16,7 @@
     - [Polly](#polly)
         - [TimeoutAttribute](#timeoutattribute)
         - [RetryAttribute](#retryattribute)
+        - [CircuitBreakerAttribute](#circuitbreakerattribute)
 - [Norns.Urd 中的一些设计](#nornsurd-中的一些设计)
 - [Nuget Packages](#nuget-packages)
 
@@ -467,7 +468,7 @@ public class ParameterInjectTest : IInjectTest
 
 ## Polly
 
-Polly is .NET resilience and transient-fault-handling library.
+[Polly](https://github.com/App-vNext/Polly) is .NET resilience and transient-fault-handling library.
 
 这里通过Norns.Urd将Polly的各种功能集成为更加方便使用的功能
 
@@ -494,10 +495,19 @@ async Task<double> WaitAsync(double seconds, CancellationToken cancellationToken
 async Task<double> NoCancellationTokenWaitAsync(double seconds);
 ```
 
-## RetryAttribute
+### RetryAttribute
 
 ``` csharp
 [Retry(2, ExceptionType = typeof(AccessViolationException))]  // retry 2 times when if throw Exception
+void Do()
+```
+
+### CircuitBreakerAttribute
+
+``` csharp
+[CircuitBreaker(3, "00:00:01")]  
+//or
+[AdvancedCircuitBreaker(0.1, "00:00:01", 3, "00:00:01")]
 void Do()
 ```
 

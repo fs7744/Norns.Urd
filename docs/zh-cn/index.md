@@ -13,6 +13,8 @@
     - [Interface和Abstract Class的默认实现](#interface和abstract-class的默认实现)
         - [默认实现限制](#默认实现限制)
     - [InjectAttribute](#injectattribute)
+    - [Polly](#polly)
+        - [TimeoutAttribute](#timeoutattribute)
 - [Norns.Urd 中的一些设计](#nornsurd-中的一些设计)
 - [Nuget Packages](#nuget-packages)
 
@@ -462,6 +464,35 @@ public class ParameterInjectTest : IInjectTest
 }
 ```
 
+## Polly
+
+Polly is .NET resilience and transient-fault-handling library.
+
+这里通过Norns.Urd将Polly的各种功能集成为更加方便使用的功能
+
+### 如何启用 Norns.Urd + Polly, 只需使用`EnablePolly()`
+
+如：
+
+``` csharp
+new ServiceCollection()
+    .AddTransient<DoTimeoutTest>()
+    .ConfigureAop(i => i.EnablePolly())
+```
+
+### TimeoutAttribute
+
+``` csharp
+[Timeout(1)]  // timeout 1 milliseconds, when timeout will throw TimeoutRejectedException
+double Wait(double seconds);
+
+[Timeout("00:00:00.100")]  // timeout 100 milliseconds, only work on async method when no CancellationToken
+async Task<double> WaitAsync(double seconds, CancellationToken cancellationToken = default);
+
+[Timeout("00:00:01")]  // timeout 1 seconds, but no work on async method when no CancellationToken
+async Task<double> NoCancellationTokenWaitAsync(double seconds);
+```
+
 # Norns.Urd 中的一些设计
 
 ## Norns.Urd的实现前提
@@ -598,3 +629,4 @@ class GenericTestProxy<T,R> : GenericTest<T,R>
 |--------------|  ------- |  ----  |
 | Norns.Urd | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd)](https://www.nuget.org/packages/Norns.Urd/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd) |
 | Norns.Urd.Extensions.DependencyInjection | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd.Extensions.DependencyInjection)](https://www.nuget.org/packages/Norns.Urd.Extensions.DependencyInjection/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd.Extensions.DependencyInjection) |
+| Norns.Urd.Extensions.Polly | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd.Extensions.Polly)](https://www.nuget.org/packages/Norns.Urd.Extensions.Polly/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd.Extensions.Polly) |

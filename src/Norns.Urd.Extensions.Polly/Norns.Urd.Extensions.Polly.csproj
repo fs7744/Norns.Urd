@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="../../ProjectCommon.targets" />
+	<ItemGroup>
+	  <PackageReference Include="Polly" Version="7.2.1" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Norns.Urd\Norns.Urd.csproj" />
+	</ItemGroup>
+</Project>

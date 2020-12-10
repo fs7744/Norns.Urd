@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 
 namespace Norns.Urd.Reflection
 {
@@ -10,11 +11,23 @@ namespace Norns.Urd.Reflection
         public PropertyInfo BindingProperty { get; }
         public ParameterReflector[] Parameters { get; }
 
+        public int CancellationTokenIndex { get; }
+
         public MethodReflector(MethodInfo methodInfo) : base(methodInfo)
         {
+            
             BindingProperty = GetBindingProperty(methodInfo);
             DisplayName = GetDisplayName(methodInfo);
-            Parameters = methodInfo.GetParameters().Select(i => new ParameterReflector(i)).ToArray();
+            var cancellationTokenIndex = -1;
+            Parameters = methodInfo.GetParameters().Select(i => 
+            {
+                if (i.ParameterType == typeof(CancellationToken))
+                {
+                    cancellationTokenIndex = i.Position;
+                }
+               return new ParameterReflector(i);
+            }).ToArray();
+            CancellationTokenIndex = cancellationTokenIndex;
         }
 
         private static PropertyInfo GetBindingProperty(MethodInfo method)

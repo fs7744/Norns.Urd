@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Norns.Urd.Extensions.DependencyInjection\Norns.Urd.Extensions.DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\src\Norns.Urd.Extensions.Polly\Norns.Urd.Extensions.Polly.csproj" />
     <ProjectReference Include="..\..\src\Norns.Urd\Norns.Urd.csproj" />
     <ProjectReference Include="..\Examples.WebApi\Examples.WebApi.csproj" />
   </ItemGroup>

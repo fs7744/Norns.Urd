@@ -110,7 +110,7 @@ namespace Norns.Urd.Reflection
             return provider.GetCustomAttributeReflectors(attributeType).Select(i => i.Invoke());
         }
 
-        public static IEnumerable<Attribute> GetCustomAttributes<T>(this ICustomAttributeReflectorProvider provider) where T : Attribute
+        public static IEnumerable<T> GetCustomAttributes<T>(this ICustomAttributeReflectorProvider provider) where T : Attribute
         {
             return provider.GetCustomAttributes(typeof(T)).Select(i => i as T);
         }

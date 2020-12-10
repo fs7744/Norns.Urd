@@ -11,7 +11,7 @@ namespace Test.Norns.Urd.Polly
     {
         public class DoTimeoutTest
         {
-            [Timeout(100)]
+            [Timeout(10)]
             public virtual int Wait(int milliseconds)
             {
                 Thread.Sleep(milliseconds);

@@ -12,7 +12,7 @@ namespace Norns.Urd.Extensions.Polly
     public class PolicyInterceptor : AbstractInterceptor
     {
         private static readonly ConcurrentDictionary<MethodInfo, Func<AspectContext, AsyncAspectDelegate, Task>> asyncCache = new ConcurrentDictionary<MethodInfo, Func<AspectContext, AsyncAspectDelegate, Task>>();
-        private static readonly ConcurrentDictionary<MethodInfo, ISyncPolicy> syncCache = new ConcurrentDictionary<MethodInfo, ISyncPolicy>();
+        private static readonly ConcurrentDictionary<MethodInfo, Action<AspectContext, AspectDelegate>> syncCache = new ConcurrentDictionary<MethodInfo, Action<AspectContext, AspectDelegate>>();
 
         public override int Order => -90000;
 
@@ -23,18 +23,29 @@ namespace Norns.Urd.Extensions.Polly
 
         public override void Invoke(AspectContext context, AspectDelegate next)
         {
-            syncCache.GetOrAdd(context.Method, CreateSyncPolicy)
-                .Execute(() => next(context));
+            syncCache.GetOrAdd(context.Method, CreateSyncPolicy)(context, next);
         }
 
-        private ISyncPolicy CreateSyncPolicy(MethodInfo method)
+        private Action<AspectContext, AspectDelegate> CreateSyncPolicy(MethodInfo method)
         {
-            var source = new CancellationTokenSource();
             var mr = method.GetReflector();
-            return mr.GetCustomAttributes<AbstractPolicyAttribute>()
+            var p = mr.GetCustomAttributes<AbstractPolicyAttribute>()
                 .Select(i => i.Build(mr))
-                .Where(i => i != null)
                 .Aggregate(Policy.NoOp() as ISyncPolicy, (x, y) => x.Wrap(y));
+            var lazys = mr.GetCustomAttributes<AbstractLazyPolicyAttribute>()
+                .Select(i => i.LazyBuild())
+                .ToArray();
+            var lazySyncPolicy = new Lazy<ISyncPolicy, AspectContext>(c =>
+            {
+                ISyncPolicy result = Policy.NoOp();
+                if (lazys.Length > 0)
+                {
+                    result = lazys.Aggregate(result, (x, y) => x.Wrap(y.GetValue(c)));
+                }
+                lazys = null;
+                return result;
+            });
+            return (context, next) => p.Wrap(lazySyncPolicy.GetValue(context)).Execute(() => next(context));
         }
 
         public override async Task InvokeAsync(AspectContext context, AsyncAspectDelegate next)
@@ -47,8 +58,20 @@ namespace Norns.Urd.Extensions.Polly
             var mr = method.GetReflector();
             var p = mr.GetCustomAttributes<AbstractPolicyAttribute>()
                 .Select(i => i.BuildAsync(mr))
-                .Where(i => i != null)
                 .Aggregate(Policy.NoOpAsync() as IAsyncPolicy, (x, y) => x.WrapAsync(y));
+            var lazys = mr.GetCustomAttributes<AbstractLazyPolicyAttribute>()
+                .Select(i => i.LazyBuildAsync())
+                .ToArray();
+            var lazyAsyncPolicy = new Lazy<IAsyncPolicy, AspectContext>(c =>
+            {
+                IAsyncPolicy result = Policy.NoOpAsync();
+                if (lazys.Length > 0)
+                {
+                    result = lazys.Aggregate(result, (x, y) => x.WrapAsync(y.GetValue(c)));
+                }
+                lazys = null;
+                return result;
+            });
             var cancellationTokenIndex = mr.CancellationTokenIndex;
             Func<AspectContext, AsyncAspectDelegate, Task> executeAsync;
             if (cancellationTokenIndex > -1)
@@ -56,7 +79,7 @@ namespace Norns.Urd.Extensions.Polly
                 executeAsync = (context, next) =>
                 {
                     var token = (CancellationToken)context.Parameters[cancellationTokenIndex];
-                    return p.ExecuteAsync(ct =>
+                    return p.WrapAsync(lazyAsyncPolicy.GetValue(context)).ExecuteAsync(ct =>
                     {
                         context.Parameters[cancellationTokenIndex] = ct;
                         return next(context);
@@ -65,7 +88,7 @@ namespace Norns.Urd.Extensions.Polly
             }
             else
             {
-                executeAsync = (context, next) => p.ExecuteAsync(() => next(context));
+                executeAsync = (context, next) => p.WrapAsync(lazyAsyncPolicy.GetValue(context)).ExecuteAsync(() => next(context));
             }
             return executeAsync;
         }

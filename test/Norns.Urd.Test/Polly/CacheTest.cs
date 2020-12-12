@@ -1,9 +1,6 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Norns.Urd;
 using Norns.Urd.Extensions.Polly;
-using Polly.Caching;
-using Polly.Caching.Memory;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -55,10 +52,7 @@ namespace Test.Norns.Urd.Polly
         {
             return new ServiceCollection()
                 .AddTransient<DoCacheTest>()
-                .AddMemoryCache()
                 .ConfigureAop(i => i.EnablePolly())
-                .AddSingleton<ISyncCacheProvider>(i => new MemoryCacheProvider(i.GetRequiredService<IMemoryCache>()))
-                .AddSingleton<IAsyncCacheProvider>(i => i.GetRequiredService<ISyncCacheProvider>() as IAsyncCacheProvider)
                 .BuildServiceProvider()
                .GetRequiredService<DoCacheTest>();
         }

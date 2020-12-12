@@ -18,6 +18,7 @@
         - [RetryAttribute](#retryattribute)
         - [CircuitBreakerAttribute](#circuitbreakerattribute)
         - [BulkheadAttribute](#bulkheadattribute)
+        - [CacheAttribute](#cacheattribute)
 - [Some design of Norns.Urd](#some-design-of-nornsurd)
 - [Nuget Packages](#nuget-packages)
 
@@ -515,6 +516,56 @@ void Do()
 ``` csharp
 [Bulkhead(maxParallelization: 5, maxQueuingActions: 10)]
 void Do()
+```
+
+### CacheAttribute
+
+#### Use Cache
+
+#### Cache Strategy
+
+* Sliding
+
+默认策略
+
+``` csharp
+[Cache(timeSpan: "00:00:01", TtlStrategy = TtlStrategy.Sliding)]
+Task<int> DoAsync()
+```
+
+* Relative
+
+``` csharp
+[Cache(timeSpan: "00:00:02", TtlStrategy = TtlStrategy.Relative)]
+int Do();
+```
+
+#### CacheKey
+
+* default is Method.Name
+
+* string
+
+``` csharp
+[ContextKey(Key = "key")]
+[Cache("00:00:01")]
+Task<int> DoAsync()
+```
+
+* IContextKeyGenerator
+
+``` csharp
+[ContextKey(GeneratorType = typeof(ContextKeyFromCount))]
+[Cache("00:00:01")]
+Task<int> DoAsync();
+
+public class ContextKeyFromCount : IContextKeyGenerator
+{
+    public string GenerateKey(AspectContext context)
+    {
+        return context.Parameters[0].ToString();
+    }
+}
 ```
 
 # Some design of Norns.Urd

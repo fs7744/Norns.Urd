@@ -28,7 +28,7 @@ Hopefully, this library will be of some useful to you
 
 ## How to use
 
-[中文](https://fs7744.github.io/Norns.Urd/zh-cn/index.html) |  [English](https://fs7744.github.io/Norns.Urd/index.html)
+[中文文档](https://fs7744.github.io/Norns.Urd/zh-cn/index.html) |  [Document](https://fs7744.github.io/Norns.Urd/index.html)
 
 ## Simple Benchmark
 

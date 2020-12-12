@@ -37,13 +37,13 @@ namespace Norns.Urd.Extensions.Polly
             var lazys = mr.GetCustomAttributes<AbstractLazyPolicyAttribute>()
                 .Select(i => i.LazyBuild())
                 .ToArray();
-            var contextKeyGenerator = this.FindContextKeyGenerator(mr);
+            var contextKeyGenerator = FindContextKeyGenerator(mr);
             var lazySyncPolicy = new Lazy<ISyncPolicy, AspectContext>(c =>
             {
-                ISyncPolicy result = Policy.NoOp();
+                ISyncPolicy result = p;
                 if (lazys.Length > 0)
                 {
-                    result = p.Wrap(lazys.Aggregate(result, (x, y) => x.Wrap(y.GetValue(c))));
+                    result = result.Wrap(lazys.Aggregate(result, (x, y) => x.Wrap(y.GetValue(c))));
                 }
                 lazys = null;
                 return result;
@@ -62,7 +62,7 @@ namespace Norns.Urd.Extensions.Polly
 
         private IContextKeyGenerator FindContextKeyGenerator(MethodReflector mr)
         {
-            var contextKeyGenerator = mr.GetCustomAttributes<AbstractContextKeyGeneratorArrtibute>().FirstOrDefault();
+            var contextKeyGenerator = mr.GetCustomAttributes<AbstractContextKeyGeneratorAttribute>().FirstOrDefault();
             if (contextKeyGenerator == null)
             {
                 contextKeyGenerator = new MethodNameKeyAttribute();
@@ -84,12 +84,13 @@ namespace Norns.Urd.Extensions.Polly
             var lazys = mr.GetCustomAttributes<AbstractLazyPolicyAttribute>()
                 .Select(i => i.LazyBuildAsync())
                 .ToArray();
+            var contextKeyGenerator = FindContextKeyGenerator(mr);
             var lazyAsyncPolicy = new Lazy<IAsyncPolicy, AspectContext>(c =>
             {
-                IAsyncPolicy result = Policy.NoOpAsync();
+                IAsyncPolicy result = p;
                 if (lazys.Length > 0)
                 {
-                    result = lazys.Aggregate(result, (x, y) => x.WrapAsync(y.GetValue(c)));
+                    result = result.WrapAsync(lazys.Aggregate(result, (x, y) => x.WrapAsync(y.GetValue(c))));
                 }
                 lazys = null;
                 return result;
@@ -98,19 +99,29 @@ namespace Norns.Urd.Extensions.Polly
             Func<AspectContext, AsyncAspectDelegate, Task> executeAsync;
             if (cancellationTokenIndex > -1)
             {
-                executeAsync = (context, next) =>
+                executeAsync = async (context, next) =>
                 {
                     var token = (CancellationToken)context.Parameters[cancellationTokenIndex];
-                    return p.WrapAsync(lazyAsyncPolicy.GetValue(context)).ExecuteAsync(ct =>
+                    var o = await lazyAsyncPolicy.GetValue(context).ExecuteAsync(async (c, ct) =>
                     {
                         context.Parameters[cancellationTokenIndex] = ct;
-                        return next(context);
-                    }, token);
+                        await next(context);
+                        return context.ReturnValue;
+                    }, new Context(contextKeyGenerator.GenerateKey(context)), token);
+                    context.ReturnValue = o;
                 };
             }
             else
             {
-                executeAsync = (context, next) => p.WrapAsync(lazyAsyncPolicy.GetValue(context)).ExecuteAsync(() => next(context));
+                executeAsync = async (context, next) =>
+                {
+                    var o = await lazyAsyncPolicy.GetValue(context).ExecuteAsync(async c =>
+                    {
+                        await next(context);
+                        return context.ReturnValue;
+                    }, new Context(contextKeyGenerator.GenerateKey(context)));
+                    context.ReturnValue = o;
+                };
             }
             return executeAsync;
         }

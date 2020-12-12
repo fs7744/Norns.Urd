@@ -3,29 +3,35 @@ using System;
 
 namespace Norns.Urd.Extensions.Polly
 {
-    public class ContextKeyAttribute : AbstractContextKeyGeneratorArrtibute
+    public class ContextKeyAttribute : AbstractContextKeyGeneratorAttribute
     {
-        private readonly Func<AspectContext, string> generator;
-        public string Key { get; set; }
-        public Type GeneratorType { get; set; }
+        private Func<AspectContext, string> generator;
 
-        public ContextKeyAttribute()
+        private string key;
+
+        public string Key
         {
-            if (GeneratorType != null)
+            get => key;
+            set
             {
-                if (!(Activator.CreateInstance(GeneratorType) is IContextKeyGenerator g))
+                key = value;
+                generator = c => key;
+            }
+        }
+
+        private Type generatorType;
+
+        public Type GeneratorType
+        {
+            get => generatorType;
+            set
+            {
+                generatorType = value;
+                if (!(Activator.CreateInstance(value) is IContextKeyGenerator g))
                 {
                     throw new ArgumentException("GeneratorType must be IContextKeyGenerator.");
                 }
                 generator = c => g.GenerateKey(c);
-            }
-            else if (string.IsNullOrWhiteSpace(Key))
-            {
-                throw new ArgumentException("Key must be not Null and not WhiteSpace.");
-            }
-            else
-            {
-                generator = c => Key;
             }
         }
 

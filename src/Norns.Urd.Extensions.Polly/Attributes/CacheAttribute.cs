@@ -7,7 +7,6 @@ namespace Norns.Urd.Extensions.Polly
     public enum TtlStrategy
     {
         Relative,
-        Absolute,
         Sliding
     }
 
@@ -37,9 +36,6 @@ namespace Norns.Urd.Extensions.Polly
             {
                 case TtlStrategy.Relative:
                     return new RelativeTtl(TimeSpan.Parse(timeSpan));
-
-                case TtlStrategy.Absolute:
-                    return new AbsoluteTtl(DateTimeOffset.Parse(timeSpan));
 
                 case TtlStrategy.Sliding:
                     return new SlidingTtl(TimeSpan.Parse(timeSpan));

@@ -1,4 +1,5 @@
-﻿using Norns.Urd.Reflection;
+﻿using Norns.Urd.Extensions.Polly.Attributes;
+using Norns.Urd.Reflection;
 using Polly;
 using System;
 using System.Collections.Concurrent;
@@ -18,7 +19,8 @@ namespace Norns.Urd.Extensions.Polly
 
         public override bool CanAspect(MethodInfo method)
         {
-            return method.GetReflector().IsDefined<AbstractPolicyAttribute>();
+            var mr = method.GetReflector();
+            return mr.IsDefined<AbstractPolicyAttribute>() || mr.IsDefined<AbstractLazyPolicyAttribute>();
         }
 
         public override void Invoke(AspectContext context, AspectDelegate next)
@@ -35,17 +37,37 @@ namespace Norns.Urd.Extensions.Polly
             var lazys = mr.GetCustomAttributes<AbstractLazyPolicyAttribute>()
                 .Select(i => i.LazyBuild())
                 .ToArray();
+            var contextKeyGenerator = this.FindContextKeyGenerator(mr);
             var lazySyncPolicy = new Lazy<ISyncPolicy, AspectContext>(c =>
             {
                 ISyncPolicy result = Policy.NoOp();
                 if (lazys.Length > 0)
                 {
-                    result = lazys.Aggregate(result, (x, y) => x.Wrap(y.GetValue(c)));
+                    result = p.Wrap(lazys.Aggregate(result, (x, y) => x.Wrap(y.GetValue(c))));
                 }
                 lazys = null;
                 return result;
             });
-            return (context, next) => p.Wrap(lazySyncPolicy.GetValue(context)).Execute(() => next(context));
+            return (context, next) =>
+            {
+                var o = lazySyncPolicy.GetValue(context)
+                    .Execute(ct =>
+                    {
+                        next(context);
+                        return context.ReturnValue;
+                    }, new Context(contextKeyGenerator.GenerateKey(context)));
+                context.ReturnValue = o;
+            };
+        }
+
+        private IContextKeyGenerator FindContextKeyGenerator(MethodReflector mr)
+        {
+            var contextKeyGenerator = mr.GetCustomAttributes<AbstractContextKeyGeneratorArrtibute>().FirstOrDefault();
+            if (contextKeyGenerator == null)
+            {
+                contextKeyGenerator = new MethodNameKeyAttribute();
+            }
+            return contextKeyGenerator;
         }
 
         public override async Task InvokeAsync(AspectContext context, AsyncAspectDelegate next)

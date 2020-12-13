@@ -1,12 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Norns.Urd\Norns.Urd.csproj" />
-  </ItemGroup>
-
-
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Norns.Urd\Norns.Urd.csproj" />
+	</ItemGroup>
 </Project>

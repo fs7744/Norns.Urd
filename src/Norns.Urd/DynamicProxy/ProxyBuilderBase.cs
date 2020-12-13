@@ -3,7 +3,6 @@ using Norns.Urd.Interceptors;
 using Norns.Urd.Reflection;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -58,11 +57,11 @@ namespace Norns.Urd.DynamicProxy
         public virtual PropertyBuilder DefineImplementedInterfaceProperty(in ProxyGeneratorContext context, PropertyInfo property, PropertyInfo implementedProperty)
         {
             PropertyBuilder propertyBuilder = null;
-            var getMethod = property.CanRead 
+            var getMethod = property.CanRead
                 ? DefineMethod(context, property.GetMethod, implementedProperty.GetMethod)
                 : null;
 
-            var setMethod = property.CanWrite 
+            var setMethod = property.CanWrite
                 ? DefineMethod(context, property.SetMethod, implementedProperty.SetMethod)
                 : null;
 

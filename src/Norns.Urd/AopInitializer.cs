@@ -1,8 +1,10 @@
-﻿using Norns.Urd.Attributes;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Norns.Urd.Attributes;
 using Norns.Urd.DynamicProxy;
 using Norns.Urd.Interceptors.Features;
 using Norns.Urd.Reflection;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -11,12 +13,12 @@ namespace Norns.Urd
 {
     public static class AopInitializer
     {
-        public static IProxyGenerator Init(this Action<IAspectConfiguration> config)
+        public static (IProxyGenerator, IEnumerable<Action<IServiceCollection>>) Init(this Action<IAspectConfiguration> config)
         {
             var configuration = new AspectConfiguration();
             configuration.AddParameterInject();
             config?.Invoke(configuration);
-            return new ProxyGenerator(configuration);
+            return (new ProxyGenerator(configuration), configuration.ConfigServices);
         }
 
         public static Func<object, object> CreateInstanceGetter(this Type type)

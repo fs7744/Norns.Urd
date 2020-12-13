@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
 
 namespace Norns.Urd
 {
@@ -7,6 +9,8 @@ namespace Norns.Urd
         List<IInterceptor> GlobalInterceptors { get; }
 
         NonAspectPredicateCollection NonPredicates { get; }
+
+        List<Action<IServiceCollection>> ConfigServices { get; }
     }
 
     public class AspectConfiguration : IAspectConfiguration
@@ -14,5 +18,7 @@ namespace Norns.Urd
         public List<IInterceptor> GlobalInterceptors { get; } = new List<IInterceptor>();
 
         public NonAspectPredicateCollection NonPredicates { get; } = new NonAspectPredicateCollection().AddDefault();
+
+        public List<Action<IServiceCollection>> ConfigServices { get; } = new List<Action<IServiceCollection>>();
     }
 }

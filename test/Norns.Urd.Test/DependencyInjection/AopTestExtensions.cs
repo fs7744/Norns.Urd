@@ -9,7 +9,7 @@ namespace Test.Norns.Urd.DependencyInjection
         public static IServiceProvider ConfigServiceCollectionWithAop(Func<IServiceCollection, IServiceCollection> config, bool isIgnoreError = false)
         {
             return config(new ServiceCollection())
-            .ConfigureAop(i => 
+            .ConfigureAop(i =>
             {
                 i.NonPredicates.Clean();
                 i.GlobalInterceptors.Add(new AddTenInterceptor());

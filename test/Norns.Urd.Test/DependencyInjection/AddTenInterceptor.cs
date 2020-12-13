@@ -1,6 +1,6 @@
 ﻿using Norns.Urd;
-using System.Threading.Tasks;
 using System;
+using System.Threading.Tasks;
 
 namespace Test.Norns.Urd.DependencyInjection
 {
@@ -18,7 +18,7 @@ namespace Test.Norns.Urd.DependencyInjection
             {
                 context.ReturnValue = i + 10;
             }
-            else if(context.ReturnValue is double d)
+            else if (context.ReturnValue is double d)
             {
                 context.ReturnValue = d + 10.0;
             }

@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Norns.Urd.Extensions.DependencyInjection\Norns.Urd.Extensions.DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\src\Norns.Urd\Norns.Urd.csproj" />
   </ItemGroup>
 
 </Project>

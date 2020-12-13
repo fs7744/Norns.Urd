@@ -10,7 +10,7 @@ namespace Test.Norns.Urd.Interceptors.Features
     public class ParameterInjectTest : IInjectTest
     {
         [Inject]
-        ParameterInjectInterceptorTest FT;
+        private ParameterInjectInterceptorTest FT;
 
         [Inject]
         public ParameterInjectInterceptorTest FT1;

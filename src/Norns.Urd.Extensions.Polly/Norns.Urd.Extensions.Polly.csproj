@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="../../ProjectCommon.targets" />
+	<ItemGroup>
+		<PackageReference Include="Polly" Version="7.2.1" />
+		<PackageReference Include="Polly.Caching.Distributed" Version="3.0.1" />
+		<PackageReference Include="Polly.Caching.Memory" Version="3.0.2" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Norns.Urd\Norns.Urd.csproj" />
+	</ItemGroup>
+</Project>

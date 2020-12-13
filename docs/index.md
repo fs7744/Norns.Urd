@@ -13,6 +13,12 @@
     - [The default implementation of Interface and Abstract Class](#the-default-implementation-of-interface-and-abstract-class)
         - [default implementation limit](#default-implementation-limit)
     - [InjectAttribute](#injectattribute)
+    - [FallbackAttribute](#fallbackattribute)
+    - [Polly](#polly)
+        - [TimeoutAttribute](#timeoutattribute)
+        - [RetryAttribute](#retryattribute)
+        - [CircuitBreakerAttribute](#circuitbreakerattribute)
+        - [BulkheadAttribute](#bulkheadattribute)
 - [Some design of Norns.Urd](#some-design-of-nornsurd)
 - [Nuget Packages](#nuget-packages)
 
@@ -460,6 +466,93 @@ public class ParameterInjectTest : IInjectTest
 }
 ```
 
+## FallbackAttribute
+
+``` csharp
+    public class DoFallbackTest
+    {
+        [Fallback(typeof(TestFallback))] // just need set Interceptor Type
+        public virtual int Do(int i)
+        {
+            throw new FieldAccessException();
+        }
+
+        [Fallback(typeof(TestFallback))]
+        public virtual Task<int> DoAsync(int i)
+        {
+            throw new FieldAccessException();
+        }
+    }
+
+    public class TestFallback : AbstractInterceptor
+    {
+        public override void Invoke(AspectContext context, AspectDelegate next)
+        {
+            context.ReturnValue = (int)context.Parameters[0];
+        }
+
+        public override Task InvokeAsync(AspectContext context, AsyncAspectDelegate next)
+        {
+            var t = Task.FromResult((int)context.Parameters[0]);
+            context.ReturnValue = t;
+            return t;
+        }
+    }
+
+```
+
+## Polly
+
+[Polly](https://github.com/App-vNext/Polly) is .NET resilience and transient-fault-handling library.
+
+Here, through Norns.urd, Polly's various functions are integrated into more user-friendly functions
+
+### Use Norns.Urd + Polly, only need `EnablePolly()`
+
+Example：
+
+``` csharp
+new ServiceCollection()
+    .AddTransient<DoTimeoutTest>()
+    .ConfigureAop(i => i.EnablePolly())
+```
+
+### TimeoutAttribute
+
+``` csharp
+[Timeout(seconds: 1)]  // timeout 1 seconds, when timeout will throw TimeoutRejectedException
+double Wait(double seconds);
+
+[Timeout(timeSpan: "00:00:00.100")]  // timeout 100 milliseconds, only work on async method when no CancellationToken
+async Task<double> WaitAsync(double seconds, CancellationToken cancellationToken = default);
+
+[Timeout(timeSpan: "00:00:01")]  // timeout 1 seconds, but no work on async method when no CancellationToken
+async Task<double> NoCancellationTokenWaitAsync(double seconds);
+```
+
+### RetryAttribute
+
+``` csharp
+[Retry(retryCount: 2, ExceptionType = typeof(AccessViolationException))]  // retry 2 times when if throw Exception
+void Do()
+```
+
+### CircuitBreakerAttribute
+
+``` csharp
+[CircuitBreaker(exceptionsAllowedBeforeBreaking: 3, durationOfBreak: "00:00:01")]  
+//or
+[AdvancedCircuitBreaker(failureThreshold: 0.1, samplingDuration: "00:00:01", minimumThroughput: 3, durationOfBreak: "00:00:01")]
+void Do()
+```
+
+### BulkheadAttribute
+
+``` csharp
+[Bulkhead(maxParallelization: 5, maxQueuingActions: 10)]
+void Do()
+```
+
 # Some design of Norns.Urd
 
 ## Implementation premise of Norns.Urd
@@ -594,5 +687,5 @@ class GenericTestProxy<T,R> : GenericTest<T,R>
 
 | Package Name |  NuGet | Downloads  |
 |--------------|  ------- |  ----  |
-| Norns.Urd | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd)](https://www.nuget.org/packages/Norns.Urd/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd) |
-| Norns.Urd.Extensions.DependencyInjection | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd.Extensions.DependencyInjection)](https://www.nuget.org/packages/Norns.Urd.Extensions.DependencyInjection/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd.Extensions.DependencyInjection) |
+| Norns.Urd | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd?style=flat-square)](https://www.nuget.org/packages/Norns.Urd/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd?style=flat-square) |
+| Norns.Urd.Extensions.Polly | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd.Extensions.Polly?style=flat-square)](https://www.nuget.org/packages/Norns.Urd.Extensions.Polly/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd.Extensions.Polly?style=flat-square) |

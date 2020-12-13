@@ -16,10 +16,9 @@ namespace Norns.Urd.Extensions.Polly
 
         public override int Order => -90000;
 
-        public override bool CanAspect(MethodInfo method)
+        public override bool CanAspect(MethodReflector method)
         {
-            var mr = method.GetReflector();
-            return mr.IsDefined<AbstractPolicyAttribute>();
+            return method.IsDefined<AbstractPolicyAttribute>();
         }
 
         public override void Invoke(AspectContext context, AspectDelegate next)

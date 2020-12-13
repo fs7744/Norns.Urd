@@ -13,7 +13,7 @@
 		<Copyright>@2020 Norns.Urd</Copyright>
 		<PackageTags>Emit;Aop</PackageTags>
 		<Description>See - https://github.com/fs7744/Norns.Urd </Description>
-		<PackageLicenseUrl>https://raw.githubusercontent.com/fs7744/Norns.Urd/main/LICENSE</PackageLicenseUrl>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<RepositoryUrl>https://github.com/fs7744/Norns.Urd</RepositoryUrl>
 		<PackageIcon>icon.png</PackageIcon>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -28,6 +28,7 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
+		<None Include="..\..\LICENSE" Pack="true" PackagePath="LICENSE"/>
 	</ItemGroup>
 
 	<ItemGroup>

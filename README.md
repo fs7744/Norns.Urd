@@ -8,8 +8,8 @@
 
 | Package Name |  NuGet | Downloads  |
 |--------------|  ------- |  ----  |
-| Norns.Urd | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd?style=flat-square)](https://www.nuget.org/packages/Norns.Urd/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd) |
-| Norns.Urd.Extensions.Polly | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd.Extensions.Polly?style=flat-square)](https://www.nuget.org/packages/Norns.Urd.Extensions.Polly/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd.Extensions.Polly) |
+| Norns.Urd | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd?style=flat-square)](https://www.nuget.org/packages/Norns.Urd/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd?style=flat-square) |
+| Norns.Urd.Extensions.Polly | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd.Extensions.Polly?style=flat-square)](https://www.nuget.org/packages/Norns.Urd.Extensions.Polly/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd.Extensions.Polly?style=flat-square) |
 
 ## Welcome to Norns.Urd
 

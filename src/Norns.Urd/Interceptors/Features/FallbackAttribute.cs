@@ -6,7 +6,7 @@ namespace Norns.Urd
     public class FallbackAttribute : AbstractInterceptorAttribute
     {
         private readonly IInterceptor interceptor;
-        public override int Order { get; set; } = -90001;
+        public override int Order { get; set; } = -100000;
 
         public FallbackAttribute(Type interceptorType)
         {

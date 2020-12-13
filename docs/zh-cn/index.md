@@ -13,6 +13,7 @@
     - [Interface和Abstract Class的默认实现](#interface和abstract-class的默认实现)
         - [默认实现限制](#默认实现限制)
     - [InjectAttribute](#injectattribute)
+    - [FallbackAttribute](#fallbackattribute)
     - [Polly](#polly)
         - [TimeoutAttribute](#timeoutattribute)
         - [RetryAttribute](#retryattribute)
@@ -468,6 +469,41 @@ public class ParameterInjectTest : IInjectTest
 }
 ```
 
+## FallbackAttribute
+
+``` csharp
+    public class DoFallbackTest
+    {
+        [Fallback(typeof(TestFallback))] // just need set Interceptor Type
+        public virtual int Do(int i)
+        {
+            throw new FieldAccessException();
+        }
+
+        [Fallback(typeof(TestFallback))]
+        public virtual Task<int> DoAsync(int i)
+        {
+            throw new FieldAccessException();
+        }
+    }
+
+    public class TestFallback : AbstractInterceptor
+    {
+        public override void Invoke(AspectContext context, AspectDelegate next)
+        {
+            context.ReturnValue = (int)context.Parameters[0];
+        }
+
+        public override Task InvokeAsync(AspectContext context, AsyncAspectDelegate next)
+        {
+            var t = Task.FromResult((int)context.Parameters[0]);
+            context.ReturnValue = t;
+            return t;
+        }
+    }
+
+```
+
 ## Polly
 
 [Polly](https://github.com/App-vNext/Polly) is .NET resilience and transient-fault-handling library.
@@ -704,5 +740,5 @@ class GenericTestProxy<T,R> : GenericTest<T,R>
 
 | Package Name |  NuGet | Downloads  |
 |--------------|  ------- |  ----  |
-| Norns.Urd | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd)](https://www.nuget.org/packages/Norns.Urd/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd) |
-| Norns.Urd.Extensions.Polly | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd.Extensions.Polly)](https://www.nuget.org/packages/Norns.Urd.Extensions.Polly/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd.Extensions.Polly) |
+| Norns.Urd | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd?style=flat-square)](https://www.nuget.org/packages/Norns.Urd/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd) |
+| Norns.Urd.Extensions.Polly | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd.Extensions.Polly?style=flat-square)](https://www.nuget.org/packages/Norns.Urd.Extensions.Polly/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd.Extensions.Polly) |

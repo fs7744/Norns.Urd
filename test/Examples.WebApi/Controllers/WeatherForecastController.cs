@@ -17,6 +17,7 @@ namespace Examples.WebApi.Controllers
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
+
         public IEnumerable<WeatherForecast> Get()
         {
             var rng = new Random();
@@ -34,7 +35,6 @@ namespace Examples.WebApi.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-
         private readonly ILogger<WeatherForecastController> _logger;
         private readonly IAopTest test;
 

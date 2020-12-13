@@ -20,7 +20,7 @@ namespace Norns.Urd.DynamicProxy
         protected override FieldBuilder DefineMethodInfoCaller(in ProxyGeneratorContext context, MethodInfo method)
         {
             var baseMethodName = $"{method.GetReflector().DisplayName}_Base";
-            if(!context.ProxyType.Methods.TryGetValue(baseMethodName, out var methodBaseBuilder))
+            if (!context.ProxyType.Methods.TryGetValue(baseMethodName, out var methodBaseBuilder))
             {
                 var parameters = method.GetParameters().Select(i => i.ParameterType).ToArray();
                 methodBaseBuilder = context.ProxyType.TypeBuilder.DefineMethod(baseMethodName, MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Public, method.CallingConvention, method.ReturnType, parameters);
@@ -33,7 +33,7 @@ namespace Norns.Urd.DynamicProxy
                 {
                     il.EmitDefault(method.ReturnType);
                 }
-                else 
+                else
                 {
                     il.EmitThis();
                     for (var i = 1; i <= parameters.Length; i++)
@@ -44,7 +44,7 @@ namespace Norns.Urd.DynamicProxy
                 }
                 il.Emit(OpCodes.Ret);
             }
-            
+
             if (method.ContainsGenericParameters && (!method.IsGenericMethodDefinition || method.DeclaringType.IsGenericTypeDefinition))
             {
                 return context.AssistType.DefineOpenGenericMethodInfoCaller(methodBaseBuilder, baseMethodName);

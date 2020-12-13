@@ -33,5 +33,4 @@ namespace Norns.Urd.Extensions.Polly
                 .AdvancedCircuitBreakerAsync(failureThreshold, samplingDuration, minimumThroughput, durationOfBreak);
         }
     }
-
 }

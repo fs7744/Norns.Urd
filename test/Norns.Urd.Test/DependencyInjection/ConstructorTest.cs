@@ -46,10 +46,10 @@ namespace Test.Norns.Urd.DependencyInjection
         public readonly ConstructorTest A;
 
         [Inject]
-        OneConstructorNoArgs AA { get; set; }
+        private OneConstructorNoArgs AA { get; set; }
 
         [Inject]
-        OneConstructorNoArgs B { get; }
+        private OneConstructorNoArgs B { get; }
 
         [Inject]
         public virtual ConstructorTest AAa { get; set; }

@@ -1,4 +1,4 @@
-﻿namespace Norns.Urd.Extensions.Polly.Attributes
+﻿namespace Norns.Urd.Extensions.Polly
 {
     public class MethodNameKeyAttribute : AbstractContextKeyGeneratorAttribute
     {

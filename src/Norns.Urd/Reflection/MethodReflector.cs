@@ -15,17 +15,16 @@ namespace Norns.Urd.Reflection
 
         public MethodReflector(MethodInfo methodInfo) : base(methodInfo)
         {
-            
             BindingProperty = GetBindingProperty(methodInfo);
             DisplayName = GetDisplayName(methodInfo);
             var cancellationTokenIndex = -1;
-            Parameters = methodInfo.GetParameters().Select(i => 
+            Parameters = methodInfo.GetParameters().Select(i =>
             {
                 if (i.ParameterType == typeof(CancellationToken))
                 {
                     cancellationTokenIndex = i.Position;
                 }
-               return new ParameterReflector(i);
+                return new ParameterReflector(i);
             }).ToArray();
             CancellationTokenIndex = cancellationTokenIndex;
         }
@@ -73,6 +72,5 @@ namespace Norns.Urd.Reflection
             name.Append(')');
             return name.ToString();
         }
-
     }
 }

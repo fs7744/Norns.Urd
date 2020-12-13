@@ -60,8 +60,8 @@ namespace Norns.Urd.DynamicProxy
             foreach (var constructor in constructorInfos)
             {
                 var ps = DefineConstructor(context, constructor);
-                if (hasNoDefaultConstructor 
-                    && ps.Length == 1 
+                if (hasNoDefaultConstructor
+                    && ps.Length == 1
                     && ps.Single().ParameterType == typeof(IServiceProvider))
                 {
                     hasNoDefaultConstructor = false;

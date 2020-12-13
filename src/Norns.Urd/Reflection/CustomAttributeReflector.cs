@@ -88,7 +88,6 @@ namespace Norns.Urd.Reflection
             return (Func<Attribute>)dynamicMethod.CreateDelegate(typeof(Func<Attribute>));
         }
 
-
         internal static CustomAttributeReflector Create(CustomAttributeData customAttributeData)
         {
             return ReflectorCache<CustomAttributeData, CustomAttributeReflector>.GetOrAdd(customAttributeData, data => new CustomAttributeReflector(data));

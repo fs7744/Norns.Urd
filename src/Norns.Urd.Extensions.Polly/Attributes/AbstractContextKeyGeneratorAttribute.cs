@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Norns.Urd.Extensions.Polly.Attributes
+namespace Norns.Urd.Extensions.Polly
 {
     public abstract class AbstractContextKeyGeneratorAttribute : Attribute, IContextKeyGenerator
     {

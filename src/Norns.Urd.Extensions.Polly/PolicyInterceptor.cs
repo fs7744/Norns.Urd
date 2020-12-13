@@ -1,5 +1,4 @@
-﻿using Norns.Urd.Extensions.Polly.Attributes;
-using Norns.Urd.Reflection;
+﻿using Norns.Urd.Reflection;
 using Polly;
 using System;
 using System.Collections.Concurrent;

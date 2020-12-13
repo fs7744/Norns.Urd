@@ -365,7 +365,5 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.True(pt.IsProxyType());
             Assert.Equal(87, p.IntMethod());
         }
-
-        
     }
 }

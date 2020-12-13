@@ -26,7 +26,7 @@ namespace Test.Norns.Urd.DependencyInjection
         C GetT<C>();
     }
 
-    public interface ISealedGenericTest<T, R> 
+    public interface ISealedGenericTest<T, R>
     {
     }
 
@@ -131,7 +131,7 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.True(pt.IsProxyType());
             Assert.Null(pt.CreateInstanceGetter());
             Assert.NotNull(pt.CreateServiceProviderGetter()(p));
-            Assert.NotNull(p); 
+            Assert.NotNull(p);
             Assert.Equal(10, p.GetT());
             Assert.Equal(0, p.GetT<long>());
             Assert.Equal(10, p.GetT<int>());

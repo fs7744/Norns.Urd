@@ -1,5 +1,4 @@
-﻿using Norns.Urd.Extensions.Polly.Attributes;
-using System;
+﻿using System;
 
 namespace Norns.Urd.Extensions.Polly
 {

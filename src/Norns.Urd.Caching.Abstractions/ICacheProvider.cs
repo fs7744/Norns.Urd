@@ -20,24 +20,24 @@ namespace Norns.Urd.Caching
         T GetOrCreate(Func<AspectContext, CacheOptions>[] optionCreators, AspectContext context, AspectDelegate next);
     }
 
-    public interface ICacheAdapter<T>
+    public interface ICacheAdapter
     {
         string Name { get; }
 
-        bool TryGetValue(CacheOptions op, out T result);
+        bool TryGetValue<T>(CacheOptions op, out T result);
 
-        void Set(CacheOptions op, T result);
+        void Set<T>(CacheOptions op, T result);
 
-        ValueTask<bool> TryGetValueAsync(CacheOptions op, out T result);
+        Task<(bool, T)> TryGetValueAsync<T>(CacheOptions op, CancellationToken token);
 
-        Task SetAsync(CacheOptions op, T result, CancellationToken token);
+        Task SetAsync<T>(CacheOptions op, T result, CancellationToken token);
     }
 
     public class CacheProvider<T> : ICacheProvider<T>
     {
-        private readonly Dictionary<string, ICacheAdapter<T>> adapters;
+        private readonly Dictionary<string, ICacheAdapter> adapters;
 
-        public CacheProvider(IEnumerable<ICacheAdapter<T>> adapters)
+        public CacheProvider(IEnumerable<ICacheAdapter> adapters)
         {
             this.adapters = adapters.ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
         }
@@ -96,7 +96,12 @@ namespace Norns.Urd.Caching
             var cacheName = op.CacheName ?? CacheOptions.DefaultCacheName;
             if (adapters.TryGetValue(cacheName, out var adapter))
             {
-                if (!await adapter.TryGetValueAsync(op, out result))
+                var (hasValue, r) = await adapter.TryGetValueAsync<T>(op, token);
+                if (hasValue)
+                {
+                    result = r;
+                }
+                else
                 {
                     token.ThrowIfCancellationRequested();
                     result = await GetOrCreateAsync(optionCreators, context, next, token, isReturnValueTask, ++index);

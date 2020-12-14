@@ -20,3 +20,4 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Style", "IDE0044:添加只读修饰符", Justification = "<挂起>", Scope = "member", Target = "~F:Test.Norns.Urd.AopInitializerTest.NestedProxyTypeNameTest`2.instanceGenerated")]
 [assembly: SuppressMessage("CodeQuality", "IDE0051:删除未使用的私有成员", Justification = "<挂起>", Scope = "member", Target = "~F:Test.Norns.Urd.AopInitializerTest.NestedProxyTypeNameTest`2.instanceGenerated")]
 [assembly: SuppressMessage("Style", "IDE0044:添加只读修饰符", Justification = "<挂起>", Scope = "member", Target = "~F:Test.Norns.Urd.Interceptors.Features.ParameterInjectTest.FT")]
+[assembly: SuppressMessage("Major Code Smell", "S4144:Methods should not have identical implementations", Justification = "<挂起>", Scope = "member", Target = "~M:Test.Norns.Urd.DependencyInjection.MTest.NotVirtualDefaultNonAspectIntMethodOutParameter(System.Int32@)~System.Int32")]

@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Test.Norns.Urd.Caching
 {
-    public class MemoryCacheTest
+    public class SystemTextJsonAdapterTest
     {
         public class ContextKeyFromCount : ICacheOptionGenerator
         {
@@ -33,7 +33,7 @@ namespace Test.Norns.Urd.Caching
                 Count = count;
             }
 
-            [Cache(nameof(Do), AbsoluteExpirationRelativeToNow = "00:00:02")]
+            [Cache(nameof(Do), "json", AbsoluteExpirationRelativeToNow = "00:00:02")]
             public virtual int Do(int count)
             {
                 return count;
@@ -70,7 +70,8 @@ namespace Test.Norns.Urd.Caching
         {
             return new ServiceCollection()
                 .AddTransient<DoCacheTest>()
-                .ConfigureAop(i => i.EnableMemoryCache())
+                .AddDistributedMemoryCache()
+                .ConfigureAop(i => i.EnableDistributedCacheSystemTextJsonAdapter())
                 .BuildServiceProvider()
                .GetRequiredService<DoCacheTest>();
         }
@@ -125,6 +126,7 @@ namespace Test.Norns.Urd.Caching
         public async Task CacheWhenAsync()
         {
             var sut = Mock();
+            var a = sut.DoAsync(3);
             Assert.Equal(3, await sut.DoAsync(3));
             Assert.Equal(3, await sut.DoAsync(5));
             Assert.Equal(3, await sut.DoAsync(523));

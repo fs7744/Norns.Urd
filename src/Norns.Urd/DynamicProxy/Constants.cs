@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Norns.Urd.DynamicProxy
 {
@@ -36,5 +37,7 @@ namespace Norns.Urd.DynamicProxy
         public static readonly BindingFlags MethodBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
         public static readonly MethodInfo GetServiceFromDI = typeof(IServiceProvider).GetMethod(nameof(IServiceProvider.GetService));
         public static readonly MethodInfo PropertyInject = typeof(PropertyInjector).GetMethod(nameof(PropertyInjector.Inject));
+        public static readonly MethodInfo TaskFromException = typeof(InterceptorCreator).GetMethod(nameof(InterceptorCreator.TaskExceptionConvert));
+        public static readonly MethodInfo ValueTaskExceptionConvert = typeof(InterceptorCreator).GetMethod(nameof(InterceptorCreator.ValueTaskExceptionConvert));
     }
 }

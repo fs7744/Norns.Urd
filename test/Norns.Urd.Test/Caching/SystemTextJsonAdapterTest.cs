@@ -16,7 +16,7 @@ namespace Test.Norns.Urd.Caching
             {
                 return new CacheOptions()
                 {
-                    CacheName = CacheOptions.DefaultCacheName,
+                    CacheName = "json",
                     CacheKey = context.Parameters[0],
                     SlidingExpiration = TimeSpan.Parse("00:00:01")
                 };
@@ -39,7 +39,7 @@ namespace Test.Norns.Urd.Caching
                 return count;
             }
 
-            [Cache("T", SlidingExpiration = "00:00:01")]
+            [Cache("T", "json", SlidingExpiration = "00:00:01")]
             public virtual Task<int> DoAsync(int count)
             {
                 return Task.FromResult(count);

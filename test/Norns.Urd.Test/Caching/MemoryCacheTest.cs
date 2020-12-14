@@ -129,7 +129,7 @@ namespace Test.Norns.Urd.Caching
             Assert.Equal(3, await sut.DoAsync(5));
             Assert.Equal(3, await sut.DoAsync(523));
             Assert.Equal(3, await sut.DoAsync(343));
-            await Task.Delay(1000);
+            await Task.Delay(1500);
             Assert.Equal(35, await sut.DoAsync(35));
             Assert.Equal(35, await sut.DoAsync(3));
             Assert.Equal(35, await sut.DoAsync(5));

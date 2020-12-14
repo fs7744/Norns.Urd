@@ -28,13 +28,13 @@ namespace Test.Norns.Urd.Caching
         {
             public int Count { get; set; }
 
-            [Cache(nameof(DoVoid), AbsoluteExpirationRelativeToNow = "00:00:01")]
+            [Cache(nameof(DoVoid), AbsoluteExpiration = "00:00:01")]
             public virtual void DoVoid(int count)
             {
                 Count = count;
             }
 
-            [Cache(nameof(Do), SlidingExpiration = "00:00:02")]
+            [Cache(nameof(Do), AbsoluteExpirationRelativeToNow = "00:00:02")]
             public virtual int Do(int count)
             {
                 return count;
@@ -147,7 +147,7 @@ namespace Test.Norns.Urd.Caching
             Assert.Equal(523, await sut.DoAsync("k2", 523));
             Assert.Equal(523, await sut.DoAsync("k2", 343));
             Assert.Equal(3, await sut.DoAsync("k", 533));
-            await Task.Delay(1000);
+            await Task.Delay(1500);
             Assert.Equal(35, await sut.DoAsync("k", 35));
             Assert.Equal(35, await sut.DoAsync("k", 3));
             Assert.Equal(35, await sut.DoAsync("k", 5));

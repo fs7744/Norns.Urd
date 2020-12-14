@@ -71,8 +71,7 @@ namespace Norns.Urd.Caching
             {
                 var token = cti < 0 ? CancellationToken.None : (CancellationToken)context.Parameters[cti];
                 var p = context.ServiceProvider.GetRequiredService(pt) as ICacheProvider;
-                var r = await p.GetOrCreateValueAsync(optionCreators, context, next, token, isReturnValueTask);
-                context.ReturnValue = r;
+                context.ReturnValue = await p.GetOrCreateValueAsync(optionCreators, context, next, token, isReturnValueTask);
             };
         }
     }

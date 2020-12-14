@@ -30,5 +30,17 @@ namespace Norns.Urd.Caching.Memory
             });
             return configuration;
         }
+
+        public static IAspectConfiguration EnableDistributedMemoryCache(this IAspectConfiguration configuration)
+        {
+            configuration.GlobalInterceptors.TryAdd(() => new CacheInterceptor());
+            configuration.ConfigServices.Add(services =>
+            {
+                services.AddDistributedMemoryCache();
+                services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(ICacheAdapter<>), typeof(MemoryCacheAdapter<>)));
+                services.TryAddSingleton(typeof(ICacheProvider<>), typeof(CacheProvider<>));
+            });
+            return configuration;
+        }
     }
 }

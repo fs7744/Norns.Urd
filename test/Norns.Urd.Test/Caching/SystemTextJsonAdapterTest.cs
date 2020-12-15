@@ -33,7 +33,8 @@ namespace Test.Norns.Urd.Caching
                 Count = count;
             }
 
-            [Cache(nameof(Do), "json", AbsoluteExpirationRelativeToNow = "00:00:02")]
+            [Cache(nameof(Do), CacheOptions.DefaultCacheName, AbsoluteExpirationRelativeToNow = "00:00:01", Order = 1)]
+            [Cache(nameof(Do), "json", AbsoluteExpirationRelativeToNow = "00:00:02", Order = 2)]
             public virtual int Do(int count)
             {
                 return count;
@@ -71,7 +72,7 @@ namespace Test.Norns.Urd.Caching
             return new ServiceCollection()
                 .AddTransient<DoCacheTest>()
                 .AddDistributedMemoryCache()
-                .ConfigureAop(i => i.EnableDistributedCacheSystemTextJsonAdapter())
+                .ConfigureAop(i => i.EnableMemoryCache().EnableDistributedCacheSystemTextJsonAdapter())
                 .BuildServiceProvider()
                .GetRequiredService<DoCacheTest>();
         }
@@ -114,7 +115,9 @@ namespace Test.Norns.Urd.Caching
             Assert.Equal(3, sut.Do(5));
             Assert.Equal(3, sut.Do(523));
             Assert.Equal(3, sut.Do(343));
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
+            Assert.Equal(3, sut.Do(35));
+            Thread.Sleep(1000);
             Assert.Equal(35, sut.Do(35));
             Assert.Equal(35, sut.Do(3));
             Assert.Equal(35, sut.Do(5));
@@ -126,7 +129,6 @@ namespace Test.Norns.Urd.Caching
         public async Task CacheWhenAsync()
         {
             var sut = Mock();
-            var a = sut.DoAsync(3);
             Assert.Equal(3, await sut.DoAsync(3));
             Assert.Equal(3, await sut.DoAsync(5));
             Assert.Equal(3, await sut.DoAsync(523));

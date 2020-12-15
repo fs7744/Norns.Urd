@@ -21,7 +21,6 @@
         - [BulkheadAttribute](#bulkheadattribute)
     - [CacheAttribute](#cacheattribute)
 - [Some design of Norns.Urd](#some-design-of-nornsurd)
-- [Nuget Packages](#nuget-packages)
 
 # Welcome to Norns.Urd
 
@@ -817,10 +816,3 @@ class GenericTestProxy<T,R> : GenericTest<T,R>
 }
 
 ```
-
-# Nuget Packages
-
-| Package Name |  NuGet | Downloads  |
-|--------------|  ------- |  ----  |
-| Norns.Urd | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd?style=flat-square)](https://www.nuget.org/packages/Norns.Urd/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd?style=flat-square) |
-| Norns.Urd.Extensions.Polly | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd.Extensions.Polly?style=flat-square)](https://www.nuget.org/packages/Norns.Urd.Extensions.Polly/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd.Extensions.Polly?style=flat-square) |

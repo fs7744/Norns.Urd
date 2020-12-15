@@ -10,6 +10,9 @@
 |--------------|  ------- |  ----  |
 | Norns.Urd | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd?style=flat-square)](https://www.nuget.org/packages/Norns.Urd/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd?style=flat-square) |
 | Norns.Urd.Extensions.Polly | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd.Extensions.Polly?style=flat-square)](https://www.nuget.org/packages/Norns.Urd.Extensions.Polly/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd.Extensions.Polly?style=flat-square) |
+| Norns.Urd.Caching.Abstractions | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd.Caching.Abstractions?style=flat-square)](https://www.nuget.org/packages/Norns.Urd.Caching.Abstractions/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd.Caching.Abstractions?style=flat-square) |
+| Norns.Urd.Caching.Memory | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd.Caching.Memory?style=flat-square)](https://www.nuget.org/packages/Norns.Urd.Caching.Memory/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd.Caching.Memory?style=flat-square) |
+| Norns.Urd.Caching.DistributedCache | [![Nuget](https://img.shields.io/nuget/v/Norns.Urd.Caching.DistributedCache?style=flat-square)](https://www.nuget.org/packages/Norns.Urd.Caching.DistributedCache/) | ![Nuget](https://img.shields.io/nuget/dt/Norns.Urd.Caching.DistributedCache?style=flat-square) |
 
 ## Welcome to Norns.Urd
 

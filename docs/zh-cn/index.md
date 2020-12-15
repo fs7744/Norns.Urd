@@ -19,6 +19,7 @@
         - [RetryAttribute](#retryattribute)
         - [CircuitBreakerAttribute](#circuitbreakerattribute)
         - [BulkheadAttribute](#bulkheadattribute)
+    - [CacheAttribute](#cacheattribute)
 - [Norns.Urd 中的一些设计](#nornsurd-中的一些设计)
 - [Nuget Packages](#nuget-packages)
 
@@ -553,6 +554,140 @@ void Do()
 ``` csharp
 [Bulkhead(maxParallelization: 5, maxQueuingActions: 10)]
 void Do()
+```
+
+## CacheAttribute
+
+Norns.Urd 本身并未提供任何实际处理的缓存实现，
+
+但基于`Microsoft.Extensions.Caching.Memory.IMemoryCache` 和 `Microsoft.Extensions.Caching.Distributed.IDistributedCache` 实现了`CacheAttribute`这一调用适配器
+
+### 缓存策略
+
+Norns.Urd适配了三种时间策略模式
+
+* AbsoluteExpiration
+
+绝对时间过期，意思是到了设置时间就过期
+
+``` csharp
+[Cache(..., AbsoluteExpiration = "1991-05-30 00:00:00")]
+void Do()
+```
+
+* AbsoluteExpirationRelativeToNow
+
+相对当前时间过了多次设置时间时才过期，也就是存活时间设置，意思为到了缓存设置起效时间 (1991-05-30 00:00:00) + 缓存有效时间 (05:00:00) = (1991-05-30 05:00:00) 时才过期
+
+``` csharp
+[Cache(..., AbsoluteExpirationRelativeToNow = "00:05:00")] // 存活 5 分钟
+void Do()
+```
+
+### 启用内存缓存
+
+``` csharp
+IServiceCollection.ConfigureAop(i => i.EnableMemoryCache())
+```
+
+### 启用 DistributedCache
+
+目前默认提供了`System.Text.Json`的序列化适配器
+
+``` csharp
+IServiceCollection.ConfigureAop(i => i.EnableDistributedCacheSystemTextJsonAdapter(/*可以指定自己的Name*/))
+.AddDistributedMemoryCache() // 可以切换为任意的DistributedCache实现
+```
+
+* SlidingExpiration
+
+滑动时间窗口过期，意思时缓存有效期内有任何访问都会让时间窗口有效期往后滑动，只有没有任何访问且过期才会缓存作废
+
+``` csharp
+[Cache(..., SlidingExpiration = "00:00:05")]
+void Do()
+```
+
+### 使用缓存
+
+#### 单一缓存
+
+``` csharp
+[Cache(cacheKey: "T", SlidingExpiration = "00:00:01")]  // 不指定缓存名，会使用 CacheOptions.DefaultCacheName = "memory"
+public virtual Task<int> DoAsync(int count);
+```
+
+### 多级缓存
+
+``` csharp
+[Cache(cacheKey: nameof(Do), AbsoluteExpirationRelativeToNow = "00:00:01", Order = 1)]  // 先从内存缓存中获取，1秒后过期
+[Cache(cacheKey: nameof(Do), cacheName："json", AbsoluteExpirationRelativeToNow = "00:00:02", Order = 2)] // 内存缓存失效后，会从 DistributedCache中获取
+public virtual int Do(int count);
+```
+
+### 自定义缓存配置
+
+很多时候，我们需要动态获取缓存配置，只需继承`ICacheOptionGenerator`，就可以自定义配置
+
+举例如：
+
+``` csharp
+public class ContextKeyFromCount : ICacheOptionGenerator
+{
+    public CacheOptions Generate(AspectContext context)
+    {
+        return new CacheOptions()
+        {
+            CacheName = "json",
+            CacheKey = context.Parameters[0],
+            SlidingExpiration = TimeSpan.Parse("00:00:01")
+        };
+    }
+}
+```
+
+使用：
+
+``` csharp
+[Cache(typeof(ContextKeyFromCount))]
+public virtual Task<int> DoAsync(string key, int count)；
+```
+
+### 如何自定义新增 DistributedCache 序列化适配器
+
+只需继承`ISerializationAdapter`就可以了
+
+举例如：
+
+``` csharp
+public class SystemTextJsonAdapter : ISerializationAdapter
+{
+    public string Name { get; }
+
+    public SystemTextJsonAdapter(string name)
+    {
+        Name = name;
+    }
+
+    public T Deserialize<T>(byte[] data)
+    {
+        return JsonSerializer.Deserialize<T>(data);
+    }
+
+    public byte[] Serialize<T>(T data)
+    {
+        return JsonSerializer.SerializeToUtf8Bytes<T>(data);
+    }
+}
+```
+
+注册：
+
+``` csharp
+public static IAspectConfiguration EnableDistributedCacheSystemTextJsonAdapter(this IAspectConfiguration configuration, string name = "json")
+{
+    return configuration.EnableDistributedCacheSerializationAdapter(i => new SystemTextJsonAdapter(name));
+}
 ```
 
 # Norns.Urd 中的一些设计

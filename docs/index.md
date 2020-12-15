@@ -19,6 +19,7 @@
         - [RetryAttribute](#retryattribute)
         - [CircuitBreakerAttribute](#circuitbreakerattribute)
         - [BulkheadAttribute](#bulkheadattribute)
+    - [CacheAttribute](#cacheattribute)
 - [Some design of Norns.Urd](#some-design-of-nornsurd)
 - [Nuget Packages](#nuget-packages)
 
@@ -551,6 +552,140 @@ void Do()
 ``` csharp
 [Bulkhead(maxParallelization: 5, maxQueuingActions: 10)]
 void Do()
+```
+
+## CacheAttribute
+
+Norns.urd itself does not provide any cache implementation for actual processing,
+
+But based on ` Microsoft. Extensions. Caching. Memory. IMemoryCache ` and ` Microsoft Extensions. Caching. Distributed. IDistributedCache ` implements ` CacheAttribute ` this call adapter
+
+### Caching strategies
+
+Norns.urd adapter three time strategy patterns
+
+* AbsoluteExpiration
+
+Absolute expiration, which means it expires at the set time
+
+``` csharp
+[Cache(..., AbsoluteExpiration = "1991-05-30 00:00:00")]
+void Do()
+```
+
+* AbsoluteExpirationRelativeToNow
+
+Expiration occurs when the current time is set more than once, meaning it expires when the cache is set to effective time (1991-05-30 00:00:00) + cache effective time (05:00:00) = (1991-05-30 05:00:00)
+
+``` csharp
+[Cache(..., AbsoluteExpirationRelativeToNow = "00:05:00")] // Live for 5 minutes
+void Do()
+```
+
+### Enable memory caching
+
+``` csharp
+IServiceCollection.ConfigureAop(i => i.EnableMemoryCache())
+```
+
+### Enable DistributedCache
+
+A serialization adapter for 'system.text.json' is currently provided by default
+
+``` csharp
+IServiceCollection.ConfigureAop(i => i.EnableDistributedCacheSystemTextJsonAdapter(/*You can specify your own Name*/))
+.AddDistributedMemoryCache() // You can switch to any DistributedCache implementation
+```
+
+* SlidingExpiration
+
+Sliding window expires, meaning that any access within the cache validity will push the window validity back, and the cache will be invalidated only if there is no access and the cache expires
+
+``` csharp
+[Cache(..., SlidingExpiration = "00:00:05")]
+void Do()
+```
+
+### Use the cache
+
+#### A single cache
+
+``` csharp
+[Cache(cacheKey: "T", SlidingExpiration = "00:00:01")]  // Does not specify a cache name CacheOptions.DefaultCacheName = "memory"
+public virtual Task<int> DoAsync(int count);
+```
+
+### Multistage cache
+
+``` csharp
+[Cache(cacheKey: nameof(Do), AbsoluteExpirationRelativeToNow = "00:00:01", Order = 1)]  // It is first fetched from the memory cache and expires after 1 second
+[Cache(cacheKey: nameof(Do), cacheName："json", AbsoluteExpirationRelativeToNow = "00:00:02", Order = 2)] // When the memory cache is invalidated, it will be fetched from the DistributedCache
+public virtual int Do(int count);
+```
+
+### Customize the cache configuration
+
+Often, we need to get the cache configuration dynamically, and we can customize the configuration simply by inheriting 'ICacheOptionGenerator'
+
+example：
+
+``` csharp
+public class ContextKeyFromCount : ICacheOptionGenerator
+{
+    public CacheOptions Generate(AspectContext context)
+    {
+        return new CacheOptions()
+        {
+            CacheName = "json",
+            CacheKey = context.Parameters[0],
+            SlidingExpiration = TimeSpan.Parse("00:00:01")
+        };
+    }
+}
+```
+
+try use：
+
+``` csharp
+[Cache(typeof(ContextKeyFromCount))]
+public virtual Task<int> DoAsync(string key, int count)；
+```
+
+### How to customize the new DistributedCache serialization adapter
+
+Just simply inherit `ISerializationAdapter`
+
+example：
+
+``` csharp
+public class SystemTextJsonAdapter : ISerializationAdapter
+{
+    public string Name { get; }
+
+    public SystemTextJsonAdapter(string name)
+    {
+        Name = name;
+    }
+
+    public T Deserialize<T>(byte[] data)
+    {
+        return JsonSerializer.Deserialize<T>(data);
+    }
+
+    public byte[] Serialize<T>(T data)
+    {
+        return JsonSerializer.SerializeToUtf8Bytes<T>(data);
+    }
+}
+```
+
+registered：
+
+``` csharp
+public static IAspectConfiguration EnableDistributedCacheSystemTextJsonAdapter(this IAspectConfiguration configuration, string name = "json")
+{
+    return configuration.EnableDistributedCacheSerializationAdapter(i => new SystemTextJsonAdapter(name));
+}
 ```
 
 # Some design of Norns.Urd

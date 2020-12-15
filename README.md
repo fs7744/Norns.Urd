@@ -25,7 +25,93 @@ The purpose of completing this framework mainly comes from the following persona
 
 Hopefully, this library will be of some useful to you
 
+## Fundamentals
+
+- Interceptor
+  - Attribute Interceptor
+  - Global interceptor
+- Generate default implementation of Interface and Abstract Class
+- InjectAttribute
+  - PropertyInject
+  - ParameterInject
+  - FieldInject
+- FallbackAttribute
+- Polly
+    - TimeoutAttribute
+    - RetryAttribute
+    - CircuitBreakerAttribute
+    - BulkheadAttribute
+- CacheAttribute   (support Multistage cache with memory cache and distributed cache)
+
 ## How to use
+
+### Quick start
+
+This is simple demo whch to do global interceptor, full code fot the demo you can see [Examples.WebApi](https://github.com/fs7744/Norns.Urd/tree/main/test/Examples.WebApi)
+
+1. create ConsoleInterceptor.cs
+
+    ```csharp
+    using Norns.Urd;
+    using Norns.Urd.Reflection;
+    using System;
+    using System.Threading.Tasks;
+
+    namespace Examples.WebApi
+    {
+        public class ConsoleInterceptor : AbstractInterceptor
+        {
+            public override async Task InvokeAsync(AspectContext context, AsyncAspectDelegate next)
+            {
+                Console.WriteLine($"{context.Service.GetType().GetReflector().FullDisplayName}.{context.Method.GetReflector().DisplayName}");
+                await next(context);
+            }
+        }
+    }
+    ```
+
+2. set WeatherForecastController's method be virtual
+
+    ```csharp
+    [ApiController]
+    [Route("[controller]")]
+    public class WeatherForecastController : ControllerBase
+    {
+        [HttpGet]
+        public virtual IEnumerable<WeatherForecast> Get() => test.Get();
+    }
+    ```
+
+3. AddControllersAsServices
+
+    ```csharp
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllers().AddControllersAsServices();
+    }
+    ```
+
+4. add GlobalInterceptor to di
+
+    ```csharp
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllers().AddControllersAsServices();
+        services.ConfigureAop(i => i.GlobalInterceptors.Add(new ConsoleInterceptor()));
+    }
+    ```
+
+5. run 
+
+    you will see this in console 
+
+    ``` shell
+    Norns.Urd.DynamicProxy.Generated.WeatherForecastController_Proxy_Inherit.IEnumerable<WeatherForecast> Get()
+    ```
+
+### Deep Document
 
 [中文文档](https://fs7744.github.io/Norns.Urd/zh-cn/index.html) |  [Document](https://fs7744.github.io/Norns.Urd/index.html)
 

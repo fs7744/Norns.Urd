@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+﻿using Norns.Urd.Reflection;
 using System.Threading.Tasks;
 
 namespace Norns.Urd
@@ -11,6 +11,6 @@ namespace Norns.Urd
 
         Task InvokeAsync(AspectContext context, AsyncAspectDelegate next);
 
-        bool CanAspect(MethodInfo method);
+        bool CanAspect(MethodReflector method);
     }
 }

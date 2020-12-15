@@ -19,6 +19,7 @@
         - [RetryAttribute](#retryattribute)
         - [CircuitBreakerAttribute](#circuitbreakerattribute)
         - [BulkheadAttribute](#bulkheadattribute)
+    - [CacheAttribute](#cacheattribute)
 - [Some design of Norns.Urd](#some-design-of-nornsurd)
 - [Nuget Packages](#nuget-packages)
 
@@ -53,25 +54,25 @@ Castle and AspectCore are excellent libraries,
 Many implementations of Norns.urd refer to the source code of Castle and AspectCore.
 
 <pre><code>
-BenchmarkDotNet=v0.12.1, OS=Windows 10.0.18363.1198 (1909/November2018Update/19H2)
+BenchmarkDotNet=v0.12.1, OS=Windows 10.0.18363.1256 (1909/November2018Update/19H2)
 Intel Core i7-9750H CPU 2.60GHz, 1 CPU, 12 logical and 6 physical cores
-.NET Core SDK=5.0.100
-  [Host]     : .NET Core 5.0.0 (CoreCLR 5.0.20.51904, CoreFX 5.0.20.51904), X64 RyuJIT
-  DefaultJob : .NET Core 5.0.0 (CoreCLR 5.0.20.51904, CoreFX 5.0.20.51904), X64 RyuJIT
+.NET Core SDK=5.0.101
+  [Host]     : .NET Core 5.0.1 (CoreCLR 5.0.120.57516, CoreFX 5.0.120.57516), X64 RyuJIT
+  DefaultJob : .NET Core 5.0.1 (CoreCLR 5.0.120.57516, CoreFX 5.0.120.57516), X64 RyuJIT
 </code></pre>
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>                                  Method</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Gen 0</th><th>Gen 1</th><th>Gen 2</th><th>Allocated</th>
+<thead><tr><th>                                  Method</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Gen 0</th><th>Gen 1</th><th>Gen 2</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>TransientInstanceCallSyncMethodWhenNoAop</td><td>69.10 ns</td><td>1.393 ns</td><td>2.512 ns</td><td>69.70 ns</td><td>0.0178</td><td>-</td><td>-</td><td>112 B</td>
-</tr><tr><td>TransientInstanceCallSyncMethodWhenNornsUrd</td><td>148.38 ns</td><td>2.975 ns</td><td>5.588 ns</td><td>145.76 ns</td><td>0.0534</td><td>-</td><td>-</td><td>336 B</td>
-</tr><tr><td>TransientInstanceCallSyncMethodWhenCastle</td><td>222.48 ns</td><td>0.399 ns</td><td>0.312 ns</td><td>222.50 ns</td><td>0.0815</td><td>-</td><td>-</td><td>512 B</td>
-</tr><tr><td>TransientInstanceCallSyncMethodWhenAspectCore</td><td>576.04 ns</td><td>7.132 ns</td><td>10.229 ns</td><td>573.46 ns</td><td>0.1030</td><td>-</td><td>-</td><td>648 B</td>
-</tr><tr><td>TransientInstanceCallAsyncMethodWhenNoAop</td><td>114.61 ns</td><td>0.597 ns</td><td>0.499 ns</td><td>114.58 ns</td><td>0.0408</td><td>-</td><td>-</td><td>256 B</td>
-</tr><tr><td>TransientInstanceCallAsyncMethodWhenNornsUrd</td><td>206.36 ns</td><td>0.937 ns</td><td>0.830 ns</td><td>206.18 ns</td><td>0.0763</td><td>-</td><td>-</td><td>480 B</td>
-</tr><tr><td>TransientInstanceCallAsyncMethodWhenCastle</td><td>250.98 ns</td><td>3.315 ns</td><td>3.101 ns</td><td>252.16 ns</td><td>0.1044</td><td>-</td><td>-</td><td>656 B</td>
-</tr><tr><td>TransientInstanceCallAsyncMethodWhenAspectCore</td><td>576.00 ns</td><td>4.160 ns</td><td>3.891 ns</td><td>574.99 ns</td><td>0.1373</td><td>-</td><td>-</td><td>864 B</td>
+</thead><tbody><tr><td>TransientInstanceCallSyncMethodWhenNoAop</td><td>66.89 ns</td><td>0.534 ns</td><td>0.473 ns</td><td>0.0178</td><td>-</td><td>-</td><td>112 B</td>
+</tr><tr><td>TransientInstanceCallSyncMethodWhenNornsUrd</td><td>142.65 ns</td><td>0.373 ns</td><td>0.331 ns</td><td>0.0534</td><td>-</td><td>-</td><td>336 B</td>
+</tr><tr><td>TransientInstanceCallSyncMethodWhenCastle</td><td>214.54 ns</td><td>2.738 ns</td><td>2.286 ns</td><td>0.0815</td><td>-</td><td>-</td><td>512 B</td>
+</tr><tr><td>TransientInstanceCallSyncMethodWhenAspectCore</td><td>518.27 ns</td><td>3.595 ns</td><td>3.363 ns</td><td>0.1030</td><td>-</td><td>-</td><td>648 B</td>
+</tr><tr><td>TransientInstanceCallAsyncMethodWhenNoAop</td><td>111.56 ns</td><td>0.705 ns</td><td>0.659 ns</td><td>0.0408</td><td>-</td><td>-</td><td>256 B</td>
+</tr><tr><td>TransientInstanceCallAsyncMethodWhenNornsUrd</td><td>222.59 ns</td><td>1.128 ns</td><td>1.055 ns</td><td>0.0763</td><td>-</td><td>-</td><td>480 B</td>
+</tr><tr><td>TransientInstanceCallAsyncMethodWhenCastle</td><td>245.23 ns</td><td>1.295 ns</td><td>1.211 ns</td><td>0.1044</td><td>-</td><td>-</td><td>656 B</td>
+</tr><tr><td>TransientInstanceCallAsyncMethodWhenAspectCore</td><td>587.14 ns</td><td>2.245 ns</td><td>2.100 ns</td><td>0.1373</td><td>-</td><td>-</td><td>864 B</td>
 </tr></tbody></table>
 
 # Quick start
@@ -551,6 +552,140 @@ void Do()
 ``` csharp
 [Bulkhead(maxParallelization: 5, maxQueuingActions: 10)]
 void Do()
+```
+
+## CacheAttribute
+
+Norns.urd itself does not provide any cache implementation for actual processing,
+
+But based on ` Microsoft. Extensions. Caching. Memory. IMemoryCache ` and ` Microsoft Extensions. Caching. Distributed. IDistributedCache ` implements ` CacheAttribute ` this call adapter
+
+### Caching strategies
+
+Norns.urd adapter three time strategy patterns
+
+* AbsoluteExpiration
+
+Absolute expiration, which means it expires at the set time
+
+``` csharp
+[Cache(..., AbsoluteExpiration = "1991-05-30 00:00:00")]
+void Do()
+```
+
+* AbsoluteExpirationRelativeToNow
+
+Expiration occurs when the current time is set more than once, meaning it expires when the cache is set to effective time (1991-05-30 00:00:00) + cache effective time (05:00:00) = (1991-05-30 05:00:00)
+
+``` csharp
+[Cache(..., AbsoluteExpirationRelativeToNow = "00:05:00")] // Live for 5 minutes
+void Do()
+```
+
+### Enable memory caching
+
+``` csharp
+IServiceCollection.ConfigureAop(i => i.EnableMemoryCache())
+```
+
+### Enable DistributedCache
+
+A serialization adapter for 'system.text.json' is currently provided by default
+
+``` csharp
+IServiceCollection.ConfigureAop(i => i.EnableDistributedCacheSystemTextJsonAdapter(/*You can specify your own Name*/))
+.AddDistributedMemoryCache() // You can switch to any DistributedCache implementation
+```
+
+* SlidingExpiration
+
+Sliding window expires, meaning that any access within the cache validity will push the window validity back, and the cache will be invalidated only if there is no access and the cache expires
+
+``` csharp
+[Cache(..., SlidingExpiration = "00:00:05")]
+void Do()
+```
+
+### Use the cache
+
+#### A single cache
+
+``` csharp
+[Cache(cacheKey: "T", SlidingExpiration = "00:00:01")]  // Does not specify a cache name CacheOptions.DefaultCacheName = "memory"
+public virtual Task<int> DoAsync(int count);
+```
+
+### Multistage cache
+
+``` csharp
+[Cache(cacheKey: nameof(Do), AbsoluteExpirationRelativeToNow = "00:00:01", Order = 1)]  // It is first fetched from the memory cache and expires after 1 second
+[Cache(cacheKey: nameof(Do), cacheName："json", AbsoluteExpirationRelativeToNow = "00:00:02", Order = 2)] // When the memory cache is invalidated, it will be fetched from the DistributedCache
+public virtual int Do(int count);
+```
+
+### Customize the cache configuration
+
+Often, we need to get the cache configuration dynamically, and we can customize the configuration simply by inheriting 'ICacheOptionGenerator'
+
+example：
+
+``` csharp
+public class ContextKeyFromCount : ICacheOptionGenerator
+{
+    public CacheOptions Generate(AspectContext context)
+    {
+        return new CacheOptions()
+        {
+            CacheName = "json",
+            CacheKey = context.Parameters[0],
+            SlidingExpiration = TimeSpan.Parse("00:00:01")
+        };
+    }
+}
+```
+
+try use：
+
+``` csharp
+[Cache(typeof(ContextKeyFromCount))]
+public virtual Task<int> DoAsync(string key, int count)；
+```
+
+### How to customize the new DistributedCache serialization adapter
+
+Just simply inherit `ISerializationAdapter`
+
+example：
+
+``` csharp
+public class SystemTextJsonAdapter : ISerializationAdapter
+{
+    public string Name { get; }
+
+    public SystemTextJsonAdapter(string name)
+    {
+        Name = name;
+    }
+
+    public T Deserialize<T>(byte[] data)
+    {
+        return JsonSerializer.Deserialize<T>(data);
+    }
+
+    public byte[] Serialize<T>(T data)
+    {
+        return JsonSerializer.SerializeToUtf8Bytes<T>(data);
+    }
+}
+```
+
+registered：
+
+``` csharp
+public static IAspectConfiguration EnableDistributedCacheSystemTextJsonAdapter(this IAspectConfiguration configuration, string name = "json")
+{
+    return configuration.EnableDistributedCacheSerializationAdapter(i => new SystemTextJsonAdapter(name));
+}
 ```
 
 # Some design of Norns.Urd

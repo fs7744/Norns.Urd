@@ -19,6 +19,7 @@
         - [RetryAttribute](#retryattribute)
         - [CircuitBreakerAttribute](#circuitbreakerattribute)
         - [BulkheadAttribute](#bulkheadattribute)
+    - [CacheAttribute](#cacheattribute)
 - [Norns.Urd 中的一些设计](#nornsurd-中的一些设计)
 - [Nuget Packages](#nuget-packages)
 
@@ -57,25 +58,25 @@ Castle 和 AspectCore 都是非常优秀的库，
 Norns.Urd 很多实现都是参考了Castle 和 AspectCore的源码的。
 
 <pre><code>
-BenchmarkDotNet=v0.12.1, OS=Windows 10.0.18363.1198 (1909/November2018Update/19H2)
+BenchmarkDotNet=v0.12.1, OS=Windows 10.0.18363.1256 (1909/November2018Update/19H2)
 Intel Core i7-9750H CPU 2.60GHz, 1 CPU, 12 logical and 6 physical cores
-.NET Core SDK=5.0.100
-  [Host]     : .NET Core 5.0.0 (CoreCLR 5.0.20.51904, CoreFX 5.0.20.51904), X64 RyuJIT
-  DefaultJob : .NET Core 5.0.0 (CoreCLR 5.0.20.51904, CoreFX 5.0.20.51904), X64 RyuJIT
+.NET Core SDK=5.0.101
+  [Host]     : .NET Core 5.0.1 (CoreCLR 5.0.120.57516, CoreFX 5.0.120.57516), X64 RyuJIT
+  DefaultJob : .NET Core 5.0.1 (CoreCLR 5.0.120.57516, CoreFX 5.0.120.57516), X64 RyuJIT
 </code></pre>
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>                                  Method</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Gen 0</th><th>Gen 1</th><th>Gen 2</th><th>Allocated</th>
+<thead><tr><th>                                  Method</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Gen 0</th><th>Gen 1</th><th>Gen 2</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>TransientInstanceCallSyncMethodWhenNoAop</td><td>69.10 ns</td><td>1.393 ns</td><td>2.512 ns</td><td>69.70 ns</td><td>0.0178</td><td>-</td><td>-</td><td>112 B</td>
-</tr><tr><td>TransientInstanceCallSyncMethodWhenNornsUrd</td><td>148.38 ns</td><td>2.975 ns</td><td>5.588 ns</td><td>145.76 ns</td><td>0.0534</td><td>-</td><td>-</td><td>336 B</td>
-</tr><tr><td>TransientInstanceCallSyncMethodWhenCastle</td><td>222.48 ns</td><td>0.399 ns</td><td>0.312 ns</td><td>222.50 ns</td><td>0.0815</td><td>-</td><td>-</td><td>512 B</td>
-</tr><tr><td>TransientInstanceCallSyncMethodWhenAspectCore</td><td>576.04 ns</td><td>7.132 ns</td><td>10.229 ns</td><td>573.46 ns</td><td>0.1030</td><td>-</td><td>-</td><td>648 B</td>
-</tr><tr><td>TransientInstanceCallAsyncMethodWhenNoAop</td><td>114.61 ns</td><td>0.597 ns</td><td>0.499 ns</td><td>114.58 ns</td><td>0.0408</td><td>-</td><td>-</td><td>256 B</td>
-</tr><tr><td>TransientInstanceCallAsyncMethodWhenNornsUrd</td><td>206.36 ns</td><td>0.937 ns</td><td>0.830 ns</td><td>206.18 ns</td><td>0.0763</td><td>-</td><td>-</td><td>480 B</td>
-</tr><tr><td>TransientInstanceCallAsyncMethodWhenCastle</td><td>250.98 ns</td><td>3.315 ns</td><td>3.101 ns</td><td>252.16 ns</td><td>0.1044</td><td>-</td><td>-</td><td>656 B</td>
-</tr><tr><td>TransientInstanceCallAsyncMethodWhenAspectCore</td><td>576.00 ns</td><td>4.160 ns</td><td>3.891 ns</td><td>574.99 ns</td><td>0.1373</td><td>-</td><td>-</td><td>864 B</td>
+</thead><tbody><tr><td>TransientInstanceCallSyncMethodWhenNoAop</td><td>66.89 ns</td><td>0.534 ns</td><td>0.473 ns</td><td>0.0178</td><td>-</td><td>-</td><td>112 B</td>
+</tr><tr><td>TransientInstanceCallSyncMethodWhenNornsUrd</td><td>142.65 ns</td><td>0.373 ns</td><td>0.331 ns</td><td>0.0534</td><td>-</td><td>-</td><td>336 B</td>
+</tr><tr><td>TransientInstanceCallSyncMethodWhenCastle</td><td>214.54 ns</td><td>2.738 ns</td><td>2.286 ns</td><td>0.0815</td><td>-</td><td>-</td><td>512 B</td>
+</tr><tr><td>TransientInstanceCallSyncMethodWhenAspectCore</td><td>518.27 ns</td><td>3.595 ns</td><td>3.363 ns</td><td>0.1030</td><td>-</td><td>-</td><td>648 B</td>
+</tr><tr><td>TransientInstanceCallAsyncMethodWhenNoAop</td><td>111.56 ns</td><td>0.705 ns</td><td>0.659 ns</td><td>0.0408</td><td>-</td><td>-</td><td>256 B</td>
+</tr><tr><td>TransientInstanceCallAsyncMethodWhenNornsUrd</td><td>222.59 ns</td><td>1.128 ns</td><td>1.055 ns</td><td>0.0763</td><td>-</td><td>-</td><td>480 B</td>
+</tr><tr><td>TransientInstanceCallAsyncMethodWhenCastle</td><td>245.23 ns</td><td>1.295 ns</td><td>1.211 ns</td><td>0.1044</td><td>-</td><td>-</td><td>656 B</td>
+</tr><tr><td>TransientInstanceCallAsyncMethodWhenAspectCore</td><td>587.14 ns</td><td>2.245 ns</td><td>2.100 ns</td><td>0.1373</td><td>-</td><td>-</td><td>864 B</td>
 </tr></tbody></table>
 
 # 快速入门指南
@@ -553,6 +554,140 @@ void Do()
 ``` csharp
 [Bulkhead(maxParallelization: 5, maxQueuingActions: 10)]
 void Do()
+```
+
+## CacheAttribute
+
+Norns.Urd 本身并未提供任何实际处理的缓存实现，
+
+但基于`Microsoft.Extensions.Caching.Memory.IMemoryCache` 和 `Microsoft.Extensions.Caching.Distributed.IDistributedCache` 实现了`CacheAttribute`这一调用适配器
+
+### 缓存策略
+
+Norns.Urd适配了三种时间策略模式
+
+* AbsoluteExpiration
+
+绝对时间过期，意思是到了设置时间就过期
+
+``` csharp
+[Cache(..., AbsoluteExpiration = "1991-05-30 00:00:00")]
+void Do()
+```
+
+* AbsoluteExpirationRelativeToNow
+
+相对当前时间过了多次设置时间时才过期，也就是存活时间设置，意思为到了缓存设置起效时间 (1991-05-30 00:00:00) + 缓存有效时间 (05:00:00) = (1991-05-30 05:00:00) 时才过期
+
+``` csharp
+[Cache(..., AbsoluteExpirationRelativeToNow = "00:05:00")] // 存活 5 分钟
+void Do()
+```
+
+### 启用内存缓存
+
+``` csharp
+IServiceCollection.ConfigureAop(i => i.EnableMemoryCache())
+```
+
+### 启用 DistributedCache
+
+目前默认提供了`System.Text.Json`的序列化适配器
+
+``` csharp
+IServiceCollection.ConfigureAop(i => i.EnableDistributedCacheSystemTextJsonAdapter(/*可以指定自己的Name*/))
+.AddDistributedMemoryCache() // 可以切换为任意的DistributedCache实现
+```
+
+* SlidingExpiration
+
+滑动时间窗口过期，意思时缓存有效期内有任何访问都会让时间窗口有效期往后滑动，只有没有任何访问且过期才会缓存作废
+
+``` csharp
+[Cache(..., SlidingExpiration = "00:00:05")]
+void Do()
+```
+
+### 使用缓存
+
+#### 单一缓存
+
+``` csharp
+[Cache(cacheKey: "T", SlidingExpiration = "00:00:01")]  // 不指定缓存名，会使用 CacheOptions.DefaultCacheName = "memory"
+public virtual Task<int> DoAsync(int count);
+```
+
+### 多级缓存
+
+``` csharp
+[Cache(cacheKey: nameof(Do), AbsoluteExpirationRelativeToNow = "00:00:01", Order = 1)]  // 先从内存缓存中获取，1秒后过期
+[Cache(cacheKey: nameof(Do), cacheName："json", AbsoluteExpirationRelativeToNow = "00:00:02", Order = 2)] // 内存缓存失效后，会从 DistributedCache中获取
+public virtual int Do(int count);
+```
+
+### 自定义缓存配置
+
+很多时候，我们需要动态获取缓存配置，只需继承`ICacheOptionGenerator`，就可以自定义配置
+
+举例如：
+
+``` csharp
+public class ContextKeyFromCount : ICacheOptionGenerator
+{
+    public CacheOptions Generate(AspectContext context)
+    {
+        return new CacheOptions()
+        {
+            CacheName = "json",
+            CacheKey = context.Parameters[0],
+            SlidingExpiration = TimeSpan.Parse("00:00:01")
+        };
+    }
+}
+```
+
+使用：
+
+``` csharp
+[Cache(typeof(ContextKeyFromCount))]
+public virtual Task<int> DoAsync(string key, int count)；
+```
+
+### 如何自定义新增 DistributedCache 序列化适配器
+
+只需继承`ISerializationAdapter`就可以了
+
+举例如：
+
+``` csharp
+public class SystemTextJsonAdapter : ISerializationAdapter
+{
+    public string Name { get; }
+
+    public SystemTextJsonAdapter(string name)
+    {
+        Name = name;
+    }
+
+    public T Deserialize<T>(byte[] data)
+    {
+        return JsonSerializer.Deserialize<T>(data);
+    }
+
+    public byte[] Serialize<T>(T data)
+    {
+        return JsonSerializer.SerializeToUtf8Bytes<T>(data);
+    }
+}
+```
+
+注册：
+
+``` csharp
+public static IAspectConfiguration EnableDistributedCacheSystemTextJsonAdapter(this IAspectConfiguration configuration, string name = "json")
+{
+    return configuration.EnableDistributedCacheSerializationAdapter(i => new SystemTextJsonAdapter(name));
+}
 ```
 
 # Norns.Urd 中的一些设计

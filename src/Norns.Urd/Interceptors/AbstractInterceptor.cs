@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+﻿using Norns.Urd.Reflection;
 using System.Threading.Tasks;
 
 namespace Norns.Urd
@@ -8,7 +8,7 @@ namespace Norns.Urd
     {
         public virtual int Order { get; set; }
 
-        public virtual bool CanAspect(MethodInfo method) => true;
+        public virtual bool CanAspect(MethodReflector method) => true;
 
         public virtual void Invoke(AspectContext context, AspectDelegate next)
         {

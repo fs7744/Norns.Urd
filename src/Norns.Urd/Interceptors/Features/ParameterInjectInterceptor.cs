@@ -12,9 +12,9 @@ namespace Norns.Urd.Interceptors.Features
         private static readonly ConcurrentDictionary<MethodInfo, Action<AspectContext>> cache = new ConcurrentDictionary<MethodInfo, Action<AspectContext>>();
         public override int Order => int.MinValue;
 
-        public override bool CanAspect(MethodInfo method)
+        public override bool CanAspect(MethodReflector method)
         {
-            return method.GetReflector().Parameters.Any(i => i.IsDefined<InjectAttribute>());
+            return method.Parameters.Any(i => i.IsDefined<InjectAttribute>());
         }
 
         public override void Invoke(AspectContext context, AspectDelegate next)

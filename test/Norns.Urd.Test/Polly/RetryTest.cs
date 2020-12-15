@@ -45,7 +45,7 @@ namespace Test.Norns.Urd.Polly
             }
         }
 
-        public DoRetryTest Mock()
+        public static DoRetryTest Mock()
         {
             return new ServiceCollection()
                 .AddTransient<DoRetryTest>()

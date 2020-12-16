@@ -12,13 +12,5 @@ namespace Norns.Urd.Extensions.Polly
         {
             return ((PolicyBuilder)PolicyExtensions.HandleException.MakeGenericMethod(exceptionType).Invoke(null, null));
         }
-
-        public static IAspectConfiguration EnablePolly(this IAspectConfiguration configuration)
-        {
-            configuration.NonPredicates.AddNamespace("Polly")
-                .AddNamespace("Polly.*");
-            configuration.GlobalInterceptors.Add(new PolicyInterceptor());
-            return configuration;
-        }
     }
 }

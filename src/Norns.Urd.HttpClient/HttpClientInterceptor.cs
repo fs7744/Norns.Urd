@@ -36,12 +36,17 @@ namespace Norns.Urd.HttpClient
         {
             var mr = method.GetReflector();
             var tr = method.DeclaringType.GetReflector();
-            var clientName = mr.GetCustomAttributes<ClientNameAttribute>().Union(tr.GetCustomAttributes<ClientNameAttribute>()).DistinctBy(i => i.GetType()).Select(i => i.Name).DefaultIfEmpty(Options.DefaultName).First();
-            mr.GetCustomAttributes<ClientConfigAttribute>().Union(tr.GetCustomAttributes<ClientConfigAttribute>()).DistinctBy(i => i.GetType());
+            var clientName = mr.GetCustomAttributesDistinctBy<ClientNameAttribute>(tr)
+                .Select(i => i.Name)
+                .FirstOrDefault() ?? Options.DefaultName;
+            var configers = mr.GetCustomAttributesDistinctBy<ClientConfigAttribute>(tr).ToArray();
             return (context) => 
             {
                 var client = lazyClientFactory.GetValue(context).CreateClient(clientName);
-
+                foreach (var configer in configers)
+                {
+                    configer.SetClient(client);
+                }
                 return client;
             };
         }

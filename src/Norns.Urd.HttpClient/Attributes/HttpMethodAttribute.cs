@@ -3,16 +3,23 @@ using System.Net.Http;
 
 namespace Norns.Urd.HttpClient
 {
-    public abstract class HttpMethodAttribute : Attribute
+
+    public abstract class HttpMethodAttribute : HttpRequestMessageSettingsAttribute
     {
+        private readonly string url;
+        private readonly HttpMethod method;
+
         protected HttpMethodAttribute(string url, HttpMethod method)
         {
-            Url = url;
-            Method = method;
+            this.url = url;
+            this.method = method;
         }
 
-        public string Url { get; }
-        public HttpMethod Method { get; }
+        public override void SetRequest(HttpRequestMessage request, AspectContext context)
+        {
+            request.RequestUri = new Uri(url);
+            request.Method = method;
+        }
     }
 
     [AttributeUsage(AttributeTargets.Method)]

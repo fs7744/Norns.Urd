@@ -39,13 +39,19 @@ namespace Norns.Urd.HttpClient
             var clientName = mr.GetCustomAttributesDistinctBy<ClientNameAttribute>(tr)
                 .Select(i => i.Name)
                 .FirstOrDefault() ?? Options.DefaultName;
-            var configers = mr.GetCustomAttributesDistinctBy<ClientConfigAttribute>(tr).ToArray();
+            var clientSetters = mr.GetCustomAttributesDistinctBy<ClientSettingsAttribute>(tr).ToArray();
+            var requestSetters = mr.GetCustomAttributesDistinctBy<HttpRequestMessageSettingsAttribute>(tr).ToArray();
             return (context) => 
             {
                 var client = lazyClientFactory.GetValue(context).CreateClient(clientName);
-                foreach (var configer in configers)
+                foreach (var setter in clientSetters)
                 {
-                    configer.SetClient(client);
+                    setter.SetClient(client, context);
+                }
+                var message = new HttpRequestMessage();
+                foreach (var setter in requestSetters)
+                {
+                    setter.SetRequest(message, context);
                 }
                 return client;
             };

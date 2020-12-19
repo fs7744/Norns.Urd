@@ -117,10 +117,13 @@ namespace Norns.Urd.Reflection
 
         public static IEnumerable<T> GetCustomAttributesDistinctBy<T>(this ICustomAttributeReflectorProvider provider, params ICustomAttributeReflectorProvider[] providers) where T : Attribute
         {
+            return provider.Union(providers).GetCustomAttributesDistinctBy<T>();
+        }
+
+        public static IEnumerable<T> GetCustomAttributesDistinctBy<T>(this IEnumerable<ICustomAttributeReflectorProvider> providers) where T : Attribute
+        {
             var type = typeof(T);
-            return provider.GetCustomAttributeReflectors(type)
-                .Union(providers
-                    .SelectMany(i => i.GetCustomAttributeReflectors(type)))
+            return providers.SelectMany(p => p.GetCustomAttributeReflectors(type))
                     .DistinctBy(i => i.Data.AttributeType)
                 .Select(i => i.Invoke() as T);
         }

@@ -15,5 +15,14 @@ namespace System.Linq
                 }
             }
         }
+
+        public static IEnumerable<TSource> Union<TSource>(this TSource source, IEnumerable<TSource> sources)
+        {
+            yield return source;
+            foreach (TSource element in sources)
+            {
+                yield return element;
+            }
+        }
     }
 }

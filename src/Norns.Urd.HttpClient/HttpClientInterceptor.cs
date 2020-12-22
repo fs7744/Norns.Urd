@@ -14,7 +14,7 @@ namespace Norns.Urd.HttpClient
     public class HttpClientInterceptor : AbstractInterceptor
     {
         private readonly Lazy<IHttpClientFactory, AspectContext> lazyClientFactory = new Lazy<IHttpClientFactory, AspectContext>(c => c.ServiceProvider.GetRequiredService<IHttpClientFactory>());
-        private static readonly ConcurrentDictionary<MethodInfo, Func<AspectContext, AsyncAspectDelegate, Task>> asyncCache = new ConcurrentDictionary<MethodInfo, Func<AspectContext, AsyncAspectDelegate, Task>>();
+        private static readonly ConcurrentDictionary<MethodInfo, Func<AspectContext, Task>> asyncCache = new ConcurrentDictionary<MethodInfo, Func<AspectContext, Task>>();
 
         public override bool CanAspect(MethodReflector method)
         {
@@ -32,7 +32,7 @@ namespace Norns.Urd.HttpClient
             //asyncCache.GetOrAdd(context.Method, CreateHttpClientCaller);
         }
 
-        private Func<AspectContext, Client> CreateHttpClientCaller(MethodInfo method)
+        private Func<AspectContext, Task> CreateHttpClientCaller(MethodInfo method)
         {
             var mr = method.GetReflector();
             var tr = method.DeclaringType.GetReflector();
@@ -41,7 +41,10 @@ namespace Norns.Urd.HttpClient
                 .FirstOrDefault() ?? Options.DefaultName;
             var clientSetters = mr.GetCustomAttributesDistinctBy<ClientSettingsAttribute>(tr).ToArray();
             var requestSetters = mr.GetCustomAttributesDistinctBy<HttpRequestMessageSettingsAttribute>(tr).ToArray();
-            return (context) => 
+            var option = mr.GetCustomAttributesDistinctBy<HttpCompletionOptionAttribute>(tr)
+                .Select(i => i.Option)
+                .FirstOrDefault();
+            return async (context) => 
             {
                 var client = lazyClientFactory.GetValue(context).CreateClient(clientName);
                 foreach (var setter in clientSetters)
@@ -53,7 +56,7 @@ namespace Norns.Urd.HttpClient
                 {
                     setter.SetRequest(message, context);
                 }
-                return client;
+                var resp = await client.SendAsync(message, option);
             };
         }
     }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using System;
 
-namespace Norns.Urd.HttpClient
+namespace Norns.Urd.Http
 {
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Method)]
     public class ClientNameAttribute : Attribute

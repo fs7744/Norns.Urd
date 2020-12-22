@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 
-namespace Norns.Urd.HttpClient
+namespace Norns.Urd.Http
 {
 
     public abstract class HttpMethodAttribute : HttpRequestMessageSettingsAttribute

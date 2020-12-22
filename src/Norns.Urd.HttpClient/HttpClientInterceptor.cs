@@ -6,14 +6,13 @@ using System.Collections.Concurrent;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
-using Client = System.Net.Http.HttpClient;
 using System.Linq;
 
-namespace Norns.Urd.HttpClient
+namespace Norns.Urd.Http
 {
     public class HttpClientInterceptor : AbstractInterceptor
     {
-        private readonly Lazy<IHttpClientFactory, AspectContext> lazyClientFactory = new Lazy<IHttpClientFactory, AspectContext>(c => c.ServiceProvider.GetRequiredService<IHttpClientFactory>());
+        private readonly Lazy<IHttpClientHandler, AspectContext> lazyClientFactory = new Lazy<IHttpClientHandler, AspectContext>(c => c.ServiceProvider.GetRequiredService<IHttpClientHandler>());
         private static readonly ConcurrentDictionary<MethodInfo, Func<AspectContext, Task>> asyncCache = new ConcurrentDictionary<MethodInfo, Func<AspectContext, Task>>();
 
         public override bool CanAspect(MethodReflector method)
@@ -43,10 +42,11 @@ namespace Norns.Urd.HttpClient
             var requestSetters = mr.GetCustomAttributesDistinctBy<HttpRequestMessageSettingsAttribute>(tr).ToArray();
             var option = mr.GetCustomAttributesDistinctBy<HttpCompletionOptionAttribute>(tr)
                 .Select(i => i.Option)
-                .FirstOrDefault();
+                .FirstOrDefault(HttpCompletionOption.ResponseHeadersRead);
             return async (context) => 
             {
-                var client = lazyClientFactory.GetValue(context).CreateClient(clientName);
+                var handler = lazyClientFactory.GetValue(context);
+                var client = handler.CreateClient(clientName);
                 foreach (var setter in clientSetters)
                 {
                     setter.SetClient(client, context);

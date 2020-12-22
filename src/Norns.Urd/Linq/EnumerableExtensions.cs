@@ -24,5 +24,18 @@ namespace System.Linq
                 yield return element;
             }
         }
+
+        public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> sources, TSource defaultValue)
+        {
+            var enumetrator = sources.GetEnumerator();
+            if (enumetrator.MoveNext())
+            {
+                return enumetrator.Current;
+            }
+            else
+            {
+                return defaultValue;
+            }
+        }
     }
 }

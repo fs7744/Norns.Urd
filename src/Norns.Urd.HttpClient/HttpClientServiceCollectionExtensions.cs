@@ -1,14 +1,14 @@
 ﻿using Norns.Urd;
-using Norns.Urd.HttpClient;
+using Norns.Urd.Http;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class HttpClientServiceCollectionExtensions
     {
-        public static IAspectConfiguration EnablePolly(this IAspectConfiguration configuration)
+        public static IAspectConfiguration EnableHttpClient(this IAspectConfiguration configuration)
         {
             configuration.GlobalInterceptors.Add(new HttpClientInterceptor());
-            configuration.ConfigServices.Add(services => services.AddHttpClient());
+            configuration.ConfigServices.Add(services => services.AddHttpClient().AddSingleton<IHttpClientHandler, HttpClientHandler>());
             return configuration;
         }
     }

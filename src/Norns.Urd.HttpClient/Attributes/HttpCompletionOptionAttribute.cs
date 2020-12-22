@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 
-namespace Norns.Urd.HttpClient
+namespace Norns.Urd.Http
 {
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Method)]
     public class HttpCompletionOptionAttribute : Attribute

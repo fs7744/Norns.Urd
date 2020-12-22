@@ -1,7 +1,7 @@
 ﻿using System;
 using Client = System.Net.Http.HttpClient;
 
-namespace Norns.Urd.HttpClient
+namespace Norns.Urd.Http
 {
     public abstract class ClientSettingsAttribute : Attribute
     {

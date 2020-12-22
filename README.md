@@ -124,6 +124,8 @@ This is simple demo whch to do global interceptor, full code fot the demo you ca
 - [x] Polly
 - [x] Cache
 - [ ] HttpClient
+- [ ] Trace
+- [ ] Runtime Metrics collect
 
 ## Simple Benchmark
 

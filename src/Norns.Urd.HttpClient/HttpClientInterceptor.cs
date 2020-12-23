@@ -39,10 +39,15 @@ namespace Norns.Urd.Http
                 .Select(i => i.Name)
                 .FirstOrDefault() ?? Options.DefaultName;
             var clientSetters = mr.GetCustomAttributesDistinctBy<ClientSettingsAttribute>(tr).ToArray();
-            var requestSetters = mr.GetCustomAttributesDistinctBy<HttpRequestMessageSettingsAttribute>(tr).ToArray();
+            var requestSetters = mr.GetCustomAttributesDistinctBy<HttpRequestMessageSettingsAttribute>(tr)
+                .OrderBy(i => i.Order)
+                .ToArray();
             var option = mr.GetCustomAttributesDistinctBy<HttpCompletionOptionAttribute>(tr)
                 .Select(i => i.Option)
                 .FirstOrDefault(HttpCompletionOption.ResponseHeadersRead);
+            var contentType = mr.GetCustomAttributesDistinctBy<MediaTypeHeaderValueAttribute>(tr)
+                .Select(i => i.ContentType)
+                .FirstOrDefault(JsonContentTypeAttribute.Json);
             return async (context) => 
             {
                 var handler = lazyClientFactory.GetValue(context);
@@ -52,6 +57,7 @@ namespace Norns.Urd.Http
                     setter.SetClient(client, context);
                 }
                 var message = new HttpRequestMessage();
+                //message.Content = await handler.SerializeAsync(, contentType);
                 foreach (var setter in requestSetters)
                 {
                     setter.SetRequest(message, context);

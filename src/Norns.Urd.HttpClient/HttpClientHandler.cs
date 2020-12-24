@@ -13,7 +13,7 @@ namespace Norns.Urd.Http
 
         Task<T> DeserializeAsync<T>(HttpContent content);
 
-        Task<HttpContent> SerializeAsync<T>(T data, MediaTypeHeaderValue contentType);
+        Task<HttpContent> SerializeAsync<T>(T data, string mediaType);
     }
 
     public class HttpClientHandler : IHttpClientHandler
@@ -47,15 +47,15 @@ namespace Norns.Urd.Http
             }
         }
 
-        public Task<HttpContent> SerializeAsync<T>(T data, MediaTypeHeaderValue contentType)
+        public Task<HttpContent> SerializeAsync<T>(T data, string mediaType)
         {
-            if (serializers.TryGetValue(contentType.MediaType, out var serializer))
+            if (serializers.TryGetValue(mediaType, out var serializer))
             {
                 return serializer.SerializeAsync<T>(data);
             }
             else
             {
-                throw new KeyNotFoundException($"Not found serializer: {contentType.MediaType}.");
+                throw new KeyNotFoundException($"Not found serializer: {mediaType}.");
             }
         }
     }

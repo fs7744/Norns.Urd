@@ -8,15 +8,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Norns.Urd
 {
     public static class AopInitializer
     {
-        public static async Task<object> AwaitResultTask(Task task, AspectContext context)
+        public static object AwaitResultTask(Task task, AspectContext context)
         {
-            await task;
+            return AwaitTask(task, context).Result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static async Task<object> AwaitTask(Task task, AspectContext context)
+        {
+            if (!task.IsCompleted)
+            {
+                await task;
+            }
             return context.ReturnValue;
         }
 

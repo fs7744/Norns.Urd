@@ -221,7 +221,6 @@ namespace Norns.Urd.DynamicProxy
                 {
                     il.Emit(OpCodes.Ldloc, c);
                     il.Emit(OpCodes.Call, Constants.AwaitResultTask);
-                    il.Emit(OpCodes.Call, Constants.GetObjectTaskResult);
                 }
                 else
                 {

@@ -87,15 +87,11 @@ namespace Norns.Urd.Http
             }
             else if (method.IsReturnValueTask())
             {
-                var caller = CallDeserializeValueTaskAsync.MakeGenericMethod(method.ReturnType)
-                    .CreateDelegate<Func<HttpClientInterceptor, HttpContent, AspectContext, Task>>(typeof(Task), new Type[] { typeof(HttpContent), typeof(AspectContext) }, (i, il) => false);
-                return (content, context) => caller(this, content, context);
+                return CreateDeserializeCaller(method.ReturnType.GenericTypeArguments[0], CallDeserializeValueTaskAsync);
             }
             else if (method.IsReturnTask())
             {
-                var caller = CallDeserializeTaskAsync.MakeGenericMethod(method.ReturnType)
-                    .CreateDelegate<Func<HttpClientInterceptor, HttpContent, AspectContext, Task>>(typeof(Task), new Type[] { typeof(HttpContent), typeof(AspectContext) }, (i, il) => false);
-                return (content, context) => caller(this, content, context);
+                return CreateDeserializeCaller(method.ReturnType.GenericTypeArguments[0], CallDeserializeTaskAsync);
             }
             else if (method.IsValueTask())
             {
@@ -115,10 +111,21 @@ namespace Norns.Urd.Http
             }
             else
             {
-                var caller = CallDeserialize.MakeGenericMethod(method.ReturnType)
-                    .CreateDelegate<Func<HttpClientInterceptor, HttpContent, AspectContext, Task>>(typeof(Task), new Type[] { typeof(HttpContent), typeof(AspectContext) }, (i, il) => false);
-                return (content, context) => caller(this, content, context);
+                return CreateDeserializeCaller(method.ReturnType, CallDeserialize);
             }
+        }
+
+        private Func<HttpContent, AspectContext, Task> CreateDeserializeCaller(Type returnType, MethodInfo deserializeMethod)
+        {
+            var caller = deserializeMethod.MakeGenericMethod(returnType)
+                .CreateDelegate<Func<HttpClientInterceptor, HttpContent, AspectContext, Task>>(typeof(Task),
+                new Type[] { typeof(HttpClientInterceptor), typeof(HttpContent), typeof(AspectContext) },
+                (il) =>
+                {
+                    il.EmitLoadArg(1);
+                    il.EmitLoadArg(2);
+                });
+            return async (content, context) => await caller(this, content, context);
         }
 
         public async Task Deserialize<T>(HttpContent content, AspectContext context)
@@ -150,24 +157,17 @@ namespace Norns.Urd.Http
                 var index = parameter.Position;
                 var type = parameter.ParameterType;
                 var serializer = SerializeAsync.MakeGenericMethod(type).CreateDelegate<Func<IHttpClientHandler, AspectContext, Task<HttpContent>>>(typeof(Task<HttpContent>),
-                    new Type[] { typeof(object), typeof(string) },
-                    (i, il) =>
+                    new Type[] { typeof(IHttpClientHandler), typeof(AspectContext), typeof(Task<HttpContent>) },
+                    (il) =>
                     {
-                        if (i == 0)
-                        {
-                            il.EmitLoadArg(1);
-                            il.Emit(OpCodes.Call, Constants.GetParameters);
-                            il.EmitInt(index);
-                            il.Emit(OpCodes.Ldelem_Ref);
-                            return true;
-                        }
-                        else
-                        {
-                            il.EmitString(contentType.MediaType);
-                            return true;
-                        }
+                        il.EmitLoadArg(1);
+                        il.Emit(OpCodes.Call, Constants.GetParameters);
+                        il.EmitInt(index);
+                        il.Emit(OpCodes.Ldelem_Ref);
+                        il.EmitConvertObjectTo(type);
+                        il.EmitString(contentType.MediaType);
                     });
-                return c => serializer(lazyClientFactory.GetValue(c), c);
+                return async c => await serializer(lazyClientFactory.GetValue(c), c);
             }
         }
     }

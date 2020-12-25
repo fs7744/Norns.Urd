@@ -35,11 +35,11 @@ namespace Norns.Urd.Http
             return clientFactory.CreateClient(name);
         }
 
-        public Task<T> DeserializeAsync<T>(HttpContent content)
+        public async Task<T> DeserializeAsync<T>(HttpContent content)
         {
             if (serializers.TryGetValue(content.Headers.ContentType.MediaType, out var serializer))
             {
-                return serializer.DeserializeAsync<T>(content);
+                return await serializer.DeserializeAsync<T>(content);
             }
             else
             {
@@ -47,11 +47,11 @@ namespace Norns.Urd.Http
             }
         }
 
-        public Task<HttpContent> SerializeAsync<T>(T data, string mediaType)
+        public async Task<HttpContent> SerializeAsync<T>(T data, string mediaType)
         {
             if (serializers.TryGetValue(mediaType, out var serializer))
             {
-                return serializer.SerializeAsync<T>(data);
+                return await serializer.SerializeAsync<T>(data);
             }
             else
             {

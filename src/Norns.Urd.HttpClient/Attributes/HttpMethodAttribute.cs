@@ -6,18 +6,22 @@ namespace Norns.Urd.Http
 
     public abstract class HttpMethodAttribute : HttpRequestMessageSettingsAttribute
     {
-        private readonly string url;
+        private readonly string path;
         private readonly HttpMethod method;
 
-        protected HttpMethodAttribute(string url, HttpMethod method)
+        protected HttpMethodAttribute(string path, HttpMethod method)
         {
-            this.url = url;
+            this.path = path;
             this.method = method;
         }
 
         public override void SetRequest(HttpRequestMessage request, AspectContext context)
         {
-            request.RequestUri = new Uri(url);
+            if (!string.IsNullOrEmpty(path))
+            {
+                Uri.TryCreate(path, UriKind.RelativeOrAbsolute, out var uri);
+                request.RequestUri = uri;
+            }
             request.Method = method;
         }
     }
@@ -25,7 +29,7 @@ namespace Norns.Urd.Http
     [AttributeUsage(AttributeTargets.Method)]
     public class GetAttribute : HttpMethodAttribute
     {
-        public GetAttribute(string path) : base(path, HttpMethod.Get)
+        public GetAttribute(string path = null) : base(path, HttpMethod.Get)
         {
         }
     }
@@ -33,7 +37,7 @@ namespace Norns.Urd.Http
     [AttributeUsage(AttributeTargets.Method)]
     public class PostAttribute : HttpMethodAttribute
     {
-        public PostAttribute(string path) : base(path, HttpMethod.Post)
+        public PostAttribute(string path = null) : base(path, HttpMethod.Post)
         {
         }
     }
@@ -41,7 +45,7 @@ namespace Norns.Urd.Http
     [AttributeUsage(AttributeTargets.Method)]
     public class PutAttribute : HttpMethodAttribute
     {
-        public PutAttribute(string path) : base(path, HttpMethod.Put)
+        public PutAttribute(string path = null) : base(path, HttpMethod.Put)
         {
         }
     }
@@ -49,7 +53,7 @@ namespace Norns.Urd.Http
     [AttributeUsage(AttributeTargets.Method)]
     public class DeleteAttribute : HttpMethodAttribute
     {
-        public DeleteAttribute(string path) : base(path, HttpMethod.Delete)
+        public DeleteAttribute(string path = null) : base(path, HttpMethod.Delete)
         {
         }
     }
@@ -59,7 +63,7 @@ namespace Norns.Urd.Http
     {
         public static readonly HttpMethod Patch = new HttpMethod("PATCH");
 
-        public PatchAttribute(string path) : base(path, Patch)
+        public PatchAttribute(string path = null) : base(path, Patch)
         {
         }
     }
@@ -67,7 +71,7 @@ namespace Norns.Urd.Http
     [AttributeUsage(AttributeTargets.Method)]
     public class OptionsAttribute : HttpMethodAttribute
     {
-        public OptionsAttribute(string path) : base(path, HttpMethod.Options)
+        public OptionsAttribute(string path = null) : base(path, HttpMethod.Options)
         {
         }
     }
@@ -75,7 +79,7 @@ namespace Norns.Urd.Http
     [AttributeUsage(AttributeTargets.Method)]
     public class HeadAttribute : HttpMethodAttribute
     {
-        public HeadAttribute(string path) : base(path, HttpMethod.Head)
+        public HeadAttribute(string path = null) : base(path, HttpMethod.Head)
         {
         }
     }

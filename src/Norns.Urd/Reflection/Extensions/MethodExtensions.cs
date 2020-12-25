@@ -134,22 +134,15 @@ namespace Norns.Urd.Reflection
             return methodCallExpression.Method;
         }
 
-        public static T CreateDelegate<T>(this MethodInfo method, Type returnType, Type[] parameters, Func<int,ILGenerator, bool> doLoadArg) where T : Delegate
+        public static T CreateDelegate<T>(this MethodInfo method, Type returnType, Type[] parameters, Action<ILGenerator> doIL) where T : Delegate
         {
             var dynamicMethod = new DynamicMethod($"invoker-{Guid.NewGuid():N}", returnType, parameters, method.Module, true);
             var il = dynamicMethod.GetILGenerator();
-            var ps = method.GetParameters();
             il.EmitThis();
-            for (var i = 0; i < ps.Length; i++)
-            {
-                if (!doLoadArg(i, il))
-                {
-                    il.EmitLoadArg(1 + i);
-                }
-                il.EmitConvertTo(parameters[i], ps[i].ParameterType);
-            }
+            doIL(il);
             il.Emit(OpCodes.Callvirt, method);
             il.EmitConvertTo(method.ReturnType, returnType);
+            il.Emit(OpCodes.Ret);
             return (T)dynamicMethod.CreateDelegate(typeof(T));
         }
     }

@@ -55,7 +55,7 @@ namespace Test.Norns.Urd.Polly
         {
             var sut = Mock();
             Assert.Equal(4, await sut.WaitAsync(4));
-            await Assert.ThrowsAsync<TaskCanceledException>(() => sut.WaitAsync(500));
+            await Assert.ThrowsAsync<TimeoutRejectedException>(() => sut.WaitAsync(500));
         }
 
         [Fact]

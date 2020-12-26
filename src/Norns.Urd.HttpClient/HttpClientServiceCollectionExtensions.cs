@@ -15,9 +15,17 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddHttpClient()
                     .AddSingleton<IHttpClientHandler, HttpClientHandler>();
                 services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHttpContentSerializer), typeof(SystemTextJsonContentSerializer)));
-                services.TryAddTransient<OptionsCreator<JsonSerializerOptions>>();
+                services.TryAddTransient<OptionsCreator<JsonSerializerOptions>>(i => new OptionsCreator<JsonSerializerOptions>(() => 
+                {
+                    return new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    };
+                }));
                 services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHttpContentSerializer), typeof(XmlContentSerializer)));
-                services.TryAddTransient<OptionsCreator<XmlContentSerializerOptions>>();
+                services.TryAddTransient<OptionsCreator<XmlContentSerializerOptions>>(i => 
+                    new OptionsCreator<XmlContentSerializerOptions>(() => new XmlContentSerializerOptions()));
             });
             return configuration;
         }

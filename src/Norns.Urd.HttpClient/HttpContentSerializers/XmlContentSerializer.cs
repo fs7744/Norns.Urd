@@ -16,7 +16,7 @@ namespace Norns.Urd.Http
 
         public XmlContentSerializer(OptionsCreator<XmlContentSerializerOptions> creator)
         {
-            options = creator.Options ?? new XmlContentSerializerOptions();
+            options = creator.Options;
         }
 
         private XmlSerializer GetXmlSerializer(Type type)

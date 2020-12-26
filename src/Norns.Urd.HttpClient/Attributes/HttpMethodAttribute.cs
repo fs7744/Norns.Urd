@@ -4,7 +4,7 @@ using System.Net.Http;
 namespace Norns.Urd.Http
 {
 
-    public abstract class HttpMethodAttribute : HttpRequestMessageSettingsAttribute
+    public abstract class HttpMethodAttribute : Attribute, IHttpRequestMessageSettings
     {
         private readonly string path;
         private readonly HttpMethod method;
@@ -15,7 +15,7 @@ namespace Norns.Urd.Http
             this.method = method;
         }
 
-        public override void SetRequest(HttpRequestMessage request, AspectContext context)
+        public void SetRequest(HttpRequestMessage request, AspectContext context)
         {
             if (!string.IsNullOrEmpty(path))
             {

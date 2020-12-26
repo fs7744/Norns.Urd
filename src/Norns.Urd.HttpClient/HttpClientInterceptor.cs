@@ -49,8 +49,10 @@ namespace Norns.Urd.Http
                 .Select(i => i.Name)
                 .FirstOrDefault() ?? Options.DefaultName;
             var clientSetters = mr.GetCustomAttributesDistinctBy<ClientSettingsAttribute>(tr).ToArray();
-            var requestSetters = mr.GetCustomAttributesDistinctBy<HttpRequestMessageSettingsAttribute>(tr)
-                .OrderBy(i => i.Order)
+            var requestSetters = mr.GetCustomAttributesDistinctBy<HttpMethodAttribute>(tr)
+                .Cast<IHttpRequestMessageSettings>()
+                .Union(tr.GetCustomAttributes<HttpRequestMessageSettingsAttribute>())
+                .Union(mr.GetCustomAttributes<HttpRequestMessageSettingsAttribute>())
                 .ToArray();
             var option = mr.GetCustomAttributesDistinctBy<HttpCompletionOptionAttribute>(tr)
                 .Select(i => i.Option)

@@ -19,7 +19,7 @@ namespace Examples.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddControllersAsServices();
+            services.AddControllers().AddControllersAsServices().AddXmlSerializerFormatters();
             services.AddTransient<IAopTest, AopTest>();
             services.AddSingleton<ITestClient>();
             services.ConfigureAop(i => 

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace Examples.WebApi
 {
+    [AcceptXml]
     [BaseAddress("http://localhost:5000")]
     public interface ITestClient
     {

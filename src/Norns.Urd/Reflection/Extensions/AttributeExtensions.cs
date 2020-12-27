@@ -115,6 +115,29 @@ namespace Norns.Urd.Reflection
             return provider.GetCustomAttributes(typeof(T)).Select(i => i as T);
         }
 
+        public static IEnumerable<T> GetCustomAttributesDistinctBy<T>(this ICustomAttributeReflectorProvider provider, params ICustomAttributeReflectorProvider[] providers) where T : Attribute
+        {
+            return provider.Union(providers).GetCustomAttributesDistinctBy<T>();
+        }
+
+        public static IEnumerable<T> GetCustomAttributesDistinctBy<T>(this IEnumerable<ICustomAttributeReflectorProvider> providers) where T : Attribute
+        {
+            var type = typeof(T);
+            return providers.SelectMany(p => p.GetCustomAttributeReflectors(type))
+                    .DistinctBy(i => i.Data.AttributeType)
+                .Select(i => i.Invoke() as T);
+        }
+
+        public static Attribute GetCustomAttribute(this ICustomAttributeReflectorProvider provider, Type attributeType)
+        {
+            return provider.GetCustomAttributeReflectors(attributeType).Select(i => i.Invoke()).FirstOrDefault();
+        }
+
+        public static T GetCustomAttribute<T>(this ICustomAttributeReflectorProvider provider) where T : Attribute
+        {
+            return provider.GetCustomAttribute(typeof(T)) as T;
+        }
+
         public static bool IsDefined(this ICustomAttributeReflectorProvider provider, Type attributeType)
         {
             return provider.GetCustomAttributeReflectors(attributeType).FirstOrDefault() != null;

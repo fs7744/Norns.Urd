@@ -8,11 +8,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Norns.Urd
 {
     public static class AopInitializer
     {
+        public static object AwaitResultTask(Task task, AspectContext context)
+        {
+            return AwaitTask(task, context).Result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static async Task<object> AwaitTask(Task task, AspectContext context)
+        {
+            if (!task.IsCompleted)
+            {
+                await task;
+            }
+            return context.ReturnValue;
+        }
+
         public static (IProxyGenerator, IEnumerable<Action<IServiceCollection>>) Init(this Action<IAspectConfiguration> config)
         {
             var configuration = new AspectConfiguration();

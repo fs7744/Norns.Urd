@@ -219,11 +219,15 @@ namespace Norns.Urd.DynamicProxy
                 il.Emit(OpCodes.Call, call);
                 if (method.IsReturnTask() || method.IsReturnValueTask())
                 {
-                    il.Emit(OpCodes.Pop);
+                    il.Emit(OpCodes.Ldloc, c);
+                    il.Emit(OpCodes.Call, Constants.AwaitResultTask);
                 }
-                il.Emit(OpCodes.Ldloc, c);
-                il.Emit(OpCodes.Call, Constants.GetReturnValue);
-                il.EmitConvertObjectTo(method.ReturnType);
+                else
+                {
+                    il.Emit(OpCodes.Ldloc, c);
+                    il.Emit(OpCodes.Call, Constants.GetReturnValue);
+                }
+                    il.EmitConvertObjectTo(method.ReturnType);
             }
             for (var i = 0; i < parameters.Length; i++)
             {

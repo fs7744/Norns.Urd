@@ -248,6 +248,8 @@ namespace Norns.Urd.Reflection
             return typeInfo.AsType() == typeof(ValueTask);
         }
 
+        public static bool IsVoid(this Type type) => type == typeof(void);
+
         public static bool IsValueTaskWithResult(this TypeInfo typeInfo)
         {
             return isValueTaskOfTCache.GetOrAdd(typeInfo, Info => Info.IsGenericType && Info.GetGenericTypeDefinition() == typeof(ValueTask<>));

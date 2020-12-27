@@ -19,9 +19,15 @@ namespace Examples.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddControllersAsServices();
+            services.AddControllers().AddControllersAsServices().AddXmlSerializerFormatters();
             services.AddTransient<IAopTest, AopTest>();
-            services.ConfigureAop(i => i.GlobalInterceptors.Add(new ConsoleInterceptor()));
+            services.AddSingleton<ITestClient>();
+            services.ConfigureAop(i => 
+            {
+                i.GlobalInterceptors.Add(new ConsoleInterceptor());
+                i.EnableHttpClient();
+                i.EnableMemoryCache();
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

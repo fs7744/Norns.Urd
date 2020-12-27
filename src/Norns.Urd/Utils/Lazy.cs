@@ -79,7 +79,7 @@ namespace Norns.Urd
         // _value eventually stores the lazily created value. It is valid when _state = null.
         private T _value;
 
-        public Lazy(Func<R, T> valueFactory, bool isThreadSafe = false)
+        public Lazy(Func<R, T> valueFactory, bool isThreadSafe = true)
         {
             _factory = valueFactory;
             _state = LazyHelper.Create(isThreadSafe);

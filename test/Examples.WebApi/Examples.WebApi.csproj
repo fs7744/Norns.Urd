@@ -6,6 +6,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\src\Norns.Urd.Caching.Memory\Norns.Urd.Caching.Memory.csproj" />
+		<ProjectReference Include="..\..\src\Norns.Urd.Extensions.Polly\Norns.Urd.Extensions.Polly.csproj" />
+		<ProjectReference Include="..\..\src\Norns.Urd.HttpClient\Norns.Urd.HttpClient.csproj" />
 		<ProjectReference Include="..\..\src\Norns.Urd\Norns.Urd.csproj" />
 	</ItemGroup>
 </Project>

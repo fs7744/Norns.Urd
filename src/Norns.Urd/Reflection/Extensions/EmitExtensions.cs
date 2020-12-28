@@ -739,7 +739,7 @@ namespace Norns.Urd.Reflection
         public static void EmitMethod(this ILGenerator il, MethodInfo method, Type declaringType)
         {
             il.Emit(OpCodes.Ldtoken, method);
-            il.Emit(OpCodes.Ldtoken, method.DeclaringType);
+            il.Emit(OpCodes.Ldtoken, declaringType);
             il.Emit(OpCodes.Call, Constants.GetMethodFromHandle);
             il.EmitConvertTo(typeof(MethodBase), typeof(MethodInfo));
         }

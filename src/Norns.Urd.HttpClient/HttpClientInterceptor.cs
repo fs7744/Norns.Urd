@@ -50,7 +50,8 @@ namespace Norns.Urd.Http
                 .FirstOrDefault() ?? Options.DefaultName;
             var clientSetters = mr.GetCustomAttributesDistinctBy<ClientSettingsAttribute>(tr).ToArray();
             var requestSetters = mr.GetCustomAttributesDistinctBy<HttpMethodAttribute>(tr)
-                .Cast<IHttpRequestMessageSettings>()
+                .Select(i => i.CreateSettings(mr.Parameters.Where(j => j.IsDefined<RouteAttribute>()), mr.Parameters.Where(j => j.IsDefined<QueryAttribute>())))
+                .First()
                 .Union(tr.GetCustomAttributes<HttpRequestMessageSettingsAttribute>())
                 .Union(mr.GetCustomAttributes<HttpRequestMessageSettingsAttribute>())
                 .ToArray();
@@ -62,6 +63,7 @@ namespace Norns.Urd.Http
                 .FirstOrDefault(JsonContentTypeAttribute.Json);
             var bodyHandler = CreateBodyHandler(mr.Parameters.FirstOrDefault(i => i.IsDefined<BodyAttribute>())?.MemberInfo, contentType);
             var returnValueHandler = CreateReturnValueHandler(method);
+            
             return async (context) =>
             {
                 var handler = lazyClientFactory.GetValue(context);

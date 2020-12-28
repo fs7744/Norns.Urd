@@ -12,8 +12,10 @@ namespace Microsoft.Extensions.DependencyInjection
             configuration.GlobalInterceptors.Add(new HttpClientInterceptor());
             configuration.ConfigServices.Add(services => 
             {
-                services.AddHttpClient()
-                    .AddSingleton<IHttpClientHandler, HttpClientHandler>();
+                services.AddHttpClient();
+                services.TryAddSingleton<IHttpClientHandler, HttpClientHandler>();
+                services.TryAddSingleton<IHttpRequestDynamicPathFactory, ConfigurationDynamicPathFactory>();
+                services.TryAddSingleton<IQueryStringBuilder, QueryStringBuilder>();
                 services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHttpContentSerializer), typeof(SystemTextJsonContentSerializer)));
                 services.TryAddTransient<OptionsCreator<JsonSerializerOptions>>(i => new OptionsCreator<JsonSerializerOptions>(() => 
                 {

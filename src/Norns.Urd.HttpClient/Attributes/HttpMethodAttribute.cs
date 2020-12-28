@@ -1,13 +1,16 @@
-﻿using System;
+﻿using Norns.Urd.Reflection;
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
 
 namespace Norns.Urd.Http
 {
 
-    public abstract class HttpMethodAttribute : Attribute, IHttpRequestMessageSettings
+    public abstract class HttpMethodAttribute : Attribute
     {
         private readonly string path;
         private readonly HttpMethod method;
+        public bool IsDynamicPath { get; set; }
 
         protected HttpMethodAttribute(string path, HttpMethod method)
         {
@@ -15,14 +18,9 @@ namespace Norns.Urd.Http
             this.method = method;
         }
 
-        public void SetRequest(HttpRequestMessage request, AspectContext context)
+        public IHttpRequestMessageSettings CreateSettings(IEnumerable<ParameterReflector> routes, IEnumerable<ParameterReflector> querys)
         {
-            if (!string.IsNullOrEmpty(path))
-            {
-                Uri.TryCreate(path, UriKind.RelativeOrAbsolute, out var uri);
-                request.RequestUri = uri;
-            }
-            request.Method = method;
+            return new HttpMethodSettings(routes, querys, path, method, IsDynamicPath);
         }
     }
 

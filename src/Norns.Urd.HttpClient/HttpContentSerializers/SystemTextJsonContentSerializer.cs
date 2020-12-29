@@ -12,11 +12,19 @@ namespace Norns.Urd.Http
 
         public SystemTextJsonContentSerializer(OptionsCreator<JsonSerializerOptions> creator)
         {
-            options = creator.Options;
+            options = creator.Options ?? CreateDefault();
+        }
+
+        private JsonSerializerOptions CreateDefault()
+        {
+            var ops = new JsonSerializerOptions() {  PropertyNameCaseInsensitive = true};
+            return ops;
         }
 
         public async Task<T> DeserializeAsync<T>(HttpContent content)
         {
+            var a = await content.ReadAsStringAsync();
+            var d = JsonSerializer.Deserialize<T>(a);
             return await JsonSerializer.DeserializeAsync<T>(await content.ReadAsStreamAsync(), options);
         }
 

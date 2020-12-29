@@ -22,7 +22,7 @@ namespace Norns.Urd.Http
         {
             var routeReplacements = routes.Select(i => ($"{{{i.GetCustomAttribute<RouteAttribute>().Alias ?? i.MemberInfo.Name}}}", $"{{{i.MemberInfo.Position}}}"))
                 .ToArray();
-            var queryReplacements = querys.Select(i => (i.GetCustomAttribute<QueryAttribute>().Alias ?? i.MemberInfo.Name, i))
+            var queryReplacements = querys.Select(i => (i.GetCustomAttribute<QueryAttribute>(), i))
                 .ToArray();
             var noRouteReplacements = routeReplacements.IsNullOrEmpty();
             var noQueryReplacements = queryReplacements.IsNullOrEmpty();

@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
@@ -31,13 +32,13 @@ namespace Norns.Urd.Http
             yield return "text/xml";
         }
 
-        public async Task<T> DeserializeAsync<T>(HttpContent content)
+        public async Task<T> DeserializeAsync<T>(HttpContent content, CancellationToken token)
         {
             var xmlSerializer = GetXmlSerializer(typeof(T));
             return (T)xmlSerializer.Deserialize(await content.ReadAsStreamAsync());
         }
 
-        public Task<HttpContent> SerializeAsync<T>(T data)
+        public Task<HttpContent> SerializeAsync<T>(T data, CancellationToken token)
         {
             var xmlSerializer = GetXmlSerializer(data.GetType());
             var stream = new MemoryStream();

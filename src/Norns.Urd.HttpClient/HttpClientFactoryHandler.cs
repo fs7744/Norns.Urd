@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Norns.Urd.Http
@@ -11,9 +12,9 @@ namespace Norns.Urd.Http
     {
         HttpClient CreateClient(string name);
 
-        Task<T> DeserializeAsync<T>(HttpContent content);
+        Task<T> DeserializeAsync<T>(HttpContent content, CancellationToken token);
 
-        Task<HttpContent> SerializeAsync<T>(T data, string mediaType);
+        Task<HttpContent> SerializeAsync<T>(T data, string mediaType, CancellationToken token);
     }
 
     public class HttpClientFactoryHandler : IHttpClientFactoryHandler
@@ -40,7 +41,7 @@ namespace Norns.Urd.Http
             return clientFactory.CreateClient(name);
         }
 
-        public async Task<T> DeserializeAsync<T>(HttpContent content)
+        public async Task<T> DeserializeAsync<T>(HttpContent content, CancellationToken token)
         {
             if (content.Headers.ContentType == null)
             {
@@ -48,7 +49,7 @@ namespace Norns.Urd.Http
             }
             else if (serializers.TryGetValue(content.Headers.ContentType.MediaType, out var serializer))
             {
-                return await serializer.DeserializeAsync<T>(content);
+                return await serializer.DeserializeAsync<T>(content, token);
             }
             else
             {
@@ -56,11 +57,11 @@ namespace Norns.Urd.Http
             }
         }
 
-        public async Task<HttpContent> SerializeAsync<T>(T data, string mediaType)
+        public async Task<HttpContent> SerializeAsync<T>(T data, string mediaType, CancellationToken token)
         {
             if (serializers.TryGetValue(mediaType, out var serializer))
             {
-                return await serializer.SerializeAsync<T>(data);
+                return await serializer.SerializeAsync<T>(data, token);
             }
             else
             {
@@ -68,19 +69,19 @@ namespace Norns.Urd.Http
             }
         }
 
-        public async Task SetRequestAsync(HttpRequestMessage message, AspectContext context)
+        public async Task SetRequestAsync(HttpRequestMessage message, AspectContext context, CancellationToken token)
         {
             foreach (var handler in handlers)
             {
-                await handler.SetRequestAsync(message, context);
+                await handler.SetRequestAsync(message, context, token);
             }
         }
 
-        public async Task SetResponseAsync(HttpResponseMessage resp, AspectContext context)
+        public async Task SetResponseAsync(HttpResponseMessage resp, AspectContext context, CancellationToken token)
         {
             foreach (var handler in handlers)
             {
-                await handler.SetResponseAsync(resp, context);
+                await handler.SetResponseAsync(resp, context, token);
             }
         }
     }

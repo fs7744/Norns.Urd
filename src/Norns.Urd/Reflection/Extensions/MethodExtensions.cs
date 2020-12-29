@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace Norns.Urd.Reflection
 {
@@ -144,6 +145,19 @@ namespace Norns.Urd.Reflection
             il.EmitConvertTo(method.ReturnType, returnType);
             il.Emit(OpCodes.Ret);
             return (T)dynamicMethod.CreateDelegate(typeof(T));
+        }
+
+        public static Func<AspectContext, CancellationToken> CreateCancellationTokenGetter(this MethodReflector method)
+        {
+            var cancellationTokenIndex = method.CancellationTokenIndex;
+            if (cancellationTokenIndex > -1)
+            {
+                return context => (CancellationToken)context.Parameters[cancellationTokenIndex];
+            }
+            else
+            {
+                return context => CancellationToken.None;
+            }
         }
     }
 }

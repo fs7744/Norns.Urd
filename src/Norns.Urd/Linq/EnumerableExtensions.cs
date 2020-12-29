@@ -37,5 +37,10 @@ namespace System.Linq
                 return defaultValue;
             }
         }
+
+        public static bool IsNullOrEmpty<TSource>(this IEnumerable<TSource> sources)
+        {
+            return sources == null || !sources.GetEnumerator().MoveNext();
+        }
     }
 }

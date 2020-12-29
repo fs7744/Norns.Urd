@@ -41,7 +41,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         internal bool TryCreateFacadeImplementation(ServiceDescriptor descriptor, Func<IServiceProvider, object> implementationFactory, out ServiceDescriptor proxyServiceDescriptor)
         {
-            ServiceDescriptor createServiceDescriptor(ServiceDescriptor x, Type type)
+            ServiceDescriptor CreateServiceDescriptor(ServiceDescriptor x, Type type)
             {
                 var setInstance = type.CreateInstanceSetter();
                 var factory = type.CreateFacadeInstanceCreator();
@@ -53,7 +53,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 }, x.Lifetime);
             }
 
-            return TryCreateImplementation(ProxyTypes.Facade, descriptor.ServiceType, descriptor, createServiceDescriptor, out proxyServiceDescriptor);
+            return TryCreateImplementation(ProxyTypes.Facade, descriptor.ServiceType, descriptor, CreateServiceDescriptor, out proxyServiceDescriptor);
         }
 
         internal bool TryCreateImplementation(ProxyTypes proxyType, Type needPeoxyType, ServiceDescriptor descriptor, Func<ServiceDescriptor, Type, ServiceDescriptor> createServiceDescriptor, out ServiceDescriptor proxyServiceDescriptor)
@@ -63,11 +63,11 @@ namespace Microsoft.Extensions.DependencyInjection
             return proxyServiceDescriptor != null;
         }
 
-        private static ServiceDescriptor createServiceDescriptor(ServiceDescriptor x, Type type) => ServiceDescriptor.Describe(x.ServiceType, type, x.Lifetime);
+        private static ServiceDescriptor CreateServiceDescriptor(ServiceDescriptor x, Type type) => ServiceDescriptor.Describe(x.ServiceType, type, x.Lifetime);
 
         internal bool TryCreateInheritImplementation(ServiceDescriptor descriptor, out ServiceDescriptor proxyServiceDescriptor)
         {
-            return TryCreateImplementation(ProxyTypes.Inherit, descriptor.ImplementationType, descriptor, createServiceDescriptor, out proxyServiceDescriptor);
+            return TryCreateImplementation(ProxyTypes.Inherit, descriptor.ImplementationType, descriptor, CreateServiceDescriptor, out proxyServiceDescriptor);
         }
     }
 }

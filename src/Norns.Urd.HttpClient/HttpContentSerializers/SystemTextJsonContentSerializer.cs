@@ -1,26 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Norns.Urd.Http
 {
     public class SystemTextJsonContentSerializer : IHttpContentSerializer
     {
-        private readonly JsonSerializerOptions options;
+        private readonly IOptions<JsonSerializerOptions> options;
 
-        public SystemTextJsonContentSerializer(OptionsCreator<JsonSerializerOptions> creator)
+        public SystemTextJsonContentSerializer(IOptions<JsonSerializerOptions> options)
         {
-            options = creator.Options;
+            this.options = options;
         }
 
-        public async Task<T> DeserializeAsync<T>(HttpContent content)
+        public async Task<T> DeserializeAsync<T>(HttpContent content, CancellationToken token)
         {
-            return await JsonSerializer.DeserializeAsync<T>(await content.ReadAsStreamAsync(), options);
+            return await JsonSerializer.DeserializeAsync<T>(await content.ReadAsStreamAsync(), options.Value, token);
         }
 
-        public async Task<HttpContent> SerializeAsync<T>(T data)
+        public async Task<HttpContent> SerializeAsync<T>(T data, CancellationToken token)
         {
             //todo: poolbufferstream
             var stream = new MemoryStream();
@@ -31,7 +33,7 @@ namespace Norns.Urd.Http
                     ContentType = JsonContentTypeAttribute.Json
                 }
             };
-            await JsonSerializer.SerializeAsync<T>(stream, data, options);
+            await JsonSerializer.SerializeAsync<T>(stream, data, options.Value, token);
             content.Headers.ContentLength = stream.Length;
             stream.Seek(0, SeekOrigin.Begin);
             return content;

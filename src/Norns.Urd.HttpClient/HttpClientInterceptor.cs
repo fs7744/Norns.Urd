@@ -16,11 +16,11 @@ namespace Norns.Urd.Http
 {
     public class HttpClientInterceptor : AbstractInterceptor
     {
-        private static readonly MethodInfo SerializeAsync = typeof(IHttpClientHandler).GetMethod(nameof(IHttpClientHandler.SerializeAsync));
+        private static readonly MethodInfo SerializeAsync = typeof(IHttpClientFactoryHandler).GetMethod(nameof(IHttpClientFactoryHandler.SerializeAsync));
         private static readonly MethodInfo CallDeserialize = typeof(HttpClientInterceptor).GetMethod(nameof(HttpClientInterceptor.Deserialize));
         private static readonly MethodInfo CallDeserializeTaskAsync = typeof(HttpClientInterceptor).GetMethod(nameof(HttpClientInterceptor.DeserializeTaskAsync));
         private static readonly MethodInfo CallDeserializeValueTaskAsync = typeof(HttpClientInterceptor).GetMethod(nameof(HttpClientInterceptor.DeserializeValueTaskAsync));
-        private readonly Lazy<IHttpClientHandler, AspectContext> lazyClientFactory = new Lazy<IHttpClientHandler, AspectContext>(c => c.ServiceProvider.GetRequiredService<IHttpClientHandler>());
+        private readonly Lazy<IHttpClientFactoryHandler, AspectContext> lazyClientFactory = new Lazy<IHttpClientFactoryHandler, AspectContext>(c => c.ServiceProvider.GetRequiredService<IHttpClientFactoryHandler>());
         private static readonly ConcurrentDictionary<MethodInfo, Func<AspectContext, Task>> asyncCache = new ConcurrentDictionary<MethodInfo, Func<AspectContext, Task>>();
 
         public override bool CanAspect(MethodReflector method)
@@ -74,11 +74,13 @@ namespace Norns.Urd.Http
                 }
                 var message = new HttpRequestMessage();
                 message.Content = await bodyHandler(context);
+                await handler.SetRequestAsync(message, context);
                 foreach (var setter in requestSetters)
                 {
                     setter.SetRequest(message, context);
                 }
                 var resp = await client.SendAsync(message, option);
+                await handler.SetResponseAsync(resp, context);
                 await returnValueHandler(resp.Content, context);
             };
         }
@@ -160,8 +162,8 @@ namespace Norns.Urd.Http
             {
                 var index = parameter.Position;
                 var type = parameter.ParameterType;
-                var serializer = SerializeAsync.MakeGenericMethod(type).CreateDelegate<Func<IHttpClientHandler, AspectContext, Task<HttpContent>>>(typeof(Task<HttpContent>),
-                    new Type[] { typeof(IHttpClientHandler), typeof(AspectContext), typeof(Task<HttpContent>) },
+                var serializer = SerializeAsync.MakeGenericMethod(type).CreateDelegate<Func<IHttpClientFactoryHandler, AspectContext, Task<HttpContent>>>(typeof(Task<HttpContent>),
+                    new Type[] { typeof(IHttpClientFactoryHandler), typeof(AspectContext), typeof(Task<HttpContent>) },
                     (il) =>
                     {
                         il.EmitLoadArg(1);

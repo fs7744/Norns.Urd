@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Web;
 
 namespace Norns.Urd.Http
 {
@@ -38,7 +39,6 @@ namespace Norns.Urd.Http
             cache.Add(typeof(long?), (sb, v, name) => NullableToString(sb, (long?)v, name));
             cache.Add(typeof(double?), (sb, v, name) => NullableToString(sb, (double?)v, name));
             cache.Add(typeof(short?), (sb, v, name) => NullableToString(sb, (short?)v, name));
-            cache.Add(typeof(int?), (sb, v, name) => NullableToString(sb, (int?)v, name));
             cache.Add(typeof(uint?), (sb, v, name) => NullableToString(sb, (uint?)v, name));
             cache.Add(typeof(ulong?), (sb, v, name) => NullableToString(sb, (ulong?)v, name));
             cache.Add(typeof(ushort?), (sb, v, name) => NullableToString(sb, (ushort?)v, name));
@@ -105,7 +105,7 @@ namespace Norns.Urd.Http
             }
             else if (parameterType == typeof(DateTime))
             {
-                return (sb, v, name) => ObjectToString(sb, ((DateTime)v).ToString("o", CultureInfo.InvariantCulture), name);
+                return (sb, v, name) => ObjectToString(sb, HttpUtility.UrlEncode(((DateTime)v).ToString("o", CultureInfo.InvariantCulture)), name);
             }
             else if (parameterType.IsNullableType())
             {

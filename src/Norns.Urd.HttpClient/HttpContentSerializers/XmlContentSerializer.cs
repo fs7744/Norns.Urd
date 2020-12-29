@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -12,16 +13,16 @@ namespace Norns.Urd.Http
     public class XmlContentSerializer : IHttpContentSerializer
     {
         private readonly ConcurrentDictionary<Type, XmlSerializer> serializerCache = new ConcurrentDictionary<Type, XmlSerializer>();
-        private readonly XmlContentSerializerOptions options;
+        private readonly IOptions<XmlContentSerializerOptions> options;
 
-        public XmlContentSerializer(OptionsCreator<XmlContentSerializerOptions> creator)
+        public XmlContentSerializer(IOptions<XmlContentSerializerOptions> options)
         {
-            options = creator.Options;
+            this.options = options;
         }
 
         private XmlSerializer GetXmlSerializer(Type type)
         {
-            return serializerCache.GetOrAdd(type, t => new XmlSerializer(t, options.XmlAttributeOverrides));
+            return serializerCache.GetOrAdd(type, t => new XmlSerializer(t, options.Value.XmlAttributeOverrides));
         }
 
         public IEnumerable<string> GetMediaTypes()
@@ -40,8 +41,8 @@ namespace Norns.Urd.Http
         {
             var xmlSerializer = GetXmlSerializer(data.GetType());
             var stream = new MemoryStream();
-            var writer = XmlWriter.Create(stream, options.WriterSettings);
-            xmlSerializer.Serialize(writer, data, options.Namespaces);
+            var writer = XmlWriter.Create(stream, options.Value.WriterSettings);
+            xmlSerializer.Serialize(writer, data, options.Value.Namespaces);
             var content = new StreamContent(stream)
             {
                 Headers =

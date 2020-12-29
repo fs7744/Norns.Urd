@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
@@ -8,24 +9,16 @@ namespace Norns.Urd.Http
 {
     public class SystemTextJsonContentSerializer : IHttpContentSerializer
     {
-        private readonly JsonSerializerOptions options;
+        private readonly IOptions<JsonSerializerOptions> options;
 
-        public SystemTextJsonContentSerializer(OptionsCreator<JsonSerializerOptions> creator)
+        public SystemTextJsonContentSerializer(IOptions<JsonSerializerOptions> options)
         {
-            options = creator.Options ?? CreateDefault();
-        }
-
-        private JsonSerializerOptions CreateDefault()
-        {
-            var ops = new JsonSerializerOptions() {  PropertyNameCaseInsensitive = true};
-            return ops;
+            this.options = options;
         }
 
         public async Task<T> DeserializeAsync<T>(HttpContent content)
         {
-            var a = await content.ReadAsStringAsync();
-            var d = JsonSerializer.Deserialize<T>(a);
-            return await JsonSerializer.DeserializeAsync<T>(await content.ReadAsStreamAsync(), options);
+            return await JsonSerializer.DeserializeAsync<T>(await content.ReadAsStreamAsync(), options.Value);
         }
 
         public async Task<HttpContent> SerializeAsync<T>(T data)
@@ -39,7 +32,7 @@ namespace Norns.Urd.Http
                     ContentType = JsonContentTypeAttribute.Json
                 }
             };
-            await JsonSerializer.SerializeAsync<T>(stream, data, options);
+            await JsonSerializer.SerializeAsync<T>(stream, data, options.Value);
             content.Headers.ContentLength = stream.Length;
             stream.Seek(0, SeekOrigin.Begin);
             return content;

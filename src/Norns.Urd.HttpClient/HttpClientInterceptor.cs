@@ -50,23 +50,8 @@ namespace Norns.Urd.Http
                 .Select(i => i.Name)
                 .FirstOrDefault() ?? Options.DefaultName;
             var clientSetters = mr.GetCustomAttributesDistinctBy<ClientSettingsAttribute>(tr).ToArray();
-            var requestSetters = mr.GetCustomAttributesDistinctBy<HttpMethodAttribute>(tr)
-                .Select(i => i.CreateSettings(mr.Parameters.Where(j => j.IsDefined<RouteAttribute>()), mr.Parameters.Where(j => j.IsDefined<QueryAttribute>())))
-                .First()
-                .Union(tr.GetCustomAttributes<HttpRequestMessageSettingsAttribute>())
-                .Union(mr.GetCustomAttributes<HttpRequestMessageSettingsAttribute>())
-                .OrderBy(i => i.Order)
-                .ToArray();
-            var responseSetters = mr.GetCustomAttributes<HttpResponseMessageSettingsAttribute>()
-                .Union(mr.Parameters.SelectMany(i => i.GetCustomAttributes<ParameterResponseMessageSettingsAttribute>()
-                    .Select(j => 
-                    { 
-                        j.Parameter = i.MemberInfo; 
-                        return j; 
-                    })))
-                .Union(tr.GetCustomAttributes<HttpResponseMessageSettingsAttribute>())
-                .OrderBy(i => i.Order)
-                .ToArray();
+            var requestSetters = GetRequestSetters(mr, tr);
+            var responseSetters = GetResponseSetters(mr, tr);
             var option = mr.GetCustomAttributesDistinctBy<HttpCompletionOptionAttribute>(tr)
                 .Select(i => i.Option)
                 .FirstOrDefault(HttpCompletionOption.ResponseHeadersRead);
@@ -100,6 +85,37 @@ namespace Norns.Urd.Http
                 }
                 await returnValueHandler(resp.Content, context, token);
             };
+        }
+
+        private static HttpResponseMessageSettingsAttribute[] GetResponseSetters(MethodReflector mr, TypeReflector tr)
+        {
+            return mr.GetCustomAttributes<HttpResponseMessageSettingsAttribute>()
+                            .Union(mr.Parameters.SelectMany(i => i.GetCustomAttributes<ParameterResponseMessageSettingsAttribute>()
+                                .Select(j =>
+                                {
+                                    j.Parameter = i.MemberInfo;
+                                    return j;
+                                })))
+                            .Union(tr.GetCustomAttributes<HttpResponseMessageSettingsAttribute>())
+                            .OrderBy(i => i.Order)
+                            .ToArray();
+        }
+
+        private static IHttpRequestMessageSettings[] GetRequestSetters(MethodReflector mr, TypeReflector tr)
+        {
+            return mr.GetCustomAttributesDistinctBy<HttpMethodAttribute>(tr)
+                .Select(i => i.CreateSettings(mr.Parameters.Where(j => j.IsDefined<RouteAttribute>()), mr.Parameters.Where(j => j.IsDefined<QueryAttribute>())))
+                .First()
+                .Union(mr.Parameters.SelectMany(i => i.GetCustomAttributes<ParameterRequestMessageSettingsAttribute>()
+                    .Select(j =>
+                    {
+                        j.Parameter = i.MemberInfo;
+                        return j;
+                    })))
+                .Union(tr.GetCustomAttributes<HttpRequestMessageSettingsAttribute>())
+                .Union(mr.GetCustomAttributes<HttpRequestMessageSettingsAttribute>())
+                .OrderBy(i => i.Order)
+                .ToArray();
         }
 
         private Func<HttpContent, AspectContext, CancellationToken, Task> CreateReturnValueHandler(MethodInfo method)

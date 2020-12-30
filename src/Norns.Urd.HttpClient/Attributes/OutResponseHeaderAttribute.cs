@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Norns.Urd.Http
 {
@@ -14,13 +16,14 @@ namespace Norns.Urd.Http
             this.headerName = headerName;
         }
 
-        public override void SetResponse(HttpResponseMessage resp, AspectContext context)
+        public override Task SetResponseAsync(HttpResponseMessage resp, AspectContext context, CancellationToken cancellationToken)
         {
             if (resp.Headers.TryGetValues(headerName, out var vs)
                 || resp.Content.Headers.TryGetValues(headerName, out vs))
             {
                 context.Parameters[Parameter.Position] = vs.FirstOrDefault();
             }
+            return Task.CompletedTask;
         }
     }
 }

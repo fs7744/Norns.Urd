@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Norns.Urd.Http
 {
@@ -16,9 +18,10 @@ namespace Norns.Urd.Http
             this.value = value;
         }
 
-        public override void SetRequest(HttpRequestMessage request, AspectContext context)
+        public override Task SetRequestAsync(HttpRequestMessage request, AspectContext context, CancellationToken cancellationToken)
         {
             request.Headers.Add(name, value);
+            return Task.CompletedTask;
         }
     }
 
@@ -32,9 +35,10 @@ namespace Norns.Urd.Http
             this.value = value;
         }
 
-        public override void SetRequest(HttpRequestMessage request, AspectContext context)
+        public override Task SetRequestAsync(HttpRequestMessage request, AspectContext context, CancellationToken cancellationToken)
         {
             request.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse(value));
+            return Task.CompletedTask;
         }
     }
 
@@ -43,9 +47,10 @@ namespace Norns.Urd.Http
     {
         private static readonly MediaTypeWithQualityHeaderValue Json = MediaTypeWithQualityHeaderValue.Parse(JsonContentTypeAttribute.Json.MediaType);
 
-        public override void SetRequest(HttpRequestMessage request, AspectContext context)
+        public override Task SetRequestAsync(HttpRequestMessage request, AspectContext context, CancellationToken cancellationToken)
         {
             request.Headers.Accept.Add(Json);
+            return Task.CompletedTask;
         }
     }
 
@@ -54,9 +59,10 @@ namespace Norns.Urd.Http
     {
         private static readonly MediaTypeWithQualityHeaderValue Xml = MediaTypeWithQualityHeaderValue.Parse(XmlContentTypeAttribute.Xml.MediaType);
 
-        public override void SetRequest(HttpRequestMessage request, AspectContext context)
+        public override Task SetRequestAsync(HttpRequestMessage request, AspectContext context, CancellationToken cancellationToken)
         {
             request.Headers.Accept.Add(Xml);
+            return Task.CompletedTask;
         }
     }
 }

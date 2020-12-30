@@ -75,13 +75,13 @@ namespace Norns.Urd.Http
                 await handler.SetRequestAsync(message, context, token);
                 foreach (var setter in requestSetters)
                 {
-                    setter.SetRequest(message, context);
+                    await setter.SetRequestAsync(message, context, token);
                 }
                 var resp = await client.SendAsync(message, option, token);
                 await handler.SetResponseAsync(resp, context, token);
                 foreach (var setter in responseSetters)
                 {
-                    setter.SetResponse(resp, context);
+                   await setter.SetResponseAsync(resp, context, token);
                 }
                 await returnValueHandler(resp.Content, context, token);
             };

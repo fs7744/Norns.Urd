@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Norns.Urd.Http.Attributes
 {
@@ -13,9 +15,10 @@ namespace Norns.Urd.Http.Attributes
             this.header = header;
         }
 
-        public override void SetRequest(HttpRequestMessage request, AspectContext context)
+        public override Task SetRequestAsync(HttpRequestMessage request, AspectContext context, CancellationToken cancellationToken)
         {
             request.Headers.Add(header, context.Parameters[Parameter.Position]?.ToString());
+            return Task.CompletedTask;
         }
     }
 }

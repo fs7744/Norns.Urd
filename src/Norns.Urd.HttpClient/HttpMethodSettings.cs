@@ -4,12 +4,14 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Norns.Urd.Http
 {
     internal class HttpMethodSettings : IHttpRequestMessageSettings
     {
-        private readonly Action<HttpRequestMessage, AspectContext> setRequest;
+        private readonly Func<HttpRequestMessage, AspectContext, CancellationToken, Task> setRequest;
 
         public int Order => int.MinValue;
 
@@ -17,11 +19,15 @@ namespace Norns.Urd.Http
         {
             var action = CreateUriReplacement(routes, querys, method);
             setRequest = isDynamicPath
-                ? (request, context) => context.ServiceProvider.GetRequiredService<IHttpRequestDynamicPathFactory>().GetDynamicPath(path, action)(request, context)
+                ? (request, context, token) =>
+                {
+                    context.ServiceProvider.GetRequiredService<IHttpRequestDynamicPathFactory>().GetDynamicPath(path, action)(request, context, token);
+                    return Task.CompletedTask;
+                }
                 : action(path);
         }
 
-        public Func<string, Action<HttpRequestMessage, AspectContext>> CreateUriReplacement(IEnumerable<ParameterReflector> routes, IEnumerable<ParameterReflector> querys, HttpMethod method)
+        public Func<string, Func<HttpRequestMessage, AspectContext, CancellationToken, Task>> CreateUriReplacement(IEnumerable<ParameterReflector> routes, IEnumerable<ParameterReflector> querys, HttpMethod method)
         {
             var routeReplacements = routes.Select(i => ($"{{{i.GetCustomAttribute<RouteAttribute>().Alias ?? i.MemberInfo.Name}}}", $"{{{i.MemberInfo.Position}}}"))
                 .ToArray();
@@ -34,10 +40,11 @@ namespace Norns.Urd.Http
                 return s =>
                 {
                     var uri = CreateUri(s);
-                    return (request, context) => 
+                    return (request, context, token) => 
                     {
                         request.RequestUri = uri;
                         request.Method = method;
+                        return Task.CompletedTask;
                     };
                 };
             }
@@ -49,10 +56,11 @@ namespace Norns.Urd.Http
                     {
                         return x.Replace(y.Item1, y.Item2);
                     });
-                    return (request, context) => 
+                    return (request, context, token) => 
                     {
                         request.RequestUri = CreateUri(string.Format(p, context.Parameters));
                         request.Method = method;
+                        return Task.CompletedTask;
                     };
                 };
             }
@@ -62,10 +70,11 @@ namespace Norns.Urd.Http
                     c.ServiceProvider.GetRequiredService<IQueryStringBuilder>().Build(queryReplacements));
                 return s =>
                 {
-                    return (request, context) =>
+                    return (request, context, token) =>
                     {
                         request.RequestUri = CreateUri(lazyQueryStringBuilder.GetValue(context)(s, context));
                         request.Method = method;
+                        return Task.CompletedTask;
                     };
                 };
             }
@@ -79,10 +88,11 @@ namespace Norns.Urd.Http
                     {
                         return x.Replace(y.Item1, y.Item2);
                     });
-                    return (request, context) =>
+                    return (request, context, token) =>
                     {
                         request.RequestUri = CreateUri(lazyQueryStringBuilder.GetValue(context)(string.Format(p, context.Parameters), context));
                         request.Method = method;
+                        return Task.CompletedTask;
                     };
                 };
             }
@@ -96,9 +106,9 @@ namespace Norns.Urd.Http
                : null;
         }
 
-        public void SetRequest(HttpRequestMessage request, AspectContext context)
+        public Task SetRequestAsync(HttpRequestMessage request, AspectContext context, CancellationToken cancellationToken)
         {
-            setRequest(request, context);
+            return setRequest(request, context, cancellationToken);
         }
     }
 }

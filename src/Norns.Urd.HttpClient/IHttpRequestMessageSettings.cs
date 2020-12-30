@@ -1,4 +1,6 @@
 ﻿using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Norns.Urd.Http
 {
@@ -6,6 +8,6 @@ namespace Norns.Urd.Http
     {
         int Order { get; }
 
-        void SetRequest(HttpRequestMessage request, AspectContext context);
+        Task SetRequestAsync(HttpRequestMessage request, AspectContext context, CancellationToken cancellationToken);
     }
 }

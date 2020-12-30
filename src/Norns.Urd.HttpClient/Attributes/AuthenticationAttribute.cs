@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Norns.Urd.Http.Attributes
 {
@@ -14,9 +16,10 @@ namespace Norns.Urd.Http.Attributes
             this.scheme = scheme;
         }
 
-        public override void SetRequest(HttpRequestMessage request, AspectContext context)
+        public override Task SetRequestAsync(HttpRequestMessage request, AspectContext context, CancellationToken cancellationToken)
         {
             request.Headers.Authorization = new AuthenticationHeaderValue(scheme, context.Parameters[Parameter.Position]?.ToString());
+            return Task.CompletedTask;
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
 
@@ -19,7 +18,7 @@ namespace Examples.WebApi.Controllers
         [HttpGet]
         public async Task<object> GetWeatherForecastAsync()
         {
-            var r = client.GetWeatherForecastAsync(DateTime.Now);
+            var r = client.GetWeatherForecastAsync(DateTime.Now, out string h);
             return await r;
         }
     }

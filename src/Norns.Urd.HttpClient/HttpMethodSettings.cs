@@ -10,6 +10,9 @@ namespace Norns.Urd.Http
     internal class HttpMethodSettings : IHttpRequestMessageSettings
     {
         private readonly Action<HttpRequestMessage, AspectContext> setRequest;
+
+        public int Order => int.MinValue;
+
         public HttpMethodSettings(IEnumerable<ParameterReflector> routes, IEnumerable<ParameterReflector> querys, string path, HttpMethod method, bool isDynamicPath)
         {
             var action = CreateUriReplacement(routes, querys, method);

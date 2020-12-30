@@ -11,6 +11,6 @@ namespace Examples.WebApi
     {
         //[Cache(nameof(GetWeatherForecastAsync))]
         [Get("WeatherForecast")]
-        Task<List<WeatherForecast>> GetWeatherForecastAsync([Query(Alias = "dsd")] DateTime time);
+        Task<List<WeatherForecast>> GetWeatherForecastAsync([Query(Alias = "dsd")] DateTime time, [OutResponseHeader("Content-Type")] out string header);
     }
 }

@@ -55,6 +55,17 @@ namespace Norns.Urd.Http
                 .First()
                 .Union(tr.GetCustomAttributes<HttpRequestMessageSettingsAttribute>())
                 .Union(mr.GetCustomAttributes<HttpRequestMessageSettingsAttribute>())
+                .OrderBy(i => i.Order)
+                .ToArray();
+            var responseSetters = mr.GetCustomAttributes<HttpResponseMessageSettingsAttribute>()
+                .Union(mr.Parameters.SelectMany(i => i.GetCustomAttributes<ParameterResponseMessageSettingsAttribute>()
+                    .Select(j => 
+                    { 
+                        j.Parameter = i.MemberInfo; 
+                        return j; 
+                    })))
+                .Union(tr.GetCustomAttributes<HttpResponseMessageSettingsAttribute>())
+                .OrderBy(i => i.Order)
                 .ToArray();
             var option = mr.GetCustomAttributesDistinctBy<HttpCompletionOptionAttribute>(tr)
                 .Select(i => i.Option)
@@ -83,6 +94,10 @@ namespace Norns.Urd.Http
                 }
                 var resp = await client.SendAsync(message, option, token);
                 await handler.SetResponseAsync(resp, context, token);
+                foreach (var setter in responseSetters)
+                {
+                    setter.SetResponse(resp, context);
+                }
                 await returnValueHandler(resp.Content, context, token);
             };
         }

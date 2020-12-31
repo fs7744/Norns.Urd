@@ -4,45 +4,45 @@ using System.Reflection;
 
 namespace Norns.Urd
 {
-    public static class NonAspectPredicateCollectionExtensions
+    public static class AspectPredicateCollectionExtensions
     {
-        public static NonAspectPredicateCollection AddType(this NonAspectPredicateCollection collection, NonAspectTypePredicate predicate)
+        public static AspectPredicateCollection AddType(this AspectPredicateCollection collection, AspectTypePredicate predicate)
         {
             collection.TypePredicates.Add(predicate);
             return collection;
         }
 
-        public static NonAspectPredicateCollection AddMethod(this NonAspectPredicateCollection collection, NonAspectMethodPredicate predicate)
+        public static AspectPredicateCollection AddMethod(this AspectPredicateCollection collection, AspectMethodPredicate predicate)
         {
             collection.MethodPredicates.Add(predicate);
             return collection;
         }
 
-        public static NonAspectPredicateCollection AddMethod(this NonAspectPredicateCollection collection, string service, string method)
+        public static AspectPredicateCollection AddMethod(this AspectPredicateCollection collection, string service, string method)
         {
-            collection.AddMethod(NonAspectPredicates.ForMethod(service, method));
+            collection.AddMethod(AspectPredicates.ForMethod(service, method));
             return collection;
         }
 
-        public static NonAspectPredicateCollection AddMethod(this NonAspectPredicateCollection collection, string method)
+        public static AspectPredicateCollection AddMethod(this AspectPredicateCollection collection, string method)
         {
-            collection.AddMethod(NonAspectPredicates.ForMethod(method));
+            collection.AddMethod(AspectPredicates.ForMethod(method));
             return collection;
         }
 
-        public static NonAspectPredicateCollection AddNamespace(this NonAspectPredicateCollection collection, string nameSpace)
+        public static AspectPredicateCollection AddNamespace(this AspectPredicateCollection collection, string nameSpace)
         {
-            collection.AddType(NonAspectPredicates.ForNameSpace(nameSpace));
+            collection.AddType(AspectPredicates.ForNameSpace(nameSpace));
             return collection;
         }
 
-        public static NonAspectPredicateCollection AddService(this NonAspectPredicateCollection collection, string service)
+        public static AspectPredicateCollection AddService(this AspectPredicateCollection collection, string service)
         {
-            collection.AddType(NonAspectPredicates.ForService(service));
+            collection.AddType(AspectPredicates.ForService(service));
             return collection;
         }
 
-        public static NonAspectPredicateCollection Clean(this NonAspectPredicateCollection collection)
+        public static AspectPredicateCollection Clean(this AspectPredicateCollection collection)
         {
             collection.TypePredicates.Clear();
             collection.MethodPredicates.Clear();
@@ -50,19 +50,20 @@ namespace Norns.Urd
             return collection;
         }
 
-        internal static NonAspectPredicateCollection AddDefaultCore(this NonAspectPredicateCollection collection)
+        internal static AspectPredicateCollection AddDefaultCore(this AspectPredicateCollection collection)
         {
             return collection
                 .AddMethod("Equals")
                 .AddMethod("GetHashCode")
                 .AddMethod("ToString")
                 .AddMethod("GetType")
+                .AddMethod("Dispose")
                 .AddMethod(m => m.DeclaringType == typeof(object))
                 .AddMethod(i => i.GetReflector().IsDefined<NonAspectAttribute>())
                 .AddType(i => !i.GetTypeInfo().IsVisible() || i.GetReflector().IsDefined<NonAspectAttribute>());
         }
 
-        internal static NonAspectPredicateCollection AddDefault(this NonAspectPredicateCollection collection)
+        internal static AspectPredicateCollection AddDefault(this AspectPredicateCollection collection)
         {
             return collection
                 .AddNamespace("Norns")

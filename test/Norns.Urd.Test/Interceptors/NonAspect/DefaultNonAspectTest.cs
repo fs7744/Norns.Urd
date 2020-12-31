@@ -6,8 +6,8 @@ namespace Test.Norns.Urd.Interceptors.NonAspect
 {
     public class DefaultNonAspectTest
     {
-        private readonly NonAspectTypePredicate defaultTypePredicate;
-        private readonly NonAspectMethodPredicate defaultMethodPredicate;
+        private readonly AspectTypePredicate defaultTypePredicate;
+        private readonly AspectMethodPredicate defaultMethodPredicate;
 
         public DefaultNonAspectTest()
         {

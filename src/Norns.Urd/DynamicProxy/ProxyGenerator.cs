@@ -14,6 +14,7 @@ namespace Norns.Urd.DynamicProxy
     {
         private readonly ModuleBuilder moduleBuilder;
         private readonly IInterceptorCreator interceptorCreator;
+        private readonly AspectTypePredicate facdeProxyAllowPredicate;
         private readonly FacadeProxyBuilder facade = new FacadeProxyBuilder();
         private readonly InheritProxyBuilder inherit = new InheritProxyBuilder();
 
@@ -22,6 +23,7 @@ namespace Norns.Urd.DynamicProxy
             var asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Constants.GeneratedNamespace), AssemblyBuilderAccess.RunAndCollect);
             moduleBuilder = asmBuilder.DefineDynamicModule("core");
             interceptorCreator = new InterceptorCreator(configuration);
+            facdeProxyAllowPredicate = configuration.FacdeProxyAllowPredicates.BuildNonAspectTypePredicate();
         }
 
         public Type Create(Type serviceType, ProxyTypes proxyType)
@@ -32,7 +34,7 @@ namespace Norns.Urd.DynamicProxy
                     return inherit.Create(serviceType, interceptorCreator, moduleBuilder);
 
                 case ProxyTypes.Facade:
-                    return facade.Create(serviceType, interceptorCreator, moduleBuilder);
+                    return facdeProxyAllowPredicate(serviceType) ? facade.Create(serviceType, interceptorCreator, moduleBuilder) : null;
 
                 default:
                     return null;

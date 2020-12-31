@@ -12,8 +12,8 @@ namespace Norns.Urd.Interceptors
 {
     public interface IInterceptorCreator
     {
-        NonAspectTypePredicate IsNonAspectType { get; }
-        NonAspectMethodPredicate IsNonAspectMethod { get; }
+        AspectTypePredicate IsNonAspectType { get; }
+        AspectMethodPredicate IsNonAspectMethod { get; }
 
         AspectDelegate GetInterceptor(MethodInfo method);
 
@@ -29,9 +29,9 @@ namespace Norns.Urd.Interceptors
         private readonly ConcurrentDictionary<MethodInfo, AspectDelegate> genericCallers = new ConcurrentDictionary<MethodInfo, AspectDelegate>();
         private readonly ConcurrentDictionary<MethodInfo, AsyncAspectDelegate> asyncGenericCallers = new ConcurrentDictionary<MethodInfo, AsyncAspectDelegate>();
         private readonly IAspectConfiguration configuration;
-        public NonAspectTypePredicate IsNonAspectType { get; }
+        public AspectTypePredicate IsNonAspectType { get; }
 
-        public NonAspectMethodPredicate IsNonAspectMethod { get; }
+        public AspectMethodPredicate IsNonAspectMethod { get; }
 
         public InterceptorCreator(IAspectConfiguration configuration)
         {

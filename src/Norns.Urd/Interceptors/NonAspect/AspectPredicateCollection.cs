@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace Norns.Urd
 {
-    public class NonAspectPredicateCollection
+    public class AspectPredicateCollection
     {
-        public List<NonAspectTypePredicate> TypePredicates { get; } = new List<NonAspectTypePredicate>();
-        public List<NonAspectMethodPredicate> MethodPredicates { get; } = new List<NonAspectMethodPredicate>();
+        public List<AspectTypePredicate> TypePredicates { get; } = new List<AspectTypePredicate>();
+        public List<AspectMethodPredicate> MethodPredicates { get; } = new List<AspectMethodPredicate>();
 
-        public NonAspectTypePredicate BuildNonAspectTypePredicate() => t =>
+        public AspectTypePredicate BuildNonAspectTypePredicate() => t =>
         {
             foreach (var item in TypePredicates)
             {
@@ -18,7 +18,7 @@ namespace Norns.Urd
             return false;
         };
 
-        public NonAspectMethodPredicate BuildNonAspectMethodPredicate() => m =>
+        public AspectMethodPredicate BuildNonAspectMethodPredicate() => m =>
         {
             foreach (var item in MethodPredicates)
             {

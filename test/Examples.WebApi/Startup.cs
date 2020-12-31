@@ -28,6 +28,7 @@ namespace Examples.WebApi
                 i.EnableHttpClient();
                 i.EnableMemoryCache();
             });
+            services.AddHttpClientNewtonsoftJosn();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

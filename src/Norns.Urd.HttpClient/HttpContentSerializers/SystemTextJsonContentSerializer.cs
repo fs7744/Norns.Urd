@@ -19,7 +19,14 @@ namespace Norns.Urd.Http
 
         public async Task<T> DeserializeAsync<T>(HttpContent content, CancellationToken token)
         {
-            return await JsonSerializer.DeserializeAsync<T>(await content.ReadAsStreamAsync(), options.Value, token);
+#if NET5_0
+            using (var stream = await content.ReadAsStreamAsync(token))
+#else
+            using (var stream = await content.ReadAsStreamAsync())
+#endif
+            {
+                return await JsonSerializer.DeserializeAsync<T>(stream, options.Value, token);
+            }
         }
 
         public async Task<HttpContent> SerializeAsync<T>(T data, CancellationToken token)

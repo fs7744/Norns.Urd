@@ -7,8 +7,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\..\src\Norns.Urd.Caching.Memory\Norns.Urd.Caching.Memory.csproj" />
 		<ProjectReference Include="..\..\src\Norns.Urd.Extensions.Polly\Norns.Urd.Extensions.Polly.csproj" />
+		<ProjectReference Include="..\..\src\Norns.Urd.HttpClient.NewtonsoftJson\Norns.Urd.HttpClient.NewtonsoftJson.csproj" />
 		<ProjectReference Include="..\..\src\Norns.Urd.HttpClient\Norns.Urd.HttpClient.csproj" />
 		<ProjectReference Include="..\..\src\Norns.Urd\Norns.Urd.csproj" />
 	</ItemGroup>

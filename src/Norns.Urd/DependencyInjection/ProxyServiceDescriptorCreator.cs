@@ -1,5 +1,6 @@
 ﻿using Norns.Urd;
 using Norns.Urd.DynamicProxy;
+using Norns.Urd.Interceptors;
 using Norns.Urd.Reflection;
 using System;
 using System.Reflection;
@@ -9,22 +10,25 @@ namespace Microsoft.Extensions.DependencyInjection
     internal class ProxyServiceDescriptorCreator
     {
         private readonly IProxyGenerator proxyGenerator;
+        private readonly AspectTypePredicate facdeProxyAllowPredicate;
 
-        public ProxyServiceDescriptorCreator(IProxyGenerator proxyGenerator)
+        public ProxyServiceDescriptorCreator(IProxyGenerator proxyGenerator, IAspectConfiguration configuration)
         {
             this.proxyGenerator = proxyGenerator;
+            facdeProxyAllowPredicate = configuration.FacdeProxyAllowPredicates.BuildNonAspectTypePredicate();
         }
 
         internal bool TryCreate(ServiceDescriptor descriptor, out ServiceDescriptor proxyServiceDescriptor)
         {
+            proxyServiceDescriptor = null;
             if (descriptor.ImplementationFactory != null)
             {
-                return TryCreateFacadeImplementation(descriptor, descriptor.ImplementationFactory, out proxyServiceDescriptor);
+                return facdeProxyAllowPredicate(descriptor.ServiceType) ? TryCreateFacadeImplementation(descriptor, descriptor.ImplementationFactory, out proxyServiceDescriptor) : false;
             }
             else if (descriptor.ImplementationInstance != null)
             {
                 var instance = descriptor.ImplementationInstance;
-                return TryCreateFacadeImplementation(descriptor, x => instance, out proxyServiceDescriptor);
+                return facdeProxyAllowPredicate(descriptor.ServiceType) ? TryCreateFacadeImplementation(descriptor, x => instance, out proxyServiceDescriptor) : false;
             }
             else if (!descriptor.ServiceType.IsGenericTypeDefinition
                     && (descriptor.ImplementationType.IsSealed

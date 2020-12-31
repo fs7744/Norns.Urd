@@ -13,6 +13,7 @@ namespace Test.Norns.Urd.DependencyInjection
             {
                 i.NonPredicates.Clean();
                 i.GlobalInterceptors.Add(new AddTenInterceptor());
+                i.FacdeProxyAllowPredicates.AddNamespace("*");
             }, isIgnoreError)
             .BuildServiceProvider();
         }

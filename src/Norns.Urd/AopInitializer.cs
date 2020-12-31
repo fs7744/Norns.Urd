@@ -30,12 +30,12 @@ namespace Norns.Urd
             return context.ReturnValue;
         }
 
-        public static (IProxyGenerator, IEnumerable<Action<IServiceCollection>>) Init(this Action<IAspectConfiguration> config)
+        public static (IProxyGenerator, IEnumerable<Action<IServiceCollection>>, IAspectConfiguration) Init(this Action<IAspectConfiguration> config)
         {
             var configuration = new AspectConfiguration();
             configuration.AddParameterInject();
             config?.Invoke(configuration);
-            return (new ProxyGenerator(configuration), configuration.ConfigServices);
+            return (new ProxyGenerator(configuration), configuration.ConfigServices, configuration);
         }
 
         public static Func<object, object> CreateInstanceGetter(this Type type)

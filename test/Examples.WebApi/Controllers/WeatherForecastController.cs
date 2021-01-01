@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Examples.WebApi.Controllers
 {
@@ -50,5 +52,21 @@ namespace Examples.WebApi.Controllers
 
         [HttpGet]
         public virtual IEnumerable<WeatherForecast> Get(DateTime dsd) => test.Get();
+
+        [HttpPost("file")]
+        public async Task TestUploadStream()
+        {
+            using var reader = new StreamReader(HttpContext.Request.Body);
+            _logger.LogWarning(await reader.ReadToEndAsync());
+        }
+
+        [HttpGet("file")]
+        public async Task TestDownloadStream()
+        {
+           HttpContext.Response.ContentType = "application/octet-stream";
+            var bytes = System.Text.Encoding.UTF8.GetBytes(Guid.NewGuid().ToString());
+            await HttpContext.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+           await HttpContext.Response.CompleteAsync();
+        }
     }
 }

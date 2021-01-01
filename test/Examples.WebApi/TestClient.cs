@@ -1,6 +1,7 @@
 ﻿using Norns.Urd.Http;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Examples.WebApi
@@ -12,5 +13,13 @@ namespace Examples.WebApi
         //[Cache(nameof(GetWeatherForecastAsync))]
         [Get("WeatherForecast")]
         Task<List<WeatherForecast>> GetWeatherForecastAsync([Query(Alias = "dsd")] DateTime time, [OutResponseHeader("Content-Type")] out string header);
+
+        [Get("WeatherForecast/file")]
+        [AcceptOctetStream]
+        Task<Stream> DownloadAsync();
+
+        [Post("WeatherForecast/file")]
+        [OctetStreamContentType]
+        Task UpoladAsync([Body]Stream f);
     }
 }

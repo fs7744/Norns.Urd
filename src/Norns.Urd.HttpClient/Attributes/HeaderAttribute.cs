@@ -65,4 +65,16 @@ namespace Norns.Urd.Http
             return Task.CompletedTask;
         }
     }
+
+    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Method, AllowMultiple = true)]
+    public class AcceptOctetStreamAttribute : HttpRequestMessageSettingsAttribute
+    {
+        private static readonly MediaTypeWithQualityHeaderValue OctetStream = MediaTypeWithQualityHeaderValue.Parse(OctetStreamContentTypeAttribute.OctetStream.MediaType);
+
+        public override Task SetRequestAsync(HttpRequestMessage request, AspectContext context, CancellationToken cancellationToken)
+        {
+            request.Headers.Accept.Add(OctetStream);
+            return Task.CompletedTask;
+        }
+    }
 }

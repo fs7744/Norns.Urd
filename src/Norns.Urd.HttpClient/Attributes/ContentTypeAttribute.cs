@@ -41,4 +41,14 @@ namespace Norns.Urd.Http
         {
         }
     }
+
+    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Method)]
+    public class OctetStreamContentTypeAttribute : MediaTypeHeaderValueAttribute
+    {
+        public static readonly MediaTypeHeaderValue OctetStream = new MediaTypeHeaderValue("application/octet-stream");
+
+        public OctetStreamContentTypeAttribute() : base(OctetStream)
+        {
+        }
+    }
 }

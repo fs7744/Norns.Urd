@@ -28,7 +28,7 @@ namespace Norns.Urd.Http
 
         public IEnumerable<string> GetMediaTypes()
         {
-            yield return "application/octet-stream";
+            yield return OctetStreamContentTypeAttribute.OctetStream.MediaType;
         }
 
         public Task<HttpContent> SerializeAsync<T>(T data, CancellationToken token)

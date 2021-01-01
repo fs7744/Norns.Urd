@@ -227,7 +227,7 @@ namespace Norns.Urd.DynamicProxy
                     il.Emit(OpCodes.Ldloc, c);
                     il.Emit(OpCodes.Call, Constants.GetReturnValue);
                 }
-                    il.EmitConvertObjectTo(method.ReturnType);
+                il.EmitConvertObjectTo(method.ReturnType);
             }
             for (var i = 0; i < parameters.Length; i++)
             {

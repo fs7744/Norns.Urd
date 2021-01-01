@@ -17,7 +17,7 @@ namespace Norns.Urd
     {
         public static object AwaitResultTask(Task task, AspectContext context)
         {
-            return AwaitTask(task, context).Result;
+            return AwaitTask(task, context).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

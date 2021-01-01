@@ -23,12 +23,12 @@ namespace Microsoft.Extensions.DependencyInjection
             proxyServiceDescriptor = null;
             if (descriptor.ImplementationFactory != null)
             {
-                return facdeProxyAllowPredicate(descriptor.ServiceType) ? TryCreateFacadeImplementation(descriptor, descriptor.ImplementationFactory, out proxyServiceDescriptor) : false;
+                return facdeProxyAllowPredicate(descriptor.ServiceType) && TryCreateFacadeImplementation(descriptor, descriptor.ImplementationFactory, out proxyServiceDescriptor);
             }
             else if (descriptor.ImplementationInstance != null)
             {
                 var instance = descriptor.ImplementationInstance;
-                return facdeProxyAllowPredicate(descriptor.ServiceType) ? TryCreateFacadeImplementation(descriptor, x => instance, out proxyServiceDescriptor) : false;
+                return facdeProxyAllowPredicate(descriptor.ServiceType) && TryCreateFacadeImplementation(descriptor, x => instance, out proxyServiceDescriptor);
             }
             else if (!descriptor.ServiceType.IsGenericTypeDefinition
                     && (descriptor.ImplementationType.IsSealed

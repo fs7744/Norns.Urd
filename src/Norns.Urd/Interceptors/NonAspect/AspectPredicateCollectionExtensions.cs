@@ -57,7 +57,6 @@ namespace Norns.Urd
                 .AddMethod("GetHashCode")
                 .AddMethod("ToString")
                 .AddMethod("GetType")
-                //.AddMethod("Dispose")
                 .AddMethod(m => m.DeclaringType == typeof(object))
                 .AddMethod(i => i.GetReflector().IsDefined<NonAspectAttribute>())
                 .AddType(i => !i.GetTypeInfo().IsVisible() || i.GetReflector().IsDefined<NonAspectAttribute>());

@@ -17,7 +17,7 @@ namespace Norns.Urd.DynamicProxy
         public const string ServiceProviderProperty = "ServiceProviderGenerated";
         public static readonly Type[] DefaultConstructorParameters = new Type[] { typeof(IServiceProvider) };
         public static readonly ConstructorInfo ObjectCtor = typeof(object).GetTypeInfo().DeclaredConstructors.Single();
-        public static readonly HashSet<string> IgnoreMethods = new HashSet<string> { "Finalize", "ToString", "Equals", "GetHashCode" };
+        public static readonly HashSet<string> IgnoreMethods = new HashSet<string> { "Finalize", "ToString", "Equals", "GetHashCode", "Void Dispose()_Base" };
         public static readonly MethodInfo GetReturnValue = typeof(AspectContext).GetProperty(nameof(AspectContext.ReturnValue)).GetMethod;
         public static readonly MethodInfo SetReturnValue = typeof(AspectContext).GetProperty(nameof(AspectContext.ReturnValue)).SetMethod;
         public static readonly ConstructorInfo AspectContextCtor = typeof(AspectContext).GetConstructors().First();

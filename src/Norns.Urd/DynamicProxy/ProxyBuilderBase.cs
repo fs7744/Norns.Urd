@@ -246,7 +246,7 @@ namespace Norns.Urd.DynamicProxy
             return methodBuilder;
         }
 
-        private static MethodAttributes DefineProxyMethodAttributes(MethodInfo method)
+        protected static MethodAttributes DefineProxyMethodAttributes(MethodInfo method)
         {
             if (method.DeclaringType.IsInterface)
             {

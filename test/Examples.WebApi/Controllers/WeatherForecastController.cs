@@ -11,12 +11,16 @@ namespace Examples.WebApi.Controllers
         IEnumerable<WeatherForecast> Get();
     }
 
-    public class AopTest : IAopTest
+    public class AopTest : IAopTest, IDisposable
     {
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
+
+        public void Dispose()
+        {
+        }
 
         public IEnumerable<WeatherForecast> Get()
         {

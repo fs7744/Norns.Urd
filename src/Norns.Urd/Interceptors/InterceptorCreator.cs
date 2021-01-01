@@ -156,7 +156,7 @@ namespace Norns.Urd.Interceptors
             return configuration.GlobalInterceptors
                 .Union(method.GetCustomAttributes<AbstractInterceptorAttribute>())
                 .Union(method.DeclaringType.GetCustomAttributes<AbstractInterceptorAttribute>())
-                .Where(i => i.CanAspect(method.GetReflector()))
+                .Where(i => !Constants.IgnoreMethods.Contains(method.Name) && i.CanAspect(method.GetReflector()))
                 .OrderBy(i => i.Order);
         }
 
@@ -239,7 +239,7 @@ namespace Norns.Urd.Interceptors
             return CreateTaskExceptionConvertor(serviceMethod, interceptor);
         }
 
-        private AsyncAspectDelegate CreateTaskExceptionConvertor(MethodInfo serviceMethod, AsyncAspectDelegate aspectDelegate)
+        private static AsyncAspectDelegate CreateTaskExceptionConvertor(MethodInfo serviceMethod, AsyncAspectDelegate aspectDelegate)
         {
             if (serviceMethod.IsReturnTask())
             {

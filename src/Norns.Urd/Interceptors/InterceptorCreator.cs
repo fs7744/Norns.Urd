@@ -244,46 +244,14 @@ namespace Norns.Urd.Interceptors
             if (serviceMethod.IsReturnTask())
             {
                 var type = serviceMethod.ReturnType.GetGenericArguments()[0];
-                var method = Constants.TaskFromException.MakeGenericMethod(type);
-                var m = new DynamicMethod(Guid.NewGuid().ToString("N"), typeof(object), new Type[] { typeof(Exception) });
-                var il = m.GetILGenerator();
-                il.EmitLoadArg(0);
-                il.Emit(OpCodes.Call, method);
-                il.Emit(OpCodes.Ret);
-                var caller = (Func<Exception, object>)m.CreateDelegate(typeof(Func<Exception, object>));
-                return async c =>
-                {
-                    try
-                    {
-                        await aspectDelegate(c);
-                    }
-                    catch (Exception ex)
-                    {
-                        c.ReturnValue = caller(ex);
-                    }
-                };
+                return Constants.ConverTotReturnTask.MakeGenericMethod(type)
+                    .Invoke(null, new object[] { aspectDelegate }) as AsyncAspectDelegate;
             }
             else if (serviceMethod.IsReturnValueTask())
             {
                 var type = serviceMethod.ReturnType.GetGenericArguments()[0];
-                var method = Constants.ValueTaskExceptionConvert.MakeGenericMethod(type);
-                var m = new DynamicMethod(Guid.NewGuid().ToString("N"), typeof(object), new Type[] { typeof(Exception) });
-                var il = m.GetILGenerator();
-                il.EmitLoadArg(0);
-                il.Emit(OpCodes.Call, method);
-                il.Emit(OpCodes.Ret);
-                var caller = (Func<Exception, object>)m.CreateDelegate(typeof(Func<Exception, object>));
-                return async c =>
-                {
-                    try
-                    {
-                        await aspectDelegate(c);
-                    }
-                    catch (Exception ex)
-                    {
-                        c.ReturnValue = caller(ex);
-                    }
-                };
+                return Constants.ConverTotReturnValueTask.MakeGenericMethod(type)
+                    .Invoke(null, new object[] { aspectDelegate }) as AsyncAspectDelegate;
             }
             else
             {

@@ -21,5 +21,7 @@ namespace Norns.Urd
         public object Service { get; }
         public object[] Parameters { get; set; }
         public object ReturnValue { get; set; }
+
+        public object ReturnTask { get; set; }
     }
 }

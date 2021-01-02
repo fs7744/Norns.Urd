@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace Norns.Urd.DynamicProxy
 {
@@ -39,7 +38,10 @@ namespace Norns.Urd.DynamicProxy
         public static readonly MethodInfo PropertyInject = typeof(PropertyInjector).GetMethod(nameof(PropertyInjector.Inject));
         public static readonly MethodInfo TaskFromException = typeof(InterceptorCreator).GetMethod(nameof(InterceptorCreator.TaskExceptionConvert));
         public static readonly MethodInfo ValueTaskExceptionConvert = typeof(InterceptorCreator).GetMethod(nameof(InterceptorCreator.ValueTaskExceptionConvert));
-        public static readonly MethodInfo GetObjectTaskResult = typeof(Task<object>).GetProperty(nameof(Task<object>.Result)).GetMethod;
-        public static readonly MethodInfo AwaitResultTask = typeof(AopInitializer).GetMethod(nameof(AopInitializer.AwaitResultTask));
+        public static readonly MethodInfo ConverTotReturnTask = typeof(AopInitializer).GetMethod(nameof(AopInitializer.ConverTotReturnTask));
+        public static readonly MethodInfo ConverTotReturnValueTask = typeof(AopInitializer).GetMethod(nameof(AopInitializer.ConverTotReturnValueTask));
+        public static readonly MethodInfo GetReturnTask = typeof(AspectContext).GetProperty(nameof(AspectContext.ReturnTask)).GetMethod;
+
+
     }
 }

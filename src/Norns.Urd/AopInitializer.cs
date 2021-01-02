@@ -8,28 +8,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Norns.Urd
 {
     public static class AopInitializer
     {
-        public static object AwaitResultTask(Task task, AspectContext context)
-        {
-            return AwaitTask(task, context).ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static async Task<object> AwaitTask(Task task, AspectContext context)
-        {
-            if (!task.IsCompleted)
-            {
-                await task;
-            }
-            return context.ReturnValue;
-        }
-
         public static (IProxyGenerator, IEnumerable<Action<IServiceCollection>>, IAspectConfiguration) Init(this Action<IAspectConfiguration> config)
         {
             var configuration = new AspectConfiguration();
@@ -83,6 +67,42 @@ namespace Norns.Urd
         {
             var field = type.GetField(Constants.ServiceProvider, BindingFlags.NonPublic | BindingFlags.Instance);
             return field?.CreateGetter<object, IServiceProvider>();
+        }
+
+        public static AsyncAspectDelegate ConverTotReturnTask<T>(AsyncAspectDelegate aspectDelegate)
+        {
+            return c =>
+            {
+                var task = aspectDelegate(c).ContinueWith<T>((t, cc) =>
+                {
+                    if (t.Exception != null)
+                    {
+                        throw t.Exception.InnerException;
+                    }
+                    var r = (cc as AspectContext).ReturnValue as Task<T>;
+                    return r.Result;
+                }, c);
+                return task;
+            };
+        }
+
+        public static AsyncAspectDelegate ConverTotReturnValueTask<T>(AsyncAspectDelegate aspectDelegate)
+        {
+            return c =>
+            {
+                var task = aspectDelegate(c).ContinueWith<T>((t, cc) =>
+                {
+                    if (t.Exception != null)
+                    {
+                        throw t.Exception.InnerException;
+                    }
+                    var vt = cc as AspectContext;
+                    var r = (ValueTask<T>)(vt).ReturnValue;
+                    return r.Result;
+                }, c);
+                c.ReturnTask = new ValueTask<T>(task);
+                return task;
+            };
         }
     }
 }

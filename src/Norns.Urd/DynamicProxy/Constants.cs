@@ -36,8 +36,6 @@ namespace Norns.Urd.DynamicProxy
         public static readonly BindingFlags MethodBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
         public static readonly MethodInfo GetServiceFromDI = typeof(IServiceProvider).GetMethod(nameof(IServiceProvider.GetService));
         public static readonly MethodInfo PropertyInject = typeof(PropertyInjector).GetMethod(nameof(PropertyInjector.Inject));
-        public static readonly MethodInfo TaskFromException = typeof(InterceptorCreator).GetMethod(nameof(InterceptorCreator.TaskExceptionConvert));
-        public static readonly MethodInfo ValueTaskExceptionConvert = typeof(InterceptorCreator).GetMethod(nameof(InterceptorCreator.ValueTaskExceptionConvert));
         public static readonly MethodInfo ConverTotReturnTask = typeof(AopInitializer).GetMethod(nameof(AopInitializer.ConverTotReturnTask));
         public static readonly MethodInfo ConverTotReturnValueTask = typeof(AopInitializer).GetMethod(nameof(AopInitializer.ConverTotReturnValueTask));
         public static readonly MethodInfo GetReturnTask = typeof(AspectContext).GetProperty(nameof(AspectContext.ReturnTask)).GetMethod;

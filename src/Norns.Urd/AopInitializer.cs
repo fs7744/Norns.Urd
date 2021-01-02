@@ -76,28 +76,14 @@ namespace Norns.Urd
 
         private static async Task<T> Call<T>(Task t, AspectContext c)
         {
-            if (!t.IsCompleted)
-            {
-                await t;
-            }
-            if (t.Exception != null)
-            {
-                throw t.Exception.InnerException;
-            }
+            await t;
             var r = c.ReturnValue as Task<T>;
             return r.Result;
         }
 
         private static async Task<T> CallValueTask<T>(Task t, AspectContext c)
         {
-            if (!t.IsCompleted)
-            {
-                await t;
-            }
-            if (t.Exception != null)
-            {
-                throw t.Exception.InnerException;
-            }
+            await t;
             var r = (ValueTask<T>)c.ReturnValue;
             return r.Result;
         }

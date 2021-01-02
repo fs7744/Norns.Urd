@@ -259,16 +259,6 @@ namespace Norns.Urd.Interceptors
             }
         }
 
-        public static object TaskExceptionConvert<T>(Exception ex)
-        {
-            return Task.FromException<T>(ex);
-        }
-
-        public static object ValueTaskExceptionConvert<T>(Exception ex)
-        {
-            return new ValueTask<T>(Task.FromException<T>(ex));
-        }
-
         public static AspectDelegate CreateSyncCaller(MethodInfo method)
         {
             return (AspectDelegate)CreateCaller(method).CreateDelegate(typeof(AspectDelegate));

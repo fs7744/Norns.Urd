@@ -174,24 +174,23 @@ namespace Norns.Urd.Http
             return async (resp, context, t) => await caller(this, resp.Content, context, t);
         }
 
-        public Task DeserializeHttpResponseMessage(HttpResponseMessage resp, AspectContext context, CancellationToken token)
+        public static Task DeserializeHttpResponseMessage(HttpResponseMessage resp, AspectContext context, CancellationToken token)
         {
             context.ReturnValue = resp;
             return Task.CompletedTask;
         }
 
-        public Task DeserializeTaskHttpResponseMessage(HttpResponseMessage resp, AspectContext context, CancellationToken token)
+        public static Task DeserializeTaskHttpResponseMessage(HttpResponseMessage resp, AspectContext context, CancellationToken token)
         {
             context.ReturnValue = Task.FromResult(resp);
             return Task.CompletedTask;
         }
 
-        public Task DeserializeValueTaskHttpResponseMessage(HttpResponseMessage resp, AspectContext context, CancellationToken token)
+        public static Task DeserializeValueTaskHttpResponseMessage(HttpResponseMessage resp, AspectContext context, CancellationToken token)
         {
             context.ReturnValue = new ValueTask<HttpResponseMessage>(resp);
             return Task.CompletedTask;
         }
-
 
         public async Task Deserialize<T>(HttpContent content, AspectContext context, CancellationToken token)
         {

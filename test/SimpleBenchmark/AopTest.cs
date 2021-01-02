@@ -166,31 +166,27 @@ namespace SimpleBenchmark
         }
 
         [Benchmark]
-        public void TransientInstanceCallAsyncMethodWhenNoAop()
+        public async Task TransientInstanceCallAsyncMethodWhenNoAop()
         {
-            provider.GetRequiredService<ISum>().AddAsync("a", "b");
-                //.GetAwaiter().GetResult();
+            await provider.GetRequiredService<ISum>().AddAsync("a", "b");
         }
 
         [Benchmark]
-        public void TransientInstanceCallAsyncMethodWhenNornsUrd()
+        public async Task TransientInstanceCallAsyncMethodWhenNornsUrd()
         {
-            nornsUrdProvider.GetRequiredService<ISum>().AddAsync("a", "b");
-                //.GetAwaiter().GetResult();
+            await nornsUrdProvider.GetRequiredService<ISum>().AddAsync("a", "b");
         }
 
         [Benchmark]
-        public void TransientInstanceCallAsyncMethodWhenCastle()
+        public async Task TransientInstanceCallAsyncMethodWhenCastle()
         {
-            castleProvider.Resolve<ISum>().AddAsync("a", "b");
-                //.GetAwaiter().GetResult();
+            await castleProvider.Resolve<ISum>().AddAsync("a", "b");
         }
 
         [Benchmark]
-        public void TransientInstanceCallAsyncMethodWhenAspectCore()
+        public async Task TransientInstanceCallAsyncMethodWhenAspectCore()
         {
-            aspectCoreProvider.GetRequiredService<ISum>().AddAsync("a", "b");
-                //.GetAwaiter().GetResult();
+            await aspectCoreProvider.GetRequiredService<ISum>().AddAsync("a", "b");
         }
     }
 }

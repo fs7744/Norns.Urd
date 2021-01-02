@@ -337,12 +337,12 @@ namespace Norns.Urd.DynamicProxy
 
         #endregion Constructor
 
-        private bool IsNonAspectType(Type serviceType, IInterceptorCreator interceptorCreator)
+        private static bool IsNonAspectType(Type serviceType, IInterceptorCreator interceptorCreator)
         {
             return serviceType.IsSealed || serviceType.IsValueType || serviceType.IsEnum || interceptorCreator.IsNonAspectType(serviceType);
         }
 
-        private void DefineCustomAttributes(in ProxyGeneratorContext context)
+        private static void DefineCustomAttributes(in ProxyGeneratorContext context)
         {
             context.ProxyType.TypeBuilder.SetCustomAttribute(AttributeExtensions.DefineCustomAttribute<NonAspectAttribute>());
             context.ProxyType.TypeBuilder.SetCustomAttribute(AttributeExtensions.DefineCustomAttribute<DynamicProxyAttribute>());

@@ -71,35 +71,42 @@ namespace Norns.Urd
 
         public static AsyncAspectDelegate ConverTotReturnTask<T>(AsyncAspectDelegate aspectDelegate)
         {
-            return c =>
+            return c => Call<T>(aspectDelegate(c), c);
+        }
+
+        private static async Task<T> Call<T>(Task t, AspectContext c)
+        {
+            if (!t.IsCompleted)
             {
-                var task = aspectDelegate(c).ContinueWith<T>((t, cc) =>
-                {
-                    if (t.Exception != null)
-                    {
-                        throw t.Exception.InnerException;
-                    }
-                    var r = (cc as AspectContext).ReturnValue as Task<T>;
-                    return r.Result;
-                }, c);
-                return task;
-            };
+                await t;
+            }
+            if (t.Exception != null)
+            {
+                throw t.Exception.InnerException;
+            }
+            var r = c.ReturnValue as Task<T>;
+            return r.Result;
+        }
+
+        private static async Task<T> CallValueTask<T>(Task t, AspectContext c)
+        {
+            if (!t.IsCompleted)
+            {
+                await t;
+            }
+            if (t.Exception != null)
+            {
+                throw t.Exception.InnerException;
+            }
+            var r = (ValueTask<T>)c.ReturnValue;
+            return r.Result;
         }
 
         public static AsyncAspectDelegate ConverTotReturnValueTask<T>(AsyncAspectDelegate aspectDelegate)
         {
-            return c =>
+            return c => 
             {
-                var task = aspectDelegate(c).ContinueWith<T>((t, cc) =>
-                {
-                    if (t.Exception != null)
-                    {
-                        throw t.Exception.InnerException;
-                    }
-                    var vt = cc as AspectContext;
-                    var r = (ValueTask<T>)(vt).ReturnValue;
-                    return r.Result;
-                }, c);
+                var task = CallValueTask<T>(aspectDelegate(c), c);
                 c.ReturnTask = new ValueTask<T>(task);
                 return task;
             };

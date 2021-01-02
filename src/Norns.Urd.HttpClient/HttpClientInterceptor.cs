@@ -83,7 +83,7 @@ namespace Norns.Urd.Http
                 {
                    await setter.SetResponseAsync(resp, context, token);
                 }
-                await returnValueHandler(resp.Content, context, token);
+                await returnValueHandler(resp, context, token);
             };
         }
 
@@ -118,23 +118,23 @@ namespace Norns.Urd.Http
                 .ToArray();
         }
 
-        private Func<HttpContent, AspectContext, CancellationToken, Task> CreateReturnValueHandler(MethodInfo method)
+        private Func<HttpResponseMessage, AspectContext, CancellationToken, Task> CreateReturnValueHandler(MethodInfo method)
         {
             if (method.IsVoid())
             {
-                return (content, context, t) => Task.CompletedTask;
+                return (resp, context, t) => Task.CompletedTask;
             }
             else if (method.IsReturnValueTask())
             {
-                return CreateDeserializeCaller(method.ReturnType.GenericTypeArguments[0], CallDeserializeValueTaskAsync);
+                return CreateDeserializeCaller(method.ReturnType.GenericTypeArguments[0], CallDeserializeValueTaskAsync, DeserializeValueTaskHttpResponseMessage);
             }
             else if (method.IsReturnTask())
             {
-                return CreateDeserializeCaller(method.ReturnType.GenericTypeArguments[0], CallDeserializeTaskAsync);
+                return CreateDeserializeCaller(method.ReturnType.GenericTypeArguments[0], CallDeserializeTaskAsync, DeserializeTaskHttpResponseMessage);
             }
             else if (method.IsValueTask())
             {
-                return (content, context, t) => 
+                return (resp, context, t) => 
                 {
                     context.ReturnValue = TaskUtils.CompletedValueTask;
                     return Task.CompletedTask;
@@ -142,7 +142,7 @@ namespace Norns.Urd.Http
             }
             else if (method.IsTask())
             {
-                return (content, context, t) =>
+                return (resp, context, t) =>
                 {
                     context.ReturnValue = Task.CompletedTask;
                     return Task.CompletedTask;
@@ -150,12 +150,18 @@ namespace Norns.Urd.Http
             }
             else
             {
-                return CreateDeserializeCaller(method.ReturnType, CallDeserialize);
+                return CreateDeserializeCaller(method.ReturnType, CallDeserialize, DeserializeHttpResponseMessage);
             }
         }
 
-        private Func<HttpContent, AspectContext, CancellationToken, Task> CreateDeserializeCaller(Type returnType, MethodInfo deserializeMethod)
+        private Func<HttpResponseMessage, AspectContext, CancellationToken, Task> CreateDeserializeCaller(Type returnType, MethodInfo deserializeMethod,
+                Func<HttpResponseMessage, AspectContext, CancellationToken, Task> deserializeHttpResponseMessage)
         {
+            if (returnType == typeof(HttpResponseMessage))
+            {
+                return deserializeHttpResponseMessage;
+            }
+
             var caller = deserializeMethod.MakeGenericMethod(returnType)
                 .CreateDelegate<Func<HttpClientInterceptor, HttpContent, AspectContext, CancellationToken, Task >>(typeof(Task),
                 new Type[] { typeof(HttpClientInterceptor), typeof(HttpContent), typeof(AspectContext), typeof(CancellationToken) },
@@ -165,8 +171,27 @@ namespace Norns.Urd.Http
                     il.EmitLoadArg(2);
                     il.EmitLoadArg(3);
                 });
-            return async (content, context, t) => await caller(this, content, context, t);
+            return async (resp, context, t) => await caller(this, resp.Content, context, t);
         }
+
+        public Task DeserializeHttpResponseMessage(HttpResponseMessage resp, AspectContext context, CancellationToken token)
+        {
+            context.ReturnValue = resp;
+            return Task.CompletedTask;
+        }
+
+        public Task DeserializeTaskHttpResponseMessage(HttpResponseMessage resp, AspectContext context, CancellationToken token)
+        {
+            context.ReturnValue = Task.FromResult(resp);
+            return Task.CompletedTask;
+        }
+
+        public Task DeserializeValueTaskHttpResponseMessage(HttpResponseMessage resp, AspectContext context, CancellationToken token)
+        {
+            context.ReturnValue = new ValueTask<HttpResponseMessage>(resp);
+            return Task.CompletedTask;
+        }
+
 
         public async Task Deserialize<T>(HttpContent content, AspectContext context, CancellationToken token)
         {

@@ -20,6 +20,7 @@
         - [CircuitBreakerAttribute](#circuitbreakerattribute)
         - [BulkheadAttribute](#bulkheadattribute)
     - [CacheAttribute](#cacheattribute)
+    - [HttpClient](#httpclient)
 - [Norns.Urd 中的一些设计](#nornsurd-中的一些设计)
 
 # 欢迎了解 Norns.Urd
@@ -68,14 +69,14 @@ Intel Core i7-9750H CPU 2.60GHz, 1 CPU, 12 logical and 6 physical cores
 <table>
 <thead><tr><th>                                  Method</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Gen 0</th><th>Gen 1</th><th>Gen 2</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>TransientInstanceCallSyncMethodWhenNoAop</td><td>66.89 ns</td><td>0.534 ns</td><td>0.473 ns</td><td>0.0178</td><td>-</td><td>-</td><td>112 B</td>
-</tr><tr><td>TransientInstanceCallSyncMethodWhenNornsUrd</td><td>142.65 ns</td><td>0.373 ns</td><td>0.331 ns</td><td>0.0534</td><td>-</td><td>-</td><td>336 B</td>
-</tr><tr><td>TransientInstanceCallSyncMethodWhenCastle</td><td>214.54 ns</td><td>2.738 ns</td><td>2.286 ns</td><td>0.0815</td><td>-</td><td>-</td><td>512 B</td>
-</tr><tr><td>TransientInstanceCallSyncMethodWhenAspectCore</td><td>518.27 ns</td><td>3.595 ns</td><td>3.363 ns</td><td>0.1030</td><td>-</td><td>-</td><td>648 B</td>
-</tr><tr><td>TransientInstanceCallAsyncMethodWhenNoAop</td><td>111.56 ns</td><td>0.705 ns</td><td>0.659 ns</td><td>0.0408</td><td>-</td><td>-</td><td>256 B</td>
-</tr><tr><td>TransientInstanceCallAsyncMethodWhenNornsUrd</td><td>222.59 ns</td><td>1.128 ns</td><td>1.055 ns</td><td>0.0763</td><td>-</td><td>-</td><td>480 B</td>
-</tr><tr><td>TransientInstanceCallAsyncMethodWhenCastle</td><td>245.23 ns</td><td>1.295 ns</td><td>1.211 ns</td><td>0.1044</td><td>-</td><td>-</td><td>656 B</td>
-</tr><tr><td>TransientInstanceCallAsyncMethodWhenAspectCore</td><td>587.14 ns</td><td>2.245 ns</td><td>2.100 ns</td><td>0.1373</td><td>-</td><td>-</td><td>864 B</td>
+</thead><tbody><tr><td>TransientInstanceCallSyncMethodWhenNoAop</td><td>61.77 ns</td><td>0.311 ns</td><td>0.291 ns</td><td>0.0178</td><td>-</td><td>-</td><td>112 B</td>
+</tr><tr><td>TransientInstanceCallSyncMethodWhenNornsUrd</td><td>155.58 ns</td><td>1.038 ns</td><td>0.971 ns</td><td>0.0548</td><td>-</td><td>-</td><td>344 B</td>
+</tr><tr><td>TransientInstanceCallSyncMethodWhenCastle</td><td>213.94 ns</td><td>1.213 ns</td><td>1.076 ns</td><td>0.0815</td><td>-</td><td>-</td><td>512 B</td>
+</tr><tr><td>TransientInstanceCallSyncMethodWhenAspectCore</td><td>508.71 ns</td><td>2.334 ns</td><td>2.183 ns</td><td>0.1030</td><td>-</td><td>-</td><td>648 B</td>
+</tr><tr><td>TransientInstanceCallAsyncMethodWhenNoAop</td><td>92.58 ns</td><td>0.793 ns</td><td>0.619 ns</td><td>0.0408</td><td>-</td><td>-</td><td>256 B</td>
+</tr><tr><td>TransientInstanceCallAsyncMethodWhenNornsUrd</td><td>242.98 ns</td><td>0.818 ns</td><td>0.765 ns</td><td>0.0892</td><td>-</td><td>-</td><td>560 B</td>
+</tr><tr><td>TransientInstanceCallAsyncMethodWhenCastle</td><td>225.98 ns</td><td>0.521 ns</td><td>0.487 ns</td><td>0.1044</td><td>-</td><td>-</td><td>656 B</td>
+</tr><tr><td>TransientInstanceCallAsyncMethodWhenAspectCore</td><td>565.25 ns</td><td>2.377 ns</td><td>2.107 ns</td><td>0.1373</td><td>-</td><td>-</td><td>864 B</td>
 </tr></tbody></table>
 
 # 快速入门指南
@@ -687,6 +688,359 @@ public static IAspectConfiguration EnableDistributedCacheSystemTextJsonAdapter(t
 {
     return configuration.EnableDistributedCacheSerializationAdapter(i => new SystemTextJsonAdapter(name));
 }
+```
+
+## HttpClient
+
+这里的HttpClient是对 `System.Net.Http`下的 HttpClient封装，让大家只需简单在接口定义就可以实现http的调用，可以减少一些重复代码的书写。
+
+### 如何启用 HttpClient 功能
+
+1. 引入Norns.Urd.HttpClient
+```
+dotnet add package Norns.Urd.HttpClient
+```
+
+2. 代码中开启 HttpClient 功能，只需
+
+``` csharp
+new ServiceCollection()
+    .ConfigureAop(i => i.EnableHttpClient())
+```
+
+3. 定义 要使用的 HttpClient 接口
+
+举例如：
+
+``` csharp
+[BaseAddress("http://localhost.:5000")]
+public interface ITestClient
+{
+    [Get("WeatherForecast/file")]
+    [AcceptOctetStream]
+    Task<Stream> DownloadAsync();
+
+    [Post("WeatherForecast/file")]
+    [OctetStreamContentType]
+    Task UpoladAsync([Body]Stream f);
+}
+```
+
+4. 注册到 ioc 中
+
+``` csharp
+new ServiceCollection()
+    .AddSingleton<ITestClient>()  // 按照自己需要设置生命周期就好，并且不需要写具体实现，Norns.Urd.HttpClient会为您生成对应IL代码
+    .ConfigureAop(i => i.EnableHttpClient())
+```
+
+5. 通过DI 使用就好， 比如
+
+``` csharp
+[ApiController]
+[Route("[controller]")]
+public class ClientController : ControllerBase
+{
+    private readonly ITestClient client;
+
+    public ClientController(ITestClient client)
+    {
+        this.client = client;
+    }
+
+    [HttpGet("download")]
+    public async Task<object> DownloadAsync()
+    {
+        using var r = new StreamReader(await client.DownloadAsync());
+        return await r.ReadToEndAsync();
+    }
+}
+```
+
+### HttpClient支持的功能
+
+#### Url 配置
+
+##### BaseAddress
+
+如果有些网站域名或者基础api地址都是很多接口都会使用的，就可以在接口上使用 `BaseAddressAttribute`
+
+如：
+
+``` csharp
+[BaseAddress("http://localhost.:5000")]
+public interface ITestClient
+```
+##### 各种 Http Method 支持设置Url
+
+Http Method 支持如下：
+
+- GetAttribute
+- PostAttribute
+- PutAttribute
+- DeleteAttribute
+- PatchAttribute
+- OptionsAttribute
+- HeadAttribute
+
+（上述method 不够使用时，可以继承`HttpMethodAttribute` 自定义实现）
+
+所有的这些Http Method都支持配置Url，有以下两种方式支持：
+
+* 静态配置
+
+``` csharp
+[Post("http://localhost.:5000/money/getData/")]
+public Data GetData()
+```
+
+* 动态配置
+
+默认支持从 `IConfiguration` 通过key获取 url 配置
+
+``` csharp
+[Post("configKey", IsDynamicPath = true)]
+public Data GetData()
+```
+
+如果这样简单的配置形式不支持您的需求，可以实现 `IHttpRequestDynamicPathFactory` 接口替换配置实现方式，实现好的类只需注册到IOC容器就可以了。
+实现示例可以参考 `ConfigurationDynamicPathFactory`
+
+##### 路由参数设置
+
+如果某些url 路由参数需要动态设置，您可以通过`RouteAttribute`设置, 如
+
+```csharp
+[Post("getData/{id}")]
+public Data GetData([Route]string id)
+```
+
+如果参数名字不匹配url里面的设置，可以通过`Alias =` 设置，如
+```csharp
+[Post("getData/{id}")]
+public Data GetData([Route(Alias = "id")]string number)
+```
+
+##### Query string 设置
+
+Query string参数可以在方法参数列表中设置
+
+```csharp
+[Post("getData")]
+public Data GetData([Query]string id);
+//or
+[Post("getData")]
+public Data GetData([Query(Alias = "id")]string number);
+```
+
+其Url结果都为 `getData?id=xxx`,
+
+参数类型支持基本类型和 class，
+当为class 时，会取class的属性作为参数，
+所以当属性名不匹配定义时，可以在属性上用 `[Query(Alias = "xxx")]`指定
+
+#### Request body 设置 
+
+Request body 可以通过可以在方法参数列表中设置`BodyAttribute`指定参数，
+需注意，只有第一个有`BodyAttribute`的参数会生效， 举例如
+
+```csharp
+public void SetData([Body]Data data);
+```
+
+将根据设置的 Request Content-Type 选择序列化器序列化body
+
+#### Response body 设置
+
+Response body 的类型指定，只需在方法的 return type 写上需要的类型就好，支持以下
+
+- void        (忽略反序列化)
+- Task        (忽略反序列化)
+- ValueTask   (忽略反序列化)
+- T
+- Task<T>
+- ValueTask<T>
+- HttpResponseMessage
+- Stream      (只能Content-Type为 application/octet-stream 时起效)
+
+举例如：
+```csharp
+public Data GetData();
+```
+
+#### Content-Type 设置
+
+无论 Request 还是 Response 的 Content-Type 都会影响 序列化和反序列化器的选择，
+
+默认支持json/xml的序列化和反序列化，可以通过如下设置
+
+- JsonContentTypeAttribute
+- XmlContentTypeAttribute
+- OctetStreamContentTypeAttribute
+
+举例如：
+```csharp
+[OctetStreamContentType]
+public Data GetData([Body]Stream s);
+```
+
+对应的Accept 设置为
+
+- AcceptJsonAttribute
+- AcceptXmlAttribute
+- AcceptOctetStreamAttribute
+
+举例如：
+```csharp
+[AcceptOctetStream]
+public Stream GetData();
+```
+
+json 序列化器默认为 `System.Text.Json`
+
+#### 更换json 序列化器为 NewtonsoftJson
+
+1. 引入 `Norns.Urd.HttpClient.NewtonsoftJson`
+2. 在 ioc 注册方法, 如
+
+```csharp
+new ServiceCollection().AddHttpClientNewtonsoftJosn()
+```
+
+#### 自定义序列化器
+
+当现有序列化器不足以支持需求时，
+只需实现 `IHttpContentSerializer` 并向 ioc 容器注册即可
+
+#### 自定义 Header
+
+除了上述已经提到的header之外，还可以通过添加其他header
+同样有以下两种方式：
+
+* 使用`HeaderAttribute`在接口或方法静态配置
+
+```csharp
+[Header("x-data", "money")]
+public interface ITestClient {}
+//or
+[Header("x-data", "money")]
+public Data GetData();
+```
+
+* 方法参数动态配置
+
+```csharp
+public Data GetData([SetRequestHeader("x-data")]string header);
+```
+
+#### 自定义HttpRequestMessageSettingsAttribute
+
+当现有`HttpRequestMessageSettingsAttribute`不足以支持需求时，
+只需继承 `HttpRequestMessageSettingsAttribute` 实现自己的功能，
+在对应的接口/方法使用即可
+
+#### 通过参数设置获取 Response Header
+
+当有时我们需要获取 response 返回的 header 时，
+我们可以 out 参数 + `OutResponseHeaderAttribute` 获取 Response Header的值
+（需注意， 只有同步方法， out参数才能起作用）
+
+举例如：
+
+```csharp
+public Data GetData([OutResponseHeader("x-data")] out string header);
+```
+
+#### HttpClient 一些参数设置方法
+
+##### MaxResponseContentBufferSize
+
+``` csharp
+[MaxResponseContentBufferSize(20480)]
+public interface ITestClient {}
+//or
+[MaxResponseContentBufferSize(20480)]
+public Data GetData()
+```
+
+##### Timeout
+
+``` csharp
+[Timeout("00:03:00")]
+public interface ITestClient {}
+//or
+[Timeout("00:03:00")]
+public Data GetData()
+```
+
+##### ClientName
+
+当需要结合 HttpClientFactory 获取特殊设置的 HttpClient 时，可以通过`ClientNameAttribute` 指定
+
+如
+
+``` csharp
+[ClientName("MyClient")]
+public interface ITestClient {}
+//or
+[ClientName("MyClient")]
+public Data GetData()
+```
+
+就可以获取到这样指定的HttpClient
+
+``` csharp
+services.AddHttpClient("MyClient", i => i.MaxResponseContentBufferSize = 204800);
+```
+
+##### HttpCompletionOption
+
+HttpClient 调用时的 CompletionOption 参数同样可以设置
+
+HttpCompletionOption.ResponseHeadersRead 是默认配置
+
+如
+
+``` csharp
+[HttpCompletionOption(HttpCompletionOption.ResponseContentRead)]
+public interface ITestClient {}
+//or
+[HttpCompletionOption(HttpCompletionOption.ResponseContentRead)]
+public Data GetData()
+```
+
+#### 全局 HttpRequestMessage 和 HttpResponseMessage 处理
+
+如果需要全局对 HttpRequestMessage 和 HttpResponseMessage 做一些处理，比如：
+- 链路追踪id 设置
+- response 异常自定义处理
+
+可以通过实现`IHttpClientHandler`并向ioc 容器注册使用
+举例默认的 status code 检查 ，如：
+
+``` csharp
+public class EnsureSuccessStatusCodeHandler : IHttpClientHandler
+{
+    public int Order => 0;
+
+    public Task SetRequestAsync(HttpRequestMessage message, AspectContext context, CancellationToken token)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task SetResponseAsync(HttpResponseMessage resp, AspectContext context, CancellationToken token)
+    {
+        resp.EnsureSuccessStatusCode();
+        return Task.CompletedTask;
+    }
+}
+```
+
+当然，如果该 StatusCode 检查处理不需要的话，可以直接在ioc 容器清除掉， 如：
+``` csharp
+services.RemoveAll<IHttpClientHandler>();
+// 然后添加自己的处理
+services.AddSingleton<IHttpClientHandler, xxx>();
 ```
 
 # Norns.Urd 中的一些设计

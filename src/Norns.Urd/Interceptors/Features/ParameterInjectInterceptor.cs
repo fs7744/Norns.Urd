@@ -29,7 +29,7 @@ namespace Norns.Urd.Interceptors.Features
             await next(context);
         }
 
-        private void InjectParameters(AspectContext context)
+        private static void InjectParameters(AspectContext context)
         {
             cache.GetOrAdd(context.Method, CreateInjectParametersAction)(context);
         }

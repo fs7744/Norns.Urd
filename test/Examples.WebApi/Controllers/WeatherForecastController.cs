@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Examples.WebApi.Controllers
 {
@@ -11,12 +13,16 @@ namespace Examples.WebApi.Controllers
         IEnumerable<WeatherForecast> Get();
     }
 
-    public class AopTest : IAopTest
+    public class AopTest : IAopTest, IDisposable
     {
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
+
+        public void Dispose()
+        {
+        }
 
         public IEnumerable<WeatherForecast> Get()
         {
@@ -46,5 +52,21 @@ namespace Examples.WebApi.Controllers
 
         [HttpGet]
         public virtual IEnumerable<WeatherForecast> Get(DateTime dsd) => test.Get();
+
+        [HttpPost("file")]
+        public async Task TestUploadStream()
+        {
+            using var reader = new StreamReader(HttpContext.Request.Body);
+            _logger.LogWarning(await reader.ReadToEndAsync());
+        }
+
+        [HttpGet("file")]
+        public async Task TestDownloadStream()
+        {
+           HttpContext.Response.ContentType = "application/octet-stream";
+            var bytes = System.Text.Encoding.UTF8.GetBytes(Guid.NewGuid().ToString());
+            await HttpContext.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+           await HttpContext.Response.CompleteAsync();
+        }
     }
 }

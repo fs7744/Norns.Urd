@@ -9,7 +9,9 @@ namespace Norns.Urd
     {
         InterceptorCollection GlobalInterceptors { get; }
 
-        NonAspectPredicateCollection NonPredicates { get; }
+        AspectPredicateCollection NonPredicates { get; }
+
+        AspectPredicateCollection FacdeProxyAllowPredicates { get; }
 
         List<Action<IServiceCollection>> ConfigServices { get; }
     }
@@ -18,8 +20,10 @@ namespace Norns.Urd
     {
         public InterceptorCollection GlobalInterceptors { get; } = new InterceptorCollection();
 
-        public NonAspectPredicateCollection NonPredicates { get; } = new NonAspectPredicateCollection().AddDefault();
+        public AspectPredicateCollection NonPredicates { get; } = new AspectPredicateCollection().AddDefault();
 
         public List<Action<IServiceCollection>> ConfigServices { get; } = new List<Action<IServiceCollection>>();
+
+        public AspectPredicateCollection FacdeProxyAllowPredicates { get; } = new AspectPredicateCollection();
     }
 }

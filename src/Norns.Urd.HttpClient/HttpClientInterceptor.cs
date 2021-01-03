@@ -50,12 +50,8 @@ namespace Norns.Urd.Http
                 .Select(i => i.Name)
                 .FirstOrDefault() ?? Options.DefaultName;
             var clientSetters = mr.GetCustomAttributesDistinctBy<ClientSettingsAttribute>(tr).ToArray();
-            var requestSetters = mr.GetCustomAttributesDistinctBy<HttpMethodAttribute>(tr)
-                .Select(i => i.CreateSettings(mr.Parameters.Where(j => j.IsDefined<RouteAttribute>()), mr.Parameters.Where(j => j.IsDefined<QueryAttribute>())))
-                .First()
-                .Union(tr.GetCustomAttributes<HttpRequestMessageSettingsAttribute>())
-                .Union(mr.GetCustomAttributes<HttpRequestMessageSettingsAttribute>())
-                .ToArray();
+            var requestSetters = GetRequestSetters(mr, tr);
+            var responseSetters = GetResponseSetters(mr, tr);
             var option = mr.GetCustomAttributesDistinctBy<HttpCompletionOptionAttribute>(tr)
                 .Select(i => i.Option)
                 .FirstOrDefault(HttpCompletionOption.ResponseHeadersRead);
@@ -79,31 +75,66 @@ namespace Norns.Urd.Http
                 await handler.SetRequestAsync(message, context, token);
                 foreach (var setter in requestSetters)
                 {
-                    setter.SetRequest(message, context);
+                    await setter.SetRequestAsync(message, context, token);
                 }
                 var resp = await client.SendAsync(message, option, token);
                 await handler.SetResponseAsync(resp, context, token);
-                await returnValueHandler(resp.Content, context, token);
+                foreach (var setter in responseSetters)
+                {
+                   await setter.SetResponseAsync(resp, context, token);
+                }
+                await returnValueHandler(resp, context, token);
             };
         }
 
-        private Func<HttpContent, AspectContext, CancellationToken, Task> CreateReturnValueHandler(MethodInfo method)
+        private static HttpResponseMessageSettingsAttribute[] GetResponseSetters(MethodReflector mr, TypeReflector tr)
+        {
+            return mr.GetCustomAttributes<HttpResponseMessageSettingsAttribute>()
+                            .Union(mr.Parameters.SelectMany(i => i.GetCustomAttributes<ParameterResponseMessageSettingsAttribute>()
+                                .Select(j =>
+                                {
+                                    j.Parameter = i.MemberInfo;
+                                    return j;
+                                })))
+                            .Union(tr.GetCustomAttributes<HttpResponseMessageSettingsAttribute>())
+                            .OrderBy(i => i.Order)
+                            .ToArray();
+        }
+
+        private static IHttpRequestMessageSettings[] GetRequestSetters(MethodReflector mr, TypeReflector tr)
+        {
+            return mr.GetCustomAttributesDistinctBy<HttpMethodAttribute>(tr)
+                .Select(i => i.CreateSettings(mr.Parameters.Where(j => j.IsDefined<RouteAttribute>()), mr.Parameters.Where(j => j.IsDefined<QueryAttribute>())))
+                .First()
+                .Union(mr.Parameters.SelectMany(i => i.GetCustomAttributes<ParameterRequestMessageSettingsAttribute>()
+                    .Select(j =>
+                    {
+                        j.Parameter = i.MemberInfo;
+                        return j;
+                    })))
+                .Union(tr.GetCustomAttributes<HttpRequestMessageSettingsAttribute>())
+                .Union(mr.GetCustomAttributes<HttpRequestMessageSettingsAttribute>())
+                .OrderBy(i => i.Order)
+                .ToArray();
+        }
+
+        private Func<HttpResponseMessage, AspectContext, CancellationToken, Task> CreateReturnValueHandler(MethodInfo method)
         {
             if (method.IsVoid())
             {
-                return (content, context, t) => Task.CompletedTask;
+                return (resp, context, t) => Task.CompletedTask;
             }
             else if (method.IsReturnValueTask())
             {
-                return CreateDeserializeCaller(method.ReturnType.GenericTypeArguments[0], CallDeserializeValueTaskAsync);
+                return CreateDeserializeCaller(method.ReturnType.GenericTypeArguments[0], CallDeserializeValueTaskAsync, DeserializeValueTaskHttpResponseMessage);
             }
             else if (method.IsReturnTask())
             {
-                return CreateDeserializeCaller(method.ReturnType.GenericTypeArguments[0], CallDeserializeTaskAsync);
+                return CreateDeserializeCaller(method.ReturnType.GenericTypeArguments[0], CallDeserializeTaskAsync, DeserializeTaskHttpResponseMessage);
             }
             else if (method.IsValueTask())
             {
-                return (content, context, t) => 
+                return (resp, context, t) => 
                 {
                     context.ReturnValue = TaskUtils.CompletedValueTask;
                     return Task.CompletedTask;
@@ -111,7 +142,7 @@ namespace Norns.Urd.Http
             }
             else if (method.IsTask())
             {
-                return (content, context, t) =>
+                return (resp, context, t) =>
                 {
                     context.ReturnValue = Task.CompletedTask;
                     return Task.CompletedTask;
@@ -119,12 +150,18 @@ namespace Norns.Urd.Http
             }
             else
             {
-                return CreateDeserializeCaller(method.ReturnType, CallDeserialize);
+                return CreateDeserializeCaller(method.ReturnType, CallDeserialize, DeserializeHttpResponseMessage);
             }
         }
 
-        private Func<HttpContent, AspectContext, CancellationToken, Task> CreateDeserializeCaller(Type returnType, MethodInfo deserializeMethod)
+        private Func<HttpResponseMessage, AspectContext, CancellationToken, Task> CreateDeserializeCaller(Type returnType, MethodInfo deserializeMethod,
+                Func<HttpResponseMessage, AspectContext, CancellationToken, Task> deserializeHttpResponseMessage)
         {
+            if (returnType == typeof(HttpResponseMessage))
+            {
+                return deserializeHttpResponseMessage;
+            }
+
             var caller = deserializeMethod.MakeGenericMethod(returnType)
                 .CreateDelegate<Func<HttpClientInterceptor, HttpContent, AspectContext, CancellationToken, Task >>(typeof(Task),
                 new Type[] { typeof(HttpClientInterceptor), typeof(HttpContent), typeof(AspectContext), typeof(CancellationToken) },
@@ -134,7 +171,25 @@ namespace Norns.Urd.Http
                     il.EmitLoadArg(2);
                     il.EmitLoadArg(3);
                 });
-            return async (content, context, t) => await caller(this, content, context, t);
+            return async (resp, context, t) => await caller(this, resp.Content, context, t);
+        }
+
+        public static Task DeserializeHttpResponseMessage(HttpResponseMessage resp, AspectContext context, CancellationToken token)
+        {
+            context.ReturnValue = resp;
+            return Task.CompletedTask;
+        }
+
+        public static Task DeserializeTaskHttpResponseMessage(HttpResponseMessage resp, AspectContext context, CancellationToken token)
+        {
+            context.ReturnValue = Task.FromResult(resp);
+            return Task.CompletedTask;
+        }
+
+        public static Task DeserializeValueTaskHttpResponseMessage(HttpResponseMessage resp, AspectContext context, CancellationToken token)
+        {
+            context.ReturnValue = new ValueTask<HttpResponseMessage>(resp);
+            return Task.CompletedTask;
         }
 
         public async Task Deserialize<T>(HttpContent content, AspectContext context, CancellationToken token)

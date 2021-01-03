@@ -17,6 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.TryAddSingleton<IHttpRequestDynamicPathFactory, ConfigurationDynamicPathFactory>();
                 services.TryAddSingleton<IQueryStringBuilder, QueryStringBuilder>();
                 services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHttpContentSerializer), typeof(SystemTextJsonContentSerializer)));
+                services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHttpContentSerializer), typeof(OctetStreamContentSerializer)));
                 services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHttpClientHandler), typeof(EnsureSuccessStatusCodeHandler)));
                 services.PostConfigure<JsonSerializerOptions>(i =>
                 {

@@ -8,34 +8,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Norns.Urd
 {
     public static class AopInitializer
     {
-        public static object AwaitResultTask(Task task, AspectContext context)
-        {
-            return AwaitTask(task, context).Result;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static async Task<object> AwaitTask(Task task, AspectContext context)
-        {
-            if (!task.IsCompleted)
-            {
-                await task;
-            }
-            return context.ReturnValue;
-        }
-
-        public static (IProxyGenerator, IEnumerable<Action<IServiceCollection>>) Init(this Action<IAspectConfiguration> config)
+        public static (IProxyGenerator, IEnumerable<Action<IServiceCollection>>, IAspectConfiguration) Init(this Action<IAspectConfiguration> config)
         {
             var configuration = new AspectConfiguration();
             configuration.AddParameterInject();
             config?.Invoke(configuration);
-            return (new ProxyGenerator(configuration), configuration.ConfigServices);
+            return (new ProxyGenerator(configuration), configuration.ConfigServices, configuration);
         }
 
         public static Func<object, object> CreateInstanceGetter(this Type type)
@@ -83,6 +67,35 @@ namespace Norns.Urd
         {
             var field = type.GetField(Constants.ServiceProvider, BindingFlags.NonPublic | BindingFlags.Instance);
             return field?.CreateGetter<object, IServiceProvider>();
+        }
+
+        public static AsyncAspectDelegate ConverTotReturnTask<T>(AsyncAspectDelegate aspectDelegate)
+        {
+            return c => Call<T>(aspectDelegate(c), c);
+        }
+
+        private static async Task<T> Call<T>(Task t, AspectContext c)
+        {
+            await t;
+            var r = c.ReturnValue as Task<T>;
+            return r.Result;
+        }
+
+        private static async Task<T> CallValueTask<T>(Task t, AspectContext c)
+        {
+            await t;
+            var r = (ValueTask<T>)c.ReturnValue;
+            return r.Result;
+        }
+
+        public static AsyncAspectDelegate ConverTotReturnValueTask<T>(AsyncAspectDelegate aspectDelegate)
+        {
+            return c => 
+            {
+                var task = CallValueTask<T>(aspectDelegate(c), c);
+                c.ReturnTask = new ValueTask<T>(task);
+                return task;
+            };
         }
     }
 }

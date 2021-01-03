@@ -8,8 +8,8 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection ConfigureAop(this IServiceCollection services, Action<IAspectConfiguration> config = null, bool isIgnoreError = true)
         {
-            var (proxyGenerator, configServices) = config.Init();
-            var creator = new ProxyServiceDescriptorCreator(proxyGenerator);
+            var (proxyGenerator, configServices, configuration) = config.Init();
+            var creator = new ProxyServiceDescriptorCreator(proxyGenerator, configuration);
             foreach (var item in services.ToArray())
             {
                 try

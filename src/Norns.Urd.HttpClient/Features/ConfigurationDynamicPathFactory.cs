@@ -2,13 +2,15 @@
 using System;
 using System.Collections.Concurrent;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Norns.Urd.Http
 {
     public class ConfigurationDynamicPathFactory : IHttpRequestDynamicPathFactory
     {
         private readonly IConfiguration configuration;
-        private static readonly ConcurrentDictionary<string, Action<HttpRequestMessage, AspectContext>> cache = new ConcurrentDictionary<string, Action<HttpRequestMessage, AspectContext>>();
+        private static readonly ConcurrentDictionary<string, Func<HttpRequestMessage, AspectContext, CancellationToken, Task>> cache = new ConcurrentDictionary<string, Func<HttpRequestMessage, AspectContext, CancellationToken, Task>>();
 
 
         public ConfigurationDynamicPathFactory(IConfiguration configuration)
@@ -16,7 +18,7 @@ namespace Norns.Urd.Http
             this.configuration = configuration;
         }
 
-        public Action<HttpRequestMessage, AspectContext> GetDynamicPath(string key, Func<string, Action<HttpRequestMessage, AspectContext>> action)
+        public Func<HttpRequestMessage, AspectContext, CancellationToken, Task> GetDynamicPath(string key, Func<string, Func<HttpRequestMessage, AspectContext, CancellationToken, Task>> action)
         {
             return cache.GetOrAdd(key, k =>
             {

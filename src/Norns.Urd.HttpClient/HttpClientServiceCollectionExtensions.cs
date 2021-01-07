@@ -16,15 +16,15 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.TryAddSingleton<IHttpClientFactoryHandler, HttpClientFactoryHandler>();
                 services.TryAddSingleton<IHttpRequestDynamicPathFactory, ConfigurationDynamicPathFactory>();
                 services.TryAddSingleton<IQueryStringBuilder, QueryStringBuilder>();
-                services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHttpContentSerializer), typeof(SystemTextJsonContentSerializer)));
-                services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHttpContentSerializer), typeof(OctetStreamContentSerializer)));
-                services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHttpClientHandler), typeof(EnsureSuccessStatusCodeHandler)));
+                services.TryAddEnumerable(ServiceDescriptor.Transient(typeof(IHttpContentSerializer), typeof(SystemTextJsonContentSerializer)));
+                services.TryAddEnumerable(ServiceDescriptor.Transient(typeof(IHttpContentSerializer), typeof(OctetStreamContentSerializer)));
+                services.TryAddEnumerable(ServiceDescriptor.Transient(typeof(IHttpClientHandler), typeof(EnsureSuccessStatusCodeHandler)));
                 services.PostConfigure<JsonSerializerOptions>(i =>
                 {
                     i.PropertyNameCaseInsensitive = true;
                     i.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                 });
-                services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHttpContentSerializer), typeof(XmlContentSerializer)));
+                services.TryAddEnumerable(ServiceDescriptor.Transient(typeof(IHttpContentSerializer), typeof(XmlContentSerializer)));
                 services.PostConfigure<XmlContentSerializerOptions>(i => { });
             });
             return configuration;

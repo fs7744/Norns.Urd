@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddHttpClientNewtonsoftJosn(this IServiceCollection services)
         {
-            services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHttpContentSerializer), typeof(NewtonsoftJosnContentSerializer)));
+            services.TryAddEnumerable(ServiceDescriptor.Transient(typeof(IHttpContentSerializer), typeof(NewtonsoftJosnContentSerializer)));
             services.PostConfigure<JsonSerializerSettings>(i => { });
             return services;
         }

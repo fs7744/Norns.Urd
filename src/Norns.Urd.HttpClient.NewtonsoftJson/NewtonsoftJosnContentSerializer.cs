@@ -41,8 +41,10 @@ namespace Norns.Urd.HttpClient
         public Task<HttpContent> SerializeAsync<T>(T data, CancellationToken token)
         {
             var stream = new MemoryStream();
+            
             var writer = new StreamWriter(stream);
-            jsonSerializer.Serialize(writer, data);
+            jsonSerializer.Serialize(writer, data); 
+            writer.Flush();
             var content = new StreamContent(stream)
             {
                 Headers =

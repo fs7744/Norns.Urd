@@ -3,7 +3,7 @@
 		<TargetFrameworks>net5.0;netstandard2.1;netstandard2.0;net461</TargetFrameworks>
 		<IsPackable>true</IsPackable>
 		<VersionSuffix>$(VersionSuffix)</VersionSuffix>
-		<Version>0.0.4.2</Version>
+		<Version>0.0.4.3</Version>
 		<AssemblyVersion>$(Version)</AssemblyVersion>
 		<FileVersion>$(Version)</FileVersion>
 		<Version Condition=" '$(VersionSuffix)' != '' ">$(Version)-$(VersionSuffix)</Version>

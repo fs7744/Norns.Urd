@@ -63,6 +63,18 @@ namespace Norns.Urd.Reflection
             return returnType.IsValueTaskWithResult();
         }
 
+        public static bool IsExplicit(this MethodInfo methodInfo)
+        {
+            return methodInfo.Attributes.HasFlag(MethodAttributes.Private | MethodAttributes.Final |
+                                                 MethodAttributes.Virtual);
+        }
+
+        public static bool IsCallvirt(this MethodInfo methodInfo)
+        {
+            return methodInfo.IsExplicit() 
+                || !methodInfo.DeclaringType.GetTypeInfo().IsClass;
+        }
+
         public static void DefineGenericParameter(this MethodBuilder methodBuilder, MethodInfo tergetMethod)
         {
             if (!tergetMethod.IsGenericMethod)
@@ -141,7 +153,7 @@ namespace Norns.Urd.Reflection
             var il = dynamicMethod.GetILGenerator();
             il.EmitThis();
             doIL(il);
-            il.Emit(OpCodes.Callvirt, method);
+            il.EmitCallMethod(method);
             il.EmitConvertTo(method.ReturnType, returnType);
             il.Emit(OpCodes.Ret);
             return (T)dynamicMethod.CreateDelegate(typeof(T));

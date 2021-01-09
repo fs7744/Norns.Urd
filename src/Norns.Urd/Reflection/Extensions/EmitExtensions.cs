@@ -744,6 +744,11 @@ namespace Norns.Urd.Reflection
             il.EmitConvertTo(typeof(MethodBase), typeof(MethodInfo));
         }
 
+        public static void EmitCallMethod(this ILGenerator il, MethodInfo method)
+        {
+            il.Emit(method.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call, method);
+        }
+
         private static bool TryEmitILConstant(this ILGenerator il, object value, Type type)
         {
             switch (Type.GetTypeCode(type))

@@ -40,7 +40,7 @@ namespace Norns.Urd.DynamicProxy
             {
                 il.EmitLoadArg(i);
             }
-            il.Emit(OpCodes.Callvirt, method);
+            il.EmitCallMethod(method);
             il.Emit(OpCodes.Ret);
             context.ProxyType.TypeBuilder.DefineMethodOverride(methodBuilder, method);
             return methodBuilder;

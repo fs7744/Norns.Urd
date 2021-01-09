@@ -105,7 +105,7 @@ namespace Norns.Urd.Interceptors
                     }
                 }
             }
-            il.Emit(OpCodes.Callvirt, method);
+            il.EmitCallMethod(method);
             if (!method.IsVoid())
             {
                 var returnLocal = il.DeclareLocal(method.ReturnType);

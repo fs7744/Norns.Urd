@@ -3,6 +3,7 @@ using Norns.Urd.Interceptors;
 using Norns.Urd.Reflection;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -129,8 +130,24 @@ namespace Norns.Urd.DynamicProxy
                 .SelectMany(i => i.GetTypeInfo().GetMethods(Constants.MethodBindingFlags))
                 .Where(x => x.IsNotPropertyBinding()))
             {
-                DefineMethod(context, method, dicts.TryGetValue(method.GetReflector().DisplayName, out var im) ? im : method);
+                var im = FindImplementationMethod(dicts, method);
+                if (im.IsVisibleAndVirtual())
+                {
+                    DefineMethod(context, method, im);
+                }
             }
+        }
+
+        private MethodInfo FindImplementationMethod(Dictionary<string,MethodInfo> methods, MethodInfo serviceMethod)
+        {
+            var displayName = serviceMethod.GetReflector().DisplayName;
+            if (methods.TryGetValue(displayName, out var im))
+            {
+                return im;
+            }
+            var declaringType = serviceMethod.DeclaringType;
+            displayName = $"{serviceMethod.ReturnType.Name} {declaringType.GetReflector().FullDisplayName}.{displayName.Split(' ').Last()}";
+            return methods.TryGetValue(displayName, out im) ? im : serviceMethod;
         }
 
         private MethodBuilder DefineMethod(in ProxyGeneratorContext context, MethodInfo method, MethodInfo implementationMethod)

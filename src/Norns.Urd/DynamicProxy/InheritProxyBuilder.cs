@@ -40,7 +40,7 @@ namespace Norns.Urd.DynamicProxy
                     {
                         il.EmitLoadArg(i);
                     }
-                    il.EmitCallMethod(method);
+                    il.Emit(OpCodes.Call, method);
                 }
                 il.Emit(OpCodes.Ret);
             }
@@ -74,7 +74,7 @@ namespace Norns.Urd.DynamicProxy
                 {
                     il.EmitLoadArg(i);
                 }
-                il.EmitCallMethod(method);
+                il.Emit(OpCodes.Call, method);
             }
 
             il.Emit(OpCodes.Ret);

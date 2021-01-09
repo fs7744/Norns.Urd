@@ -7,18 +7,9 @@ namespace Examples.WebApi.Controllers
     [Route("[controller]")]
     public class VController : ControllerBase
     {
-        private readonly NotificationEditInValidator validations;
-
-        public VController(NotificationEditInValidator validations)
-        {
-            this.validations = validations;
-        }
-
         [HttpPost]
-        //public object Test([FromBody] ForValidatorDemoIn demoIn)
-        public object Test()
+        public object Test([FromBody] ForValidatorDemoIn demoIn)
         {
-            var demoIn = (validations as IValidator).Validate(new ValidationContext<object>( new ForValidatorDemoIn()) as IValidationContext);
             return demoIn;
         }
     }

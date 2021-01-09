@@ -131,7 +131,7 @@ namespace Norns.Urd.DynamicProxy
                 .Where(x => x.IsNotPropertyBinding()))
             {
                 var im = FindImplementationMethod(dicts, method);
-                if (im.IsVisibleAndVirtual())
+                if (im.IsPublic)
                 {
                     DefineMethod(context, method, im);
                 }

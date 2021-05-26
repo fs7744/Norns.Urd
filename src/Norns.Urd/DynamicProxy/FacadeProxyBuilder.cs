@@ -21,7 +21,7 @@ namespace Norns.Urd.DynamicProxy
             // no call PropertyInject In Constructor
         }
 
-        protected override FieldBuilder DefineMethodInfoCaller(in ProxyGeneratorContext context, MethodInfo method)
+        protected override FieldBuilder DefineMethodInfoCaller(in ProxyGeneratorContext context, MethodInfo method, MethodInfo serviceMethod)
         {
             return context.AssistType.DefineMethodInfoCaller(method, method.GetReflector().DisplayName);
         }

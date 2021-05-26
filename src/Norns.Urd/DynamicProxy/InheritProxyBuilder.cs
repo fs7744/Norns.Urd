@@ -17,7 +17,7 @@ namespace Norns.Urd.DynamicProxy
             il.Emit(OpCodes.Call, context.ProxyType.PropertyInject.setter);
         }
 
-        protected override FieldBuilder DefineMethodInfoCaller(in ProxyGeneratorContext context, MethodInfo method)
+        protected override FieldBuilder DefineMethodInfoCaller(in ProxyGeneratorContext context, MethodInfo method, MethodInfo serviceMethod)
         {
             var baseMethodName = $"{method.GetReflector().DisplayName}_Base";
             if (!context.ProxyType.Methods.TryGetValue(baseMethodName, out var methodBaseBuilder))
@@ -28,6 +28,12 @@ namespace Norns.Urd.DynamicProxy
                 methodBaseBuilder.DefineGenericParameter(method);
                 methodBaseBuilder.DefineParameters(method);
                 methodBaseBuilder.DefineCustomAttributes(method);
+                var serviceMethodReflector = method.GetReflector();
+                foreach (var customAttributeData in serviceMethod.CustomAttributes
+                    .Where(i => !i.AttributeType.IsSubclassOf(typeof(AbstractInterceptorAttribute)) && !serviceMethodReflector.IsDefined(i.AttributeType)))
+                {
+                    methodBaseBuilder.SetCustomAttribute(customAttributeData.DefineCustomAttribute());
+                }
                 var il = methodBaseBuilder.GetILGenerator();
                 if (method.IsAbstract)
                 {

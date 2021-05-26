@@ -166,7 +166,7 @@ namespace Norns.Urd.DynamicProxy
 
         protected abstract void GetServiceInstance(in ProxyGeneratorContext context, ILGenerator il);
 
-        protected abstract FieldBuilder DefineMethodInfoCaller(in ProxyGeneratorContext context, MethodInfo method);
+        protected abstract FieldBuilder DefineMethodInfoCaller(in ProxyGeneratorContext context, MethodInfo method, MethodInfo serviceMethod);
 
         protected abstract void CallPropertyInjectInConstructor(in ProxyGeneratorContext context, ILGenerator il);
 
@@ -180,7 +180,7 @@ namespace Norns.Urd.DynamicProxy
             methodBuilder.DefineParameters(method);
             methodBuilder.DefineCustomAttributes(method);
             var il = methodBuilder.GetILGenerator();
-            var caller = DefineMethodInfoCaller(context, implementationMethod);
+            var caller = DefineMethodInfoCaller(context, implementationMethod, method);
             if (method.ContainsGenericParameters && !method.IsGenericMethodDefinition)
             {
                 il.Emit(OpCodes.Ldsfld, caller);

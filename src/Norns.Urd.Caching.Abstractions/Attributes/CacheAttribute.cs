@@ -2,7 +2,7 @@
 
 namespace Norns.Urd.Caching
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true, Inherited = true)]
     public class CacheAttribute : Attribute
     {
         private readonly ICacheOptionGenerator optionGenerator;

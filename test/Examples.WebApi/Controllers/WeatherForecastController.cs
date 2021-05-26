@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Norns.Urd.Caching;
 
 namespace Examples.WebApi.Controllers
 {
     public interface IAopTest
     {
+        [Cache(nameof(Get), AbsoluteExpirationRelativeToNow = "00:00:05")]
         IEnumerable<WeatherForecast> Get();
     }
 
@@ -63,10 +65,10 @@ namespace Examples.WebApi.Controllers
         [HttpGet("file")]
         public async Task TestDownloadStream()
         {
-           HttpContext.Response.ContentType = "application/octet-stream";
+            HttpContext.Response.ContentType = "application/octet-stream";
             var bytes = System.Text.Encoding.UTF8.GetBytes(Guid.NewGuid().ToString());
             await HttpContext.Response.Body.WriteAsync(bytes, 0, bytes.Length);
-           await HttpContext.Response.CompleteAsync();
+            await HttpContext.Response.CompleteAsync();
         }
     }
 }

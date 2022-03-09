@@ -1,9 +1,9 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
-		<TargetFrameworks>net5.0;netstandard2.1;netstandard2.0;net461</TargetFrameworks>
+		<TargetFrameworks>net6.0;netstandard2.1;netstandard2.0;net461</TargetFrameworks>
 		<IsPackable>true</IsPackable>
 		<VersionSuffix>$(VersionSuffix)</VersionSuffix>
-		<Version>0.0.4.5</Version>
+		<Version>0.0.4.6</Version>
 		<AssemblyVersion>$(Version)</AssemblyVersion>
 		<FileVersion>$(Version)</FileVersion>
 		<Version Condition=" '$(VersionSuffix)' != '' ">$(Version)-$(VersionSuffix)</Version>
@@ -22,7 +22,7 @@
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\..\images\icon.png">

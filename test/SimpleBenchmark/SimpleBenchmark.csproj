@@ -2,14 +2,14 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net5.0</TargetFramework>
+		<TargetFramework>net6.0</TargetFramework>
 		<IsTestProject>false</IsTestProject>
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AspectCore.Extensions.DependencyInjection" Version="2.1.0" />
-		<PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+		<PackageReference Include="AspectCore.Extensions.DependencyInjection" Version="2.2.0" />
+		<PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
 		<PackageReference Include="Castle.Windsor" Version="5.1.1" />
 		<PackageReference Include="xunit" Version="2.4.1" />
 	</ItemGroup>

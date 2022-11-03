@@ -42,26 +42,17 @@ namespace Norns.Urd.Interceptors
 
         public static async Task Await(Task task)
         {
-            if (!task.IsCompleted)
-            {
-                await task;
-            }
+            await task;
         }
 
         public static async Task AwaitValueTask(ValueTask task)
         {
-            if (!task.IsCompleted)
-            {
-                await task;
-            }
+            await task;
         }
 
         public static async Task AwaitValueTaskReturnValue<T>(ValueTask<T> task)
         {
-            if (!task.IsCompleted)
-            {
-                await task;
-            }
+            await task;
         }
 
         public static DynamicMethod CreateCaller(MethodInfo method)

@@ -42,13 +42,14 @@ namespace Test.Norns.Urd.DependencyInjection
                 return error;
             }
 
-            public virtual Task<bool> DoAsync(bool error)
+            public virtual async Task<bool> DoAsync(bool error)
             {
                 if (error)
                 {
                     throw new FieldAccessException();
                 }
-                return Task.FromResult(error);
+                await Task.Yield();
+                return error;
             }
 
             public virtual Task DoTaskAsync(bool error)

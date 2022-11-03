@@ -139,24 +139,23 @@ Many implementations of Norns.urd refer to the source code of Castle and AspectC
 
 ``` ini
 
-BenchmarkDotNet=v0.12.1, OS=Windows 10.0.18363.1256 (1909/November2018Update/19H2)
-Intel Core i7-9750H CPU 2.60GHz, 1 CPU, 12 logical and 6 physical cores
-.NET Core SDK=5.0.101
-  [Host]     : .NET Core 5.0.1 (CoreCLR 5.0.120.57516, CoreFX 5.0.120.57516), X64 RyuJIT
-  DefaultJob : .NET Core 5.0.1 (CoreCLR 5.0.120.57516, CoreFX 5.0.120.57516), X64 RyuJIT
+BenchmarkDotNet=v0.13.2, OS=Windows 10 (10.0.19044.1288/21H2/November2021Update)
+Intel Core i7-10700 CPU 2.90GHz, 1 CPU, 16 logical and 8 physical cores
+.NET SDK=6.0.402
+  [Host]     : .NET 6.0.10 (6.0.1022.47605), X64 RyuJIT AVX2
+  DefaultJob : .NET 6.0.10 (6.0.1022.47605), X64 RyuJIT AVX2
 
 
-```
-|                                         Method |      Mean |    Error |   StdDev |  Gen 0 | Gen 1 | Gen 2 | Allocated |
-|----------------------------------------------- |----------:|---------:|---------:|-------:|------:|------:|----------:|
-|       TransientInstanceCallSyncMethodWhenNoAop |  61.77 ns | 0.311 ns | 0.291 ns | 0.0178 |     - |     - |     112 B |
-|    TransientInstanceCallSyncMethodWhenNornsUrd | 155.58 ns | 1.038 ns | 0.971 ns | 0.0548 |     - |     - |     344 B |
-|      TransientInstanceCallSyncMethodWhenCastle | 213.94 ns | 1.213 ns | 1.076 ns | 0.0815 |     - |     - |     512 B |
-|  TransientInstanceCallSyncMethodWhenAspectCore | 508.71 ns | 2.334 ns | 2.183 ns | 0.1030 |     - |     - |     648 B |
-|      TransientInstanceCallAsyncMethodWhenNoAop |  92.58 ns | 0.793 ns | 0.619 ns | 0.0408 |     - |     - |     256 B |
-|   TransientInstanceCallAsyncMethodWhenNornsUrd | 242.98 ns | 0.818 ns | 0.765 ns | 0.0892 |     - |     - |     560 B |
-|     TransientInstanceCallAsyncMethodWhenCastle | 225.98 ns | 0.521 ns | 0.487 ns | 0.1044 |     - |     - |     656 B |
-| TransientInstanceCallAsyncMethodWhenAspectCore | 565.25 ns | 2.377 ns | 2.107 ns | 0.1373 |     - |     - |     864 B |
+|                                         Method |      Mean |    Error |   StdDev |   Gen0 | Allocated |
+|----------------------------------------------- |----------:|---------:|---------:|-------:|----------:|
+|       TransientInstanceCallSyncMethodWhenNoAop |  49.63 ns | 0.249 ns | 0.233 ns | 0.0134 |     112 B |
+|    TransientInstanceCallSyncMethodWhenNornsUrd | 116.59 ns | 0.436 ns | 0.364 ns | 0.0411 |     344 B |
+|      TransientInstanceCallSyncMethodWhenCastle | 174.01 ns | 0.708 ns | 0.628 ns | 0.0610 |     512 B |
+|  TransientInstanceCallSyncMethodWhenAspectCore | 434.65 ns | 2.315 ns | 2.052 ns | 0.0772 |     648 B |
+|      TransientInstanceCallAsyncMethodWhenNoAop |  88.87 ns | 0.909 ns | 0.759 ns | 0.0305 |     256 B |
+|   TransientInstanceCallAsyncMethodWhenNornsUrd | 222.94 ns | 2.224 ns | 2.080 ns | 0.0668 |     560 B |
+|     TransientInstanceCallAsyncMethodWhenCastle | 193.51 ns | 1.803 ns | 1.408 ns | 0.0782 |     656 B |
+| TransientInstanceCallAsyncMethodWhenAspectCore | 518.50 ns | 2.043 ns | 1.911 ns | 0.1030 |     864 B |
 
 ## License
 [MIT](https://github.com/fs7744/Norns.Urd/blob/main/LICENSE)

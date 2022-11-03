@@ -6,7 +6,7 @@ namespace Test.Norns.Urd.DependencyInjection
 {
     public static class AopTestExtensions
     {
-        public static IServiceProvider ConfigServiceCollectionWithAop(Func<IServiceCollection, IServiceCollection> config, bool isIgnoreError = false)
+        public static IServiceCollection ConfigCollectionWithAop(Func<IServiceCollection, IServiceCollection> config, bool isIgnoreError = false)
         {
             return config(new ServiceCollection())
             .ConfigureAop(i =>
@@ -14,7 +14,12 @@ namespace Test.Norns.Urd.DependencyInjection
                 i.NonPredicates.Clean();
                 i.GlobalInterceptors.Add(new AddTenInterceptor());
                 i.FacdeProxyAllowPredicates.AddNamespace("*");
-            }, isIgnoreError)
+            }, isIgnoreError);
+        }
+
+        public static IServiceProvider ConfigServiceCollectionWithAop(Func<IServiceCollection, IServiceCollection> config, bool isIgnoreError = false)
+        {
+            return ConfigCollectionWithAop(config, isIgnoreError)
             .BuildServiceProvider();
         }
     }

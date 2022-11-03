@@ -148,14 +148,14 @@ Intel Core i7-10700 CPU 2.90GHz, 1 CPU, 16 logical and 8 physical cores
 
 |                                         Method |      Mean |    Error |   StdDev |   Gen0 | Allocated |
 |----------------------------------------------- |----------:|---------:|---------:|-------:|----------:|
-|       TransientInstanceCallSyncMethodWhenNoAop |  49.63 ns | 0.249 ns | 0.233 ns | 0.0134 |     112 B |
-|    TransientInstanceCallSyncMethodWhenNornsUrd | 116.59 ns | 0.436 ns | 0.364 ns | 0.0411 |     344 B |
-|      TransientInstanceCallSyncMethodWhenCastle | 174.01 ns | 0.708 ns | 0.628 ns | 0.0610 |     512 B |
-|  TransientInstanceCallSyncMethodWhenAspectCore | 434.65 ns | 2.315 ns | 2.052 ns | 0.0772 |     648 B |
-|      TransientInstanceCallAsyncMethodWhenNoAop |  88.87 ns | 0.909 ns | 0.759 ns | 0.0305 |     256 B |
-|   TransientInstanceCallAsyncMethodWhenNornsUrd | 222.94 ns | 2.224 ns | 2.080 ns | 0.0668 |     560 B |
-|     TransientInstanceCallAsyncMethodWhenCastle | 193.51 ns | 1.803 ns | 1.408 ns | 0.0782 |     656 B |
-| TransientInstanceCallAsyncMethodWhenAspectCore | 518.50 ns | 2.043 ns | 1.911 ns | 0.1030 |     864 B |
+|       TransientInstanceCallSyncMethodWhenNoAop |  52.41 ns | 0.319 ns | 0.298 ns | 0.0134 |     112 B |
+|    TransientInstanceCallSyncMethodWhenNornsUrd | 120.26 ns | 0.237 ns | 0.185 ns | 0.0410 |     344 B |
+|      TransientInstanceCallSyncMethodWhenCastle | 168.58 ns | 0.842 ns | 0.788 ns | 0.0610 |     512 B |
+|  TransientInstanceCallSyncMethodWhenAspectCore | 439.43 ns | 1.466 ns | 1.225 ns | 0.0772 |     648 B |
+|      TransientInstanceCallAsyncMethodWhenNoAop |  88.63 ns | 0.318 ns | 0.282 ns | 0.0305 |     256 B |
+|   TransientInstanceCallAsyncMethodWhenNornsUrd | 211.48 ns | 1.315 ns | 1.098 ns | 0.0668 |     560 B |
+|     TransientInstanceCallAsyncMethodWhenCastle | 197.95 ns | 0.657 ns | 0.549 ns | 0.0782 |     656 B |
+| TransientInstanceCallAsyncMethodWhenAspectCore | 522.63 ns | 4.313 ns | 4.034 ns | 0.1030 |     864 B |
 
 ## License
 [MIT](https://github.com/fs7744/Norns.Urd/blob/main/LICENSE)

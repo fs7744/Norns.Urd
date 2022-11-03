@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3FD69CA3-BAF7-4B7A-AAB2-B9853759F4D7}"
 EndProject
@@ -19,8 +19,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Norns.Urd.Test", "test\Norn
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Examples.WebApi", "test\Examples.WebApi\Examples.WebApi.csproj", "{DA8A1EF3-7E2B-4EE6-AE2C-57902F5A3E94}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleBenchmark", "test\SimpleBenchmark\SimpleBenchmark.csproj", "{E432067A-D04B-4021-A6A2-4E62EE83139A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Norns.Urd.Extensions.Polly", "src\Norns.Urd.Extensions.Polly\Norns.Urd.Extensions.Polly.csproj", "{F55592A9-DBCC-4B9A-BA25-205CEC8A641A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Norns.Urd.Caching.Memory", "src\Norns.Urd.Caching.Memory\Norns.Urd.Caching.Memory.csproj", "{60AE7517-C5EF-479E-87B7-2BDF2AF45A61}"
@@ -35,7 +33,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Norns.Urd.HttpClient", "src
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HttpClients", "HttpClients", "{6564067F-6756-4C2A-8E96-5CC3D4E40147}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Norns.Urd.HttpClient.NewtonsoftJson", "src\Norns.Urd.HttpClient.NewtonsoftJson\Norns.Urd.HttpClient.NewtonsoftJson.csproj", "{4DD4DA90-0129-4D05-903A-A454AEE9BED5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Norns.Urd.HttpClient.NewtonsoftJson", "src\Norns.Urd.HttpClient.NewtonsoftJson\Norns.Urd.HttpClient.NewtonsoftJson.csproj", "{4DD4DA90-0129-4D05-903A-A454AEE9BED5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleBenchmark", "test\SimpleBenchmark\SimpleBenchmark.csproj", "{8A40349E-042C-4D4C-8821-DA77D56EE46E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,10 +55,6 @@ Global
 		{DA8A1EF3-7E2B-4EE6-AE2C-57902F5A3E94}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA8A1EF3-7E2B-4EE6-AE2C-57902F5A3E94}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA8A1EF3-7E2B-4EE6-AE2C-57902F5A3E94}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E432067A-D04B-4021-A6A2-4E62EE83139A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E432067A-D04B-4021-A6A2-4E62EE83139A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E432067A-D04B-4021-A6A2-4E62EE83139A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E432067A-D04B-4021-A6A2-4E62EE83139A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F55592A9-DBCC-4B9A-BA25-205CEC8A641A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F55592A9-DBCC-4B9A-BA25-205CEC8A641A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F55592A9-DBCC-4B9A-BA25-205CEC8A641A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -83,6 +79,10 @@ Global
 		{4DD4DA90-0129-4D05-903A-A454AEE9BED5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DD4DA90-0129-4D05-903A-A454AEE9BED5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4DD4DA90-0129-4D05-903A-A454AEE9BED5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A40349E-042C-4D4C-8821-DA77D56EE46E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A40349E-042C-4D4C-8821-DA77D56EE46E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A40349E-042C-4D4C-8821-DA77D56EE46E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A40349E-042C-4D4C-8821-DA77D56EE46E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -91,7 +91,6 @@ Global
 		{396F28A0-999B-4CF1-B7EC-74E5F5063BAA} = {3FD69CA3-BAF7-4B7A-AAB2-B9853759F4D7}
 		{C54ACC90-5597-4C49-96E8-64D15714A1CD} = {115CAC93-F1BB-40FA-A55E-D846ED028024}
 		{DA8A1EF3-7E2B-4EE6-AE2C-57902F5A3E94} = {115CAC93-F1BB-40FA-A55E-D846ED028024}
-		{E432067A-D04B-4021-A6A2-4E62EE83139A} = {115CAC93-F1BB-40FA-A55E-D846ED028024}
 		{F55592A9-DBCC-4B9A-BA25-205CEC8A641A} = {3FD69CA3-BAF7-4B7A-AAB2-B9853759F4D7}
 		{60AE7517-C5EF-479E-87B7-2BDF2AF45A61} = {1AF242BB-9AA3-469F-83E4-3C1752C9087A}
 		{1AF242BB-9AA3-469F-83E4-3C1752C9087A} = {3FD69CA3-BAF7-4B7A-AAB2-B9853759F4D7}
@@ -100,6 +99,7 @@ Global
 		{D2BF85FF-3D14-40A9-8CE8-A0404FBA1C36} = {6564067F-6756-4C2A-8E96-5CC3D4E40147}
 		{6564067F-6756-4C2A-8E96-5CC3D4E40147} = {3FD69CA3-BAF7-4B7A-AAB2-B9853759F4D7}
 		{4DD4DA90-0129-4D05-903A-A454AEE9BED5} = {6564067F-6756-4C2A-8E96-5CC3D4E40147}
+		{8A40349E-042C-4D4C-8821-DA77D56EE46E} = {115CAC93-F1BB-40FA-A55E-D846ED028024}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2BFA03B-F071-472F-95AD-C2E127881EDE}

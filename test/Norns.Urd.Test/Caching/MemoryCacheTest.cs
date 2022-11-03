@@ -23,7 +23,13 @@ namespace Test.Norns.Urd.Caching
             }
         }
 
-        public class DoCacheTest
+        public interface IDoCacheTest 
+        {
+            [Cache(nameof(DoInterfaceint), AbsoluteExpirationRelativeToNow = "00:00:02")]
+            int DoInterfaceint(int count);
+        }
+
+        public class DoCacheTest : IDoCacheTest
         {
             public int Count { get; set; }
 
@@ -64,15 +70,34 @@ namespace Test.Norns.Urd.Caching
                 Count = count;
                 return new ValueTask(Task.CompletedTask);
             }
+
+            public int DoInterfaceint(int count)
+            {
+                return count;
+            }
+        }
+
+        public T Mock<T>() where T : IDoCacheTest
+        {
+            return new ServiceCollection()
+                .AddTransient<DoCacheTest>()
+                .AddTransient<IDoCacheTest, DoCacheTest>()
+                .ConfigureAop(i => i.EnableMemoryCache())
+                .BuildServiceProvider()
+               .GetRequiredService<T>();
         }
 
         public DoCacheTest Mock()
         {
-            return new ServiceCollection()
-                .AddTransient<DoCacheTest>()
-                .ConfigureAop(i => i.EnableMemoryCache())
-                .BuildServiceProvider()
-               .GetRequiredService<DoCacheTest>();
+            return Mock<DoCacheTest>();
+        }
+
+        [Fact]
+        public void CacheWhenInterfaceSyncNoReturnValue()
+        {
+            var sut = Mock<IDoCacheTest>();
+            Assert.Equal(3, sut.DoInterfaceint(3));
+            Assert.Equal(3, sut.DoInterfaceint(5));
         }
 
         [Fact]

@@ -34,6 +34,8 @@ namespace Test.Norns.Urd.DependencyInjection
         }
 
         int IntMethod();
+
+        int IntMethod2();
     }
 
     public abstract class MTest
@@ -83,6 +85,8 @@ namespace Test.Norns.Urd.DependencyInjection
     public class MMTest : IMTest
     {
         public int IntMethod() => 6;
+
+        int IMTest.IntMethod2() => 88;
 
         [NonAspect]
         public virtual int NonAspectIntMethod() => 3;
@@ -144,6 +148,16 @@ namespace Test.Norns.Urd.DependencyInjection
             Assert.True(pt.IsProxyType());
             Assert.Equal(5, p.DefaultNonAspectIntMethodOutParameter(out var y));
             Assert.Equal(4, y);
+        }
+
+        [Fact]
+        public void InterfaceWhenPrivateIntMethod2()
+        {
+            var p = AopTestExtensions.ConfigServiceCollectionWithAop(i => i.AddTransient<IMTest, MMTest>())
+                .GetRequiredService<IMTest>();
+            var pt = p.GetType();
+            Assert.True(pt.IsProxyType());
+            Assert.Equal(88, p.IntMethod2());
         }
 
         #endregion Interface
